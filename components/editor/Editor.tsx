@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import type { Resume } from "@/lib/types";
 import { ResumeProvider, useResume } from "@/lib/store";
 import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
 import { ResumePreview } from "@/components/preview/ResumePreview";
+import { PAGE_SIZES } from "@/lib/defaults";
 import { TopBar, type EditorTab } from "./TopBar";
 import { ContentPanel } from "./ContentPanel";
 import { CustomizePanel } from "./CustomizePanel";
-import { OverviewPanel } from "./OverviewPanel";
-import { StubPanel } from "./StubPanel";
+import { AIPanel } from "./ai/AIPanel";
 
 function EditorShell() {
-  const { data } = useResume();
+  const { data, format } = useResume();
   const [tab, setTab] = useState<EditorTab>("content");
 
   return (
@@ -22,16 +23,15 @@ function EditorShell() {
         {/* Left: editing panel */}
         <div className="scroll-slim w-full max-w-[640px] shrink-0 overflow-y-auto px-4 py-5 sm:min-w-[420px] lg:w-[46%]">
           {tab === "content" && <ContentPanel />}
-          {tab === "overview" && <OverviewPanel onTab={setTab} />}
           {tab === "customize" && <CustomizePanel />}
-          {tab === "ai" && <StubPanel kind="ai" />}
+          {tab === "ai" && <AIPanel />}
         </div>
 
         {/* Right: live preview */}
-        <div className="scroll-slim hidden flex-1 overflow-y-auto border-l border-black/5 bg-cream-dark/40 px-8 py-8 lg:block">
-          <div className="mx-auto w-full max-w-[794px]">
-            <PreviewCanvas>
-              <ResumePreview data={data} />
+        <div className="scroll-slim hidden flex-1 overflow-y-auto px-8 py-8 lg:block">
+          <div className="mx-auto w-full" style={{ maxWidth: PAGE_SIZES[format].width }}>
+            <PreviewCanvas format={format}>
+              <ResumePreview data={data} format={format} />
             </PreviewCanvas>
           </div>
         </div>
@@ -40,9 +40,16 @@ function EditorShell() {
   );
 }
 
-export function Editor({ id }: { id: string }) {
+export function Editor({
+  resume,
+  guest = false,
+}: {
+  resume: Resume;
+  /** The resume lives in this browser rather than the database. */
+  guest?: boolean;
+}) {
   return (
-    <ResumeProvider id={id}>
+    <ResumeProvider resume={resume} guest={guest}>
       <EditorShell />
     </ResumeProvider>
   );

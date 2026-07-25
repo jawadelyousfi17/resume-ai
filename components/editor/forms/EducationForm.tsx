@@ -1,18 +1,69 @@
 "use client";
 
 import { useResume } from "@/lib/store";
-import { Field, Input, Textarea } from "@/components/ui/fields";
-import { PlusIcon, TrashIcon } from "@/components/ui/icons";
-import { newEducationItem } from "@/lib/defaults";
-import type { EducationItem, EducationSection } from "@/lib/types";
+import { Field, Input } from "@/components/ui/fields";
+import { EntryCard, useEntryDrag, useEntryList } from "./EntryCard";
+import { formatRange } from "@/lib/format";
+import { isMarkdownEmpty, markdownToText } from "@/lib/markdown";
+import { AssistedField } from "@/components/editor/ai/AssistedField";
+import { isCredentialSection, moveById, showsDates } from "@/lib/defaults";
+import type {
+  CredentialType,
+  EducationItem,
+  EducationSection,
+} from "@/lib/types";
+
+/** The shape is shared across credential sections; only the wording changes. */
+const LABELS: Record<
+  CredentialType,
+  {
+    tip: string;
+    title: string;
+    titlePlaceholder: string;
+    issuer: string;
+    issuerPlaceholder: string;
+    description: string;
+    descriptionPlaceholder: string;
+  }
+> = {
+  education: {
+    tip: "List your most recent or highest qualification first. Honours and focus areas belong in the description.",
+    title: "Degree / Qualification",
+    titlePlaceholder: "B.Sc. Computer Science",
+    issuer: "School",
+    issuerPlaceholder: "University of…",
+    description: "Description (optional)",
+    descriptionPlaceholder: "Honors, focus areas, notable coursework…",
+  },
+  certifications: {
+    tip: "Name the awarding body — recruiters scan for the issuer as much as the certificate.",
+    title: "Certification",
+    titlePlaceholder: "AWS Solutions Architect",
+    issuer: "Issued by",
+    issuerPlaceholder: "Amazon Web Services",
+    description: "Description (optional)",
+    descriptionPlaceholder: "Credential ID, scope, or what it covers…",
+  },
+  awards: {
+    tip: "Say who gave it and what it recognised; the title alone rarely carries the weight.",
+    title: "Award",
+    titlePlaceholder: "Employee of the Year",
+    issuer: "Awarded by",
+    issuerPlaceholder: "Acme Inc.",
+    description: "Description (optional)",
+    descriptionPlaceholder: "What it recognised and why you won it…",
+  },
+};
 
 export function EducationForm({ section }: { section: EducationSection }) {
-  const { update } = useResume();
+  const { data, update } = useResume();
+  const labels = LABELS[section.type];
+  const entries = useEntryList(section.id, section.items);
 
   const withSection = (fn: (s: EducationSection) => void) =>
     update((d) => {
       const s = d.sections.find((x) => x.id === section.id);
-      if (s && s.type === "education") fn(s);
+      if (s && isCredentialSection(s)) fn(s);
     });
 
   const patchItem = (itemId: string, patch: Partial<EducationItem>) =>
@@ -21,49 +72,59 @@ export function EducationForm({ section }: { section: EducationSection }) {
       if (item) Object.assign(item, patch);
     });
 
+  const dragProps = useEntryDrag(
+    section.items.map((i) => i.id),
+    (from, to) => withSection((s) => moveById(s.items, from, to)),
+  );
+
   return (
-    <div className="space-y-4">
-      {section.items.map((item, index) => (
-        <div
+    <div>
+      {entries.items.map((item) => (
+        <EntryCard
           key={item.id}
-          className="rounded-xl border border-black/5 bg-cream/40 p-4"
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-[13px] font-bold text-ink-soft">
-              Entry {index + 1}
-            </span>
-            {section.items.length > 1 && (
-              <button
-                type="button"
-                onClick={() =>
+          open={entries.isOpen(item.id)}
+          onOpen={() => entries.open(item.id)}
+          drag={entries.editing ? undefined : dragProps(item.id)}
+          title={`Entry ${section.items.indexOf(item) + 1}`}
+          summary={item.degree || markdownToText(item.description)}
+          meta={[
+            item.school,
+            showsDates(section)
+              ? formatRange(item.startDate, item.endDate, false, data.settings.language)
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+          tip={labels.tip}
+          hidden={item.hidden}
+          onToggleHidden={() => patchItem(item.id, { hidden: !item.hidden })}
+          onDelete={
+            section.items.length > 1
+              ? () =>
                   withSection((s) => {
                     s.items = s.items.filter((i) => i.id !== item.id);
                   })
-                }
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-faint transition hover:bg-black/5 hover:text-danger"
-                aria-label="Remove entry"
-              >
-                <TrashIcon className="h-[18px] w-[18px]" />
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Field label="Degree / Qualification">
+              : undefined
+          }
+        >
+          {/* Groups (what, from whom, when, description) sit further apart
+              than the fields within each group — the personal card's rhythm. */}
+          <div className="space-y-7">
+            <Field label={labels.title}>
               <Input
                 value={item.degree}
                 onChange={(e) => patchItem(item.id, { degree: e.target.value })}
-                placeholder="B.Sc. Computer Science"
+                placeholder={labels.titlePlaceholder}
               />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="School">
+            <div className="grid grid-cols-2 gap-4">
+              <Field label={labels.issuer}>
                 <Input
                   value={item.school}
                   onChange={(e) =>
                     patchItem(item.id, { school: e.target.value })
                   }
-                  placeholder="University of…"
+                  placeholder={labels.issuerPlaceholder}
                 />
               </Field>
               <Field label="Location">
@@ -76,7 +137,7 @@ export function EducationForm({ section }: { section: EducationSection }) {
                 />
               </Field>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <Field label="Start">
                 <Input
                   type="month"
@@ -96,30 +157,27 @@ export function EducationForm({ section }: { section: EducationSection }) {
                 />
               </Field>
             </div>
-            <Field label="Description (optional)">
-              <Textarea
-                value={item.description}
-                onChange={(e) =>
-                  patchItem(item.id, { description: e.target.value })
-                }
-                placeholder="Honors, focus areas, notable coursework…"
-                className="min-h-[60px]"
-              />
-            </Field>
+            <AssistedField
+              label={labels.description}
+              value={item.description}
+              onChange={(md) => patchItem(item.id, { description: md })}
+              request={() => ({
+                task: "polish",
+                text: item.description,
+                context: `${labels.description.toLowerCase()} for ${
+                  [item.degree, item.school].filter(Boolean).join(" at ") ||
+                  "an entry"
+                }`,
+              })}
+              disabled={isMarkdownEmpty(item.description)}
+              disabledHint="Write something here first — the assistant rewrites what you've written rather than inventing it."
+              placeholder={labels.descriptionPlaceholder}
+              minHeight={90}
+            />
           </div>
-        </div>
+        </EntryCard>
       ))}
 
-      <button
-        type="button"
-        onClick={() =>
-          withSection((s) => void s.items.push(newEducationItem()))
-        }
-        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-ink-faint/40 py-2.5 text-[14px] font-semibold text-ink-soft transition hover:border-purple/50 hover:text-purple"
-      >
-        <PlusIcon className="h-4 w-4" />
-        Add another degree
-      </button>
     </div>
   );
 }

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthDialogProvider } from "@/components/auth/AuthDialog";
 
-const grotesk = Space_Grotesk({
-  variable: "--font-grotesk",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -21,9 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full font-sans", grotesk.variable)}>
+    <html lang="en" className={cn("h-full font-sans", manrope.variable)}>
       <body className="min-h-full">
-        {children}
+        {/* Caps the whole app at 7xl and centres it, so it doesn't sprawl on
+            wide monitors. Children still own their own full-height layout. */}
+        <AuthDialogProvider>
+          <div className="mx-auto w-full max-w-[1600px]">{children}</div>
+        </AuthDialogProvider>
         <Toaster />
       </body>
     </html>

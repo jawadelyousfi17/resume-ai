@@ -1,37 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ResumeAI
 
-## Getting Started
+A resume builder: edit on the left, live preview on the right, export to PDF
+through LaTeX. Accounts are handled by Supabase Auth; resumes live in Postgres
+behind Prisma.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install          # also runs `prisma generate`
+cp .env.example .env # then fill it in — see below
+npm run db:migrate   # create the tables
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). `/` is the marketing page,
+`/dashboard` is the app, and everything under it needs a session.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Everything goes in `.env` — the Prisma CLI reads it through `prisma.config.ts`
+and Next reads it directly, so there's one file to keep straight.
 
-## Learn More
+### Database
 
-To learn more about Next.js, take a look at the following resources:
+`DATABASE_URL` is the pooled connection string the app runs on. `DIRECT_URL` is
+the same database without the pooler; Prisma Migrate needs it, because
+migrations issue statements a transaction pooler won't pass through. With Neon
+that's the same URL minus the `-pooler` in the host.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Supabase Auth
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Only auth comes from Supabase — the data lives in the Postgres above. From
+**Project Settings → API**, copy the project URL and publishable key into
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
-## Deploy on Vercel
+Then, in the Supabase dashboard:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Authentication → Providers → Email** — turn *Confirm email* **off**, so a
+   new account is signed in the moment it's created. (Leave it on and sign-up
+   still works; the form just tells people to go and click the link first.)
+2. **Authentication → Providers → Google** — enable it and paste in the client
+   ID and secret from the Google Cloud console.
+3. **Authentication → Providers → LinkedIn (OIDC)** — enable it and paste in the
+   client ID and secret from LinkedIn. This is the `linkedin_oidc` provider; the
+   older `linkedin` one is retired.
+4. **Authentication → URL Configuration → Redirect URLs** — add
+   `http://localhost:3000/auth/callback` and the same path on your deployed
+   origin. Both providers also need Supabase's own callback
+   (`https://<project>.supabase.co/auth/v1/callback`) registered on their side.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# resume-ai
+In production also set `NEXT_PUBLIC_SITE_URL` to the origin users actually
+reach, so OAuth round trips come back to the right place.
+
+## How auth fits together
+
+- `proxy.ts` (Next 16's renamed Middleware) runs on every request. It refreshes
+  the Supabase session — Server Components can't, their cookie store is
+  read-only — and turns signed-out traffic away: a redirect to `/login` for
+  pages, a 401 for `/api/*`.
+- `lib/auth.ts` is the real gate. `requireUser()` validates the session with
+  Supabase, mirrors the identity into the `users` table, and returns the row.
+  Every page and Server Action that touches data starts there.
+- `lib/resumes.ts` scopes every query by `userId`, so a guessed resume id reads
+  as missing rather than as somebody else's document.
+- `app/actions/resumes.ts` holds the mutations the editor and dashboard call.
+  They're public endpoints in practice, so each one re-checks the user and
+  validates its input.
+
+Supabase owns `auth.users`; Prisma owns `public`. The link is the shared UUID,
+written by `syncUser()` on sign-in rather than by a database trigger, so it
+lives in the repo where you can find it.
+
+## Scripts
+
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run db:migrate` | Create and apply a migration (development) |
+| `npm run db:deploy` | Apply existing migrations (production) |
+| `npm run db:studio` | Prisma Studio |
+
+## PDF export
+
+Export shells out to [Tectonic](https://tectonic-typesetting.github.io/). Put it
+on the server's `PATH`, or point `TECTONIC_BIN` at it.

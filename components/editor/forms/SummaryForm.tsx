@@ -1,7 +1,8 @@
 "use client";
 
 import { useResume } from "@/lib/store";
-import { Textarea } from "@/components/ui/fields";
+import { AssistedField } from "@/components/editor/ai/AssistedField";
+import { isMarkdownEmpty } from "@/lib/markdown";
 import type { SummarySection } from "@/lib/types";
 
 export function SummaryForm({ section }: { section: SummarySection }) {
@@ -14,11 +15,16 @@ export function SummaryForm({ section }: { section: SummarySection }) {
     });
 
   return (
-    <Textarea
+    <AssistedField
+      label={section.title}
       value={section.content}
-      onChange={(e) => setContent(e.target.value)}
-      placeholder="Results-driven professional with a track record of…"
-      className="min-h-[120px]"
+      onChange={setContent}
+      request={() => ({ task: "summary" })}
+      assistLabel={
+        isMarkdownEmpty(section.content) ? "Write with AI" : "Improve with AI"
+      }
+      placeholder="Product designer with eight years across fintech and health…"
+      minHeight={120}
     />
   );
 }

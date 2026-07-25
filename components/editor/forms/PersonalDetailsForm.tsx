@@ -1,12 +1,27 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useResume } from "@/lib/store";
+import { contactOrder } from "@/lib/defaults";
 import { Field, Input, Label } from "@/components/ui/fields";
-import { CameraIcon, PlusIcon, XIcon } from "@/components/ui/icons";
-import type { ContactLink } from "@/lib/types";
+import {
+  CameraIcon,
+  ChevronUpDownIcon,
+  PlusIcon,
+  XIcon,
+} from "@/components/ui/icons";
+import type { ContactField, ContactLink } from "@/lib/types";
 
 const LINK_PRESETS = ["LinkedIn", "Website", "GitHub", "Twitter", "Portfolio"];
+
+const CONTACT_ROWS: Record<
+  ContactField,
+  { label: string; placeholder: string; type?: string }
+> = {
+  email: { label: "Email", placeholder: "Enter email", type: "email" },
+  phone: { label: "Phone", placeholder: "Enter Phone" },
+  location: { label: "Location", placeholder: "City, Country" },
+};
 
 export function PersonalDetailsForm() {
   const { data, update } = useResume();
@@ -17,6 +32,28 @@ export function PersonalDetailsForm() {
     key: K,
     value: (typeof personal)[K],
   ) => update((d) => void (d.personal[key] = value));
+
+  const order = contactOrder(personal);
+
+  /** Moves `field` into the slot currently occupied by `target`. */
+  const moveTo = (field: ContactField, target: ContactField) => {
+    if (field === target) return;
+    update((d) => {
+      const next = contactOrder(d.personal);
+      const from = next.indexOf(field);
+      const to = next.indexOf(target);
+      if (from < 0 || to < 0) return;
+      next.splice(from, 1);
+      next.splice(to, 0, field);
+      d.personal.contactOrder = next;
+    });
+  };
+
+  /** One slot up (-1) or down (+1) — keyboard equivalent of a drag. */
+  const nudge = (field: ContactField, delta: number) => {
+    const target = order[order.indexOf(field) + delta];
+    if (target) moveTo(field, target);
+  };
 
   const onPhoto = (file: File) => {
     const reader = new FileReader();
@@ -40,13 +77,17 @@ export function PersonalDetailsForm() {
       d.personal.links = d.personal.links.filter((l) => l.id !== id);
     });
 
+  const [dragField, setDragField] = useState<ContactField | null>(null);
+
   const usedLabels = new Set(personal.links.map((l) => l.label));
   const availablePresets = LINK_PRESETS.filter((p) => !usedLabels.has(p));
 
   return (
-    <div className="space-y-4">
+    // Groups (identity, contacts, links, add-details) sit further apart than
+    // the fields within each group.
+    <div className="space-y-10">
       <div className="flex gap-4">
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-2">
           <Field label="Full name">
             <Input
               value={personal.fullName}
@@ -63,12 +104,15 @@ export function PersonalDetailsForm() {
           </Field>
         </div>
 
-        <div className="shrink-0">
+        {/* 117px squares up with the two fields beside it: each is a 21px
+            label + 8px gap + 50px input (158), plus the 8px gap between
+            them, less this column's own label (29) and Remove row (20). */}
+        <div className="flex shrink-0 flex-col">
           <Label>Photo</Label>
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="group relative flex h-[92px] w-[92px] items-center justify-center overflow-hidden rounded-full bg-field text-ink-faint transition hover:bg-field/70"
+            className="group relative flex h-[117px] w-[117px] items-center justify-center overflow-hidden rounded-full bg-field text-ink-faint transition hover:bg-field/70"
           >
             {personal.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -78,18 +122,17 @@ export function PersonalDetailsForm() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <CameraIcon className="h-7 w-7" />
+              <CameraIcon className="h-9 w-9" />
             )}
           </button>
-          {personal.photo && (
-            <button
-              type="button"
-              onClick={() => set("photo", undefined)}
-              className="mt-1 block w-[92px] text-center text-[11px] font-medium text-danger"
-            >
-              Remove
-            </button>
-          )}
+          {/* Row is reserved either way so the circle doesn't resize on upload. */}
+          <span className="mt-1 block h-4 text-center text-[11px] font-medium leading-4 text-danger">
+            {personal.photo && (
+              <button type="button" onClick={() => set("photo", undefined)}>
+                Remove
+              </button>
+            )}
+          </span>
           <input
             ref={fileRef}
             type="file"
@@ -104,30 +147,52 @@ export function PersonalDetailsForm() {
         </div>
       </div>
 
-      <Field label="Email">
-        <Input
-          type="email"
-          value={personal.email}
-          onChange={(e) => set("email", e.target.value)}
-          placeholder="Enter email"
-        />
-      </Field>
-
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Phone">
-          <Input
-            value={personal.phone}
-            onChange={(e) => set("phone", e.target.value)}
-            placeholder="Enter Phone"
-          />
-        </Field>
-        <Field label="Location">
-          <Input
-            value={personal.location}
-            onChange={(e) => set("location", e.target.value)}
-            placeholder="City, Country"
-          />
-        </Field>
+      <div className="space-y-2">
+        {order.map((field) => {
+          const row = CONTACT_ROWS[field];
+          return (
+            <div
+              key={field}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnter={() => dragField && moveTo(dragField, field)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragField(null);
+              }}
+              className={`flex items-end gap-2 ${
+                dragField === field ? "opacity-50" : ""
+              }`}
+            >
+              <div className="min-w-0 flex-1">
+                <Field label={row.label}>
+                  <Input
+                    type={row.type}
+                    value={personal[field]}
+                    onChange={(e) => set(field, e.target.value)}
+                    placeholder={row.placeholder}
+                  />
+                </Field>
+              </div>
+              <button
+                type="button"
+                draggable
+                onDragStart={() => setDragField(field)}
+                onDragEnd={() => setDragField(null)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    e.preventDefault();
+                    nudge(field, e.key === "ArrowUp" ? -1 : 1);
+                  }
+                }}
+                className="mb-1 inline-flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:bg-black/5 hover:text-ink active:cursor-grabbing"
+                aria-label={`Reorder ${row.label}`}
+                title="Drag to reorder, or press ↑ / ↓"
+              >
+                <ChevronUpDownIcon className="h-[18px] w-[18px]" />
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {personal.links.length > 0 && (

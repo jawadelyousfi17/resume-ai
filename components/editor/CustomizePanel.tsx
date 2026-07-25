@@ -2,12 +2,35 @@
 
 import { useState } from "react";
 import { useResume } from "@/lib/store";
-import type { ResumeSettings } from "@/lib/types";
+import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
+import { TEMPLATES, type Template } from "@/lib/templates";
+import {
+  isDefaultTitle,
+  language,
+  LANGUAGES,
+  SECTION_TITLES,
+  type LanguageCode,
+} from "@/lib/i18n";
+import { formatMonth } from "@/lib/format";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { StepperSlider } from "@/components/ui/stepper-slider";
-import { CheckIcon } from "@/components/ui/icons";
+import { CheckIcon, ChevronDownIcon } from "@/components/ui/icons";
 
 const GROUPS = [
+  { id: "cz-document", label: "Document" },
+  { id: "cz-template", label: "Template" },
   { id: "cz-font-size", label: "Font Size" },
   { id: "cz-spacing", label: "Spacing" },
   { id: "cz-headings", label: "Headings" },
@@ -32,6 +55,20 @@ const FONTS: { value: ResumeSettings["fontFamily"]; label: string }[] = [
   { value: "mono", label: "Mono" },
 ];
 
+const PAGE_FORMATS: { value: PageFormat; label: string; note: string }[] = [
+  { value: "A4", label: "A4", note: "210 × 297 mm" },
+  { value: "Letter", label: "US Letter", note: "8.5 × 11 in" },
+];
+
+/** Each style is previewed with a real date so the difference is visible
+ *  rather than described. */
+const DATE_FORMATS: { value: DateFormat; label: string }[] = [
+  { value: "short", label: "Short month" },
+  { value: "long", label: "Full month" },
+  { value: "numeric", label: "Numeric" },
+  { value: "iso", label: "ISO" },
+];
+
 const HEADINGS: { value: ResumeSettings["headingStyle"]; label: string }[] = [
   { value: "underline", label: "Underline" },
   { value: "plain", label: "Plain" },
@@ -39,14 +76,41 @@ const HEADINGS: { value: ResumeSettings["headingStyle"]; label: string }[] = [
 ];
 
 export function CustomizePanel() {
-  const { data, update } = useResume();
+  const { data, format, setFormat, update } = useResume();
   const s = data.settings ?? DEFAULT_SETTINGS;
   const [active, setActive] = useState(GROUPS[0].id);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const activeTemplate =
+    TEMPLATES.find((t) => t.id === (s.template ?? "classic")) ?? TEMPLATES[0];
 
   const set = <K extends keyof ResumeSettings>(
     key: K,
     value: ResumeSettings[K],
   ) => update((d) => void (d.settings[key] = value));
+
+  const activeLang = language(s.language);
+
+  /** Switching language re-titles every section still carrying a stock
+   *  heading. A heading the user typed themselves is theirs, and is left
+   *  exactly as it is. */
+  const setLanguage = (code: LanguageCode) =>
+    update((d) => {
+      d.settings.language = code;
+      for (const section of d.sections) {
+        if (isDefaultTitle(section.type, section.title)) {
+          section.title = SECTION_TITLES[code][section.type];
+        }
+      }
+    });
+
+  /** Picking a template also moves the controls it has an opinion about. */
+  const applyTemplate = (t: Template) =>
+    update((d) => {
+      d.settings.template = t.id;
+      d.settings.fontFamily = t.presets.fontFamily;
+      d.settings.headingStyle = t.presets.headingStyle;
+    });
 
   const goto = (id: string) => {
     setActive(id);
@@ -78,6 +142,139 @@ export function CustomizePanel() {
       </nav>
 
       <div className="min-w-0 flex-1 space-y-4">
+        <Group id="cz-document" title="Document">
+          <span className="mb-2 block text-[13px] font-bold text-ink">
+            Language
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="flex w-full items-center gap-2.5 rounded-xl border border-field-border px-3.5 py-2.5 text-left text-[14px] font-bold text-ink transition hover:border-ink/30"
+              >
+                <span className="text-[18px] leading-none">{activeLang.flag}</span>
+                <span dir={activeLang.dir}>{activeLang.label}</span>
+                <span className="ml-auto text-[12.5px] font-medium text-ink-faint">
+                  {activeLang.english}
+                </span>
+                <ChevronDownIcon className="h-4 w-4 shrink-0 text-ink-faint" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="max-h-80 w-full">
+              {LANGUAGES.map((l) => (
+                <DropdownMenuItem
+                  key={l.code}
+                  onClick={() => setLanguage(l.code)}
+                >
+                  <span className="text-[17px] leading-none">{l.flag}</span>
+                  <span dir={l.dir} className="font-bold">
+                    {l.label}
+                  </span>
+                  <span className="ml-auto pl-3 text-[12px] font-medium text-ink-faint">
+                    {l.english}
+                  </span>
+                  {l.code === activeLang.code && (
+                    <CheckIcon className="h-4 w-4 text-brand" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <span className="mt-5 mb-2 block text-[13px] font-bold text-ink">
+            Page size
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            {PAGE_FORMATS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => setFormat(f.value)}
+                aria-pressed={format === f.value}
+                className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                  format === f.value
+                    ? "border-brand bg-brand-soft"
+                    : "border-field-border hover:border-ink/25"
+                }`}
+              >
+                <span
+                  className={`block text-[14px] font-bold ${
+                    format === f.value ? "text-brand" : "text-ink"
+                  }`}
+                >
+                  {f.label}
+                </span>
+                <span className="mt-0.5 block text-[11.5px] text-ink-faint">
+                  {f.note}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <span className="mt-5 mb-2 block text-[13px] font-bold text-ink">
+            Date format
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            {DATE_FORMATS.map((f) => {
+              const selected = (s.dateFormat ?? "short") === f.value;
+              return (
+                <button
+                  key={f.value}
+                  type="button"
+                  onClick={() => set("dateFormat", f.value)}
+                  aria-pressed={selected}
+                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                    selected
+                      ? "border-brand bg-brand-soft"
+                      : "border-field-border hover:border-ink/25"
+                  }`}
+                >
+                  <span
+                    className={`block text-[14px] font-bold ${
+                      selected ? "text-brand" : "text-ink"
+                    }`}
+                  >
+                    {f.label}
+                  </span>
+                  <span className="mt-0.5 block text-[11.5px] text-ink-faint">
+                    {formatMonth("2021-09", s.language, f.value)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </Group>
+
+        <Group id="cz-template" title="Template">
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className="flex w-full items-center gap-3 rounded-xl border border-field-border p-2.5 text-left transition hover:border-ink/30"
+          >
+            <span className="block w-12 shrink-0 overflow-hidden rounded-lg border border-field-border">
+              <TemplateThumb template={activeTemplate} accent={s.accent} />
+            </span>
+            <span className="text-[14px] font-bold text-ink">
+              {activeTemplate.name}
+            </span>
+            <span className="ml-auto flex items-center gap-1 pr-1 text-[13px] font-bold text-brand">
+              Change
+              <ChevronDownIcon className="h-4 w-4 -rotate-90" />
+            </span>
+          </button>
+
+          <TemplatePicker
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            selectedId={activeTemplate.id}
+            accent={s.accent}
+            onPick={(t) => {
+              applyTemplate(t);
+              setPickerOpen(false);
+            }}
+          />
+        </Group>
+
         <Group id="cz-font-size" title="Font Size">
           <StepperSlider
             label="Base font size"
@@ -182,6 +379,147 @@ export function CustomizePanel() {
         </Group>
       </div>
     </div>
+  );
+}
+
+/** The full template gallery. Picking one applies it and closes the dialog. */
+function TemplatePicker({
+  open,
+  onOpenChange,
+  selectedId,
+  accent,
+  onPick,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedId: Template["id"];
+  accent: string;
+  onPick: (template: Template) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        aria-describedby={undefined}
+        className="max-h-[85vh] gap-6 overflow-y-auto rounded-3xl p-7 sm:max-w-3xl"
+      >
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-extrabold text-ink">
+            Choose a template
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {TEMPLATES.map((t) => {
+            const selected = t.id === selectedId;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onPick(t)}
+                aria-pressed={selected}
+                className={`group relative overflow-hidden rounded-2xl border-2 text-left transition ${
+                  selected
+                    ? "border-brand"
+                    : "border-field-border hover:border-ink/25"
+                }`}
+              >
+                <TemplateThumb template={t} accent={accent} />
+                <span className="flex items-center gap-1.5 px-3 py-2.5">
+                  <span className="text-[14px] font-bold text-ink">
+                    {t.name}
+                  </span>
+                  {selected && (
+                    <CheckIcon className="ml-auto h-4 w-4 shrink-0 text-brand" />
+                  )}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TemplateThumb({
+  template,
+  accent,
+}: {
+  template: Template;
+  accent: string;
+}) {
+  const line = (w: string, i: number) => (
+    <span
+      key={i}
+      className="block rounded-[1px] bg-ink-faint/30"
+      style={{ width: w, height: 2, marginTop: 3 }}
+    />
+  );
+  const heading = (
+    <span
+      className="block rounded-[1px]"
+      style={{ width: "45%", height: 3, backgroundColor: accent, marginTop: 6 }}
+    />
+  );
+
+  const body = (
+    <>
+      {heading}
+      {["90%", "75%", "82%"].map((w, i) => line(w, i))}
+      {heading}
+      {["85%", "70%"].map((w, i) => line(w, i + 10))}
+    </>
+  );
+
+  return (
+    <span className="block bg-white p-2" style={{ aspectRatio: "1 / 1.15" }}>
+      {template.layout === "sidebar" ? (
+        <span className="flex h-full gap-1.5">
+          <span
+            className="block w-1/3 shrink-0 rounded-[2px] p-1"
+            style={{ backgroundColor: `${accent}1f` }}
+          >
+            {["80%", "60%", "70%"].map((w, i) => line(w, i))}
+          </span>
+          <span className="block min-w-0 flex-1">
+            <span
+              className="block rounded-[1px]"
+              style={{ width: "70%", height: 5, backgroundColor: accent }}
+            />
+            {body}
+          </span>
+        </span>
+      ) : (
+        <span className="block h-full">
+          <span
+            className={
+              template.header === "centered" ? "block text-center" : "block"
+            }
+            style={
+              template.header === "band"
+                ? {
+                    backgroundColor: `${accent}1f`,
+                    borderLeft: `2px solid ${accent}`,
+                    padding: 3,
+                  }
+                : template.headerRule
+                  ? {
+                      borderTop: `1px solid ${accent}66`,
+                      borderBottom: `1px solid ${accent}66`,
+                      padding: "3px 0",
+                    }
+                  : undefined
+            }
+          >
+            <span
+              className="inline-block rounded-[1px] bg-ink/70"
+              style={{ width: "60%", height: 5 }}
+            />
+          </span>
+          {body}
+        </span>
+      )}
+    </span>
   );
 }
 

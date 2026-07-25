@@ -3,7 +3,10 @@
 // A cropped, scaled A4 preview used as a card thumbnail on the dashboard.
 
 import { useEffect, useRef, useState } from "react";
-import { PAGE_W } from "@/components/preview/PreviewCanvas";
+import { PAGE_SIZES } from "@/lib/defaults";
+
+// Thumbnails are always drawn at A4 width; the card scales them down anyway.
+const PAGE_W = PAGE_SIZES.A4.width;
 import { ResumePreview } from "@/components/preview/ResumePreview";
 import type { ResumeData } from "@/lib/types";
 

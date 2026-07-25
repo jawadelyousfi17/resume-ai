@@ -1,0 +1,54 @@
+// Prisma owns the `public` schema. Supabase owns `auth` — credentials,
+// providers and sessions live there and are never touched from here.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// The paper a resume is laid out for. Mirrors `PageFormat` in lib/types.ts.
+enum PageFormat {
+  A4
+  Letter
+}
+
+/// The app-side half of a Supabase user: one row per `auth.users` row, keyed
+/// by the same UUID. Written by `syncUser()` on first sign-in — Supabase stays
+/// the source of truth for identity, this table just anchors the resumes.
+model User {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  /// Display name, from the OAuth profile when the provider supplies one.
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resumes Resume[]
+
+  @@map("users")
+}
+
+model Resume {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+
+  name   String
+  format PageFormat @default(A4)
+  /// A `ResumeData` document — the shape is defined in lib/types.ts and
+  /// checked on the way in by `resumeDataSchema` in lib/validation.ts.
+  data   Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // The dashboard's only query: this user's resumes, newest edit first.
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("resumes")
+}

@@ -4,7 +4,7 @@
 
 import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
 export const runtime = "nodejs";
@@ -13,6 +13,11 @@ export const maxDuration = 60;
 const TECTONIC_BIN = process.env.TECTONIC_BIN || "tectonic";
 
 export async function POST(req: Request) {
+  // Open to guests: a visitor who builds a resume signed out still needs to
+  // walk away with the PDF. That does mean an anonymous caller can start a
+  // Tectonic process, so this route wants a rate limit in front of it before
+  // it faces real traffic.
+
   let tex: unknown;
   try {
     ({ tex } = await req.json());
@@ -55,10 +60,17 @@ function runTectonic(input: string, outdir: string): Promise<void> {
       TECTONIC_BIN,
       [input, "--outdir", outdir, "--chatter", "minimal", "--keep-logs"],
       {
-        // Ensure Homebrew/local install locations are on PATH for the server.
+        // Ensure the usual install locations are on PATH for the server —
+        // Homebrew, /usr/local, and the per-user bin a plain tarball install
+        // lands in — since a service manager may start us with a bare PATH.
         env: {
           ...process.env,
-          PATH: `${process.env.PATH ?? ""}:/opt/homebrew/bin:/usr/local/bin`,
+          PATH: [
+            process.env.PATH ?? "",
+            "/opt/homebrew/bin",
+            "/usr/local/bin",
+            join(homedir(), ".local/bin"),
+          ].join(":"),
         },
       },
     );

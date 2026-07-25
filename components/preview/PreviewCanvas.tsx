@@ -1,15 +1,20 @@
 "use client";
 
-// Renders children on a white A4 "page" that scales down to fit the available
-// width, keeping the true A4 aspect ratio. Height tracks real content height.
+// Renders children on a white page that scales down to fit the available
+// width, keeping the paper's true aspect ratio. Height tracks real content.
 
 import { useEffect, useRef, useState } from "react";
+import { PAGE_SIZES } from "@/lib/defaults";
+import type { PageFormat } from "@/lib/types";
 
-// A4 at 96dpi.
-export const PAGE_W = 794;
-export const PAGE_H = 1123;
-
-export function PreviewCanvas({ children }: { children: React.ReactNode }) {
+export function PreviewCanvas({
+  format = "A4",
+  children,
+}: {
+  format?: PageFormat;
+  children: React.ReactNode;
+}) {
+  const { width: PAGE_W, height: PAGE_H } = PAGE_SIZES[format];
   const wrapRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -33,7 +38,7 @@ export function PreviewCanvas({ children }: { children: React.ReactNode }) {
     ro.observe(page);
     compute();
     return () => ro.disconnect();
-  }, []);
+  }, [PAGE_W, PAGE_H]);
 
   return (
     <div ref={wrapRef} className="w-full">

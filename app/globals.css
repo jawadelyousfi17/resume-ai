@@ -5,14 +5,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Brand + surface tokens — Ocean Blue / Slate */
+  /* Brand + surface tokens — Ocean Blue / Slate.
+     `cream` is the one page background for the whole app; `panel` is the
+     white card surface that sits on top of it. */
   --color-cream: #f1f3f6;
-  --color-cream-dark: #e6e9ef;
   --color-panel: #ffffff;
   --color-ink: #0f172a;
   --color-ink-soft: #64748b;
   --color-ink-faint: #94a3b8;
-  --color-field: #f1f5f9;
+  --color-field: #f3f4f6;
   --color-field-border: #e2e8f0;
   --color-brand: #2563eb;
   --color-brand-soft: #dbeafe;
@@ -24,8 +25,8 @@
   /* Neutral hover token consumed by shadcn components */
   --color-accent: var(--accent);
 
-  --font-sans: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
   --shadow-panel: 0 1px 2px rgba(32, 26, 46, 0.04), 0 8px 24px rgba(32, 26, 46, 0.06);
   --shadow-paper: 0 4px 24px rgba(32, 26, 46, 0.12);
@@ -81,6 +82,71 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---------------------------------------------------------------------------
+   Landing page primitives. Prefixed `lp-` and used only by components/landing.
+   --------------------------------------------------------------------------- */
+
+/* Hero graph paper, in the app's slate. Faded out towards the edges so the
+   lines never collide with the section boundaries. */
+.lp-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: center top;
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 65% at 50% 42%,
+    #000 30%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 75% 65% at 50% 42%,
+    #000 30%,
+    transparent 100%
+  );
+}
+
+/* Integration rails. The track holds two identical copies of the tile list, so
+   translating by exactly -50% loops seamlessly. */
+@keyframes lp-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.lp-rail {
+  display: flex;
+  width: max-content;
+  animation: lp-marquee 46s linear infinite;
+}
+.lp-rail-reverse {
+  animation-direction: reverse;
+}
+.lp-rail-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-rail {
+    animation: none;
+  }
+}
+
 /* The gradient CTA used across the editor */
 .btn-gradient {
   background-image: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
@@ -88,17 +154,13 @@ body {
 }
 
 /* Thin custom scrollbars inside editor panes */
+/* Scrollable panes still scroll, they just don't show a bar. */
 .scroll-slim {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .scroll-slim::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.scroll-slim::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 999px;
+  display: none;
 }
 
 /* Resume paper body — isolated typographic scope so the app UI font
@@ -132,7 +194,7 @@ body {
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.4rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -186,5 +248,87 @@ body {
   }
   html {
     @apply font-sans;
+  }
+}
+/* The visual Markdown editor's document. Mirrors how the preview renders the
+   same source so the writing surface matches the page. */
+.prose-resume p {
+  margin: 0;
+}
+.prose-resume p + p,
+.prose-resume p + ul,
+.prose-resume p + ol,
+.prose-resume ul + p,
+.prose-resume ol + p {
+  margin-top: 0.6em;
+}
+.prose-resume ul,
+.prose-resume ol {
+  margin: 0;
+  padding-left: 1.25em;
+}
+.prose-resume ul {
+  list-style: disc;
+}
+.prose-resume ol {
+  list-style: decimal;
+}
+.prose-resume li::marker {
+  color: var(--color-ink-faint);
+}
+.prose-resume li p {
+  margin: 0;
+}
+.prose-resume strong {
+  font-weight: 700;
+}
+
+/* Tiptap marks the first empty node; the placeholder rides on it. */
+.prose-resume p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--color-ink-faint);
+}
+
+/* An AI suggestion taking over a field: the new text rises into place, and the
+   field carries a purple ring for as long as it isn't the user's own words. */
+@keyframes ai-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Targets the editor root, not its children: streaming replaces the children
+   many times a second, and animating those would strobe. */
+.ai-swap .ProseMirror {
+  animation: ai-rise 240ms ease-out both;
+}
+
+@keyframes ai-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 30%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 75%, transparent);
+  }
+}
+.ai-streaming {
+  animation: ai-pulse 1.5s ease-in-out infinite;
+}
+.ai-review {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-swap .ProseMirror,
+  .ai-streaming {
+    animation: none;
   }
 }
