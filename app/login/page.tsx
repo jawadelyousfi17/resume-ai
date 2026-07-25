@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AuthCard } from "@/components/auth/AuthCard";
 
 export const metadata: Metadata = {
-  title: "Sign in — ResumeAI",
+  title: "Sign in — maniacv",
 };
 
 export default async function LoginPage(props: PageProps<"/login">) {

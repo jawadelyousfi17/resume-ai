@@ -86,28 +86,8 @@ body {
    Landing page primitives. Prefixed `lp-` and used only by components/landing.
    --------------------------------------------------------------------------- */
 
-/* Hero graph paper, in the app's slate. Faded out towards the edges so the
-   lines never collide with the section boundaries. */
-.lp-grid {
-  background-image:
-    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
-  background-size: 56px 56px;
-  background-position: center top;
-  -webkit-mask-image: radial-gradient(
-    ellipse 75% 65% at 50% 42%,
-    #000 30%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    ellipse 75% 65% at 50% 42%,
-    #000 30%,
-    transparent 100%
-  );
-}
-
-/* Integration rails. The track holds two identical copies of the tile list, so
-   translating by exactly -50% loops seamlessly. */
+/* The templates rail. The track holds two identical copies of the card list,
+   so translating by exactly -50% loops seamlessly. */
 @keyframes lp-marquee {
   from {
     transform: translate3d(0, 0, 0);
@@ -124,9 +104,6 @@ body {
 /* Stop the drift while someone is reading a card. */
 .lp-rail:hover {
   animation-play-state: paused;
-}
-.lp-rail-reverse {
-  animation-direction: reverse;
 }
 .lp-rail-mask {
   -webkit-mask-image: linear-gradient(
@@ -145,220 +122,82 @@ body {
   );
 }
 
-/* ---------------------------------------------------------------------------
-   Hero demo reel.
-
-   A looping walkthrough of the product: the pointer clicks Generate, then
-   Edit, then Template, then Export, and the page reacts to each. It's built
-   entirely from keyframes so the hero stays a server component and ships no
-   JavaScript.
-
-   One 10s clock, four 2.5s beats. Every piece runs the full 10s and is offset
-   into its own beat with a negative `animation-delay` — 0s, -7.5s, -5s, -2.5s
-   for beats 0 to 3 — so a beat is "the same animation, started earlier".
-   Because they all start at page load they stay in phase, and each click lands
-   on the thing it is supposed to cause.
-   --------------------------------------------------------------------------- */
-
-/* The rendered page. Two templates alternate, swapping under the Template
-   beat's click. */
-@keyframes lp-demo-layer {
-  0%,
-  48% {
-    opacity: 1;
-  }
-  54%,
-  98% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-.lp-demo-layer {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  animation: lp-demo-layer 10s ease-in-out infinite;
-}
-/* The first layer stays in flow so the stack has a height to occupy. */
-.lp-demo-layer:first-child {
-  position: relative;
-  opacity: 1;
-}
-
-/* The pointer, moving one stop along the toolbar per beat. The percentages are
-   the centres of a four-column grid. */
-@keyframes lp-demo-cursor {
-  0%,
-  19% {
-    left: 12.5%;
-  }
-  25%,
-  44% {
-    left: 37.5%;
-  }
-  50%,
-  69% {
-    left: 62.5%;
-  }
-  75%,
-  94% {
-    left: 87.5%;
-  }
-  100% {
-    left: 12.5%;
-  }
-}
-.lp-demo-cursor {
-  animation: lp-demo-cursor 10s cubic-bezier(0.65, 0, 0.2, 1) infinite;
-}
-
-/* Each control dips under the press and stays lit for its beat. */
-@keyframes lp-demo-press {
-  0%,
-  2%,
-  7%,
-  100% {
-    transform: scale(1);
-  }
-  4% {
-    transform: scale(0.93);
-  }
-}
-@keyframes lp-demo-active {
-  0%,
-  2% {
-    background-color: var(--color-field);
-    color: var(--color-ink-soft);
-  }
-  5%,
-  22% {
-    background-color: var(--color-brand-soft);
-    color: var(--color-brand);
-  }
-  25%,
-  100% {
-    background-color: var(--color-field);
-    color: var(--color-ink-soft);
-  }
-}
-/* One delay value covers both animations — the list repeats to match. */
-.lp-demo-pill {
-  animation:
-    lp-demo-press 10s ease-out infinite,
-    lp-demo-active 10s ease-out infinite;
-}
-
-/* A ring leaving the control at the moment of the click. */
-@keyframes lp-demo-ripple {
-  0%,
-  3% {
-    opacity: 0;
-    transform: scale(0.7);
-  }
-  5% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  15%,
-  100% {
-    opacity: 0;
-    transform: scale(1.45);
-  }
-}
-.lp-demo-ripple {
-  animation: lp-demo-ripple 10s ease-out infinite;
-}
-
-/* The generic beat: overlays arrive just after their click and leave before
-   the next one. */
-@keyframes lp-demo-beat {
-  0%,
-  3% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  7%,
-  20% {
-    opacity: 1;
-    transform: none;
-  }
-  24%,
-  100% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-.lp-demo-beat {
-  opacity: 0;
-  animation: lp-demo-beat 10s ease-out infinite;
-}
-
-/* The generating pass: a band of light travelling down the page. */
-@keyframes lp-demo-sweep {
-  0%,
-  3% {
-    opacity: 0;
-    transform: translateY(-110%);
-  }
-  6%,
-  19% {
-    opacity: 1;
-  }
-  22%,
-  100% {
-    opacity: 0;
-    transform: translateY(110%);
-  }
-}
-.lp-demo-sweep {
-  animation: lp-demo-sweep 10s ease-in-out infinite;
-}
-
-/* Small change: a caret blinking in the line being rewritten. */
-@keyframes lp-demo-caret {
-  0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-.lp-demo-caret {
-  animation: lp-demo-caret 1s steps(1) infinite;
-}
-
-/* Three dots thinking, while a status chip is up. */
-@keyframes lp-demo-dot {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-}
-.lp-demo-dot {
-  animation: lp-demo-dot 0.9s ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .lp-rail,
-  .lp-demo-layer,
-  .lp-demo-cursor,
-  .lp-demo-pill,
-  .lp-demo-ripple,
-  .lp-demo-beat,
-  .lp-demo-sweep,
-  .lp-demo-caret,
-  .lp-demo-dot {
+  .lp-rail {
     animation: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Pricing plans.
+
+   A white card floating on a lit gradient slab, with the plan's features listed
+   on the slab underneath it. The gradients are stacked radials rather than one
+   linear pass — that's what gives the panel depth instead of a flat wash — and
+   they're tuned to the app's brand blue and cyan so the section belongs on the
+   page rather than looking imported.
+   --------------------------------------------------------------------------- */
+
+.plan-shell {
+  background:
+    radial-gradient(46% 34% at 15% 3%, rgba(103, 232, 249, 0.92), transparent 62%),
+    radial-gradient(58% 38% at 80% 17%, rgba(29, 78, 216, 0.92), transparent 70%),
+    radial-gradient(70% 50% at 79% 72%, rgba(37, 99, 235, 0.96), transparent 66%),
+    radial-gradient(58% 36% at 18% 96%, rgba(99, 102, 241, 0.94), transparent 69%),
+    radial-gradient(58% 45% at 49% 74%, rgba(22, 35, 167, 0.96), transparent 68%),
+    linear-gradient(145deg, #0a2338 0%, #071244 34%, #141064 67%, #074e91 100%);
+}
+
+/* The free plan sits back: same construction, most of the colour drained out,
+   so the paid plans carry the eye. */
+.plan-shell-quiet {
+  background:
+    radial-gradient(50% 36% at 18% 4%, rgba(148, 163, 184, 0.55), transparent 64%),
+    radial-gradient(64% 44% at 82% 78%, rgba(71, 85, 105, 0.9), transparent 68%),
+    linear-gradient(150deg, #3a4759 0%, #2b3448 46%, #1e2537 100%);
+}
+
+/* A pressed-metal button, lit from the top edge. */
+.plan-cta {
+  color: #fff;
+  border: 1px solid #05070b;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.92);
+  background: linear-gradient(
+    180deg,
+    #3e4149 0%,
+    #242831 18%,
+    #121720 68%,
+    #090d15 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.55),
+    0 2px 2px rgba(0, 0, 0, 0.08);
+}
+.plan-cta:active {
+  transform: translateY(1px);
+}
+
+/* The tick beside each feature: two thick borders rotated into a check, which
+   stays crisp at any size where an icon font would blur. */
+.plan-check {
+  position: relative;
+  flex: 0 0 15px;
+  width: 15px;
+  height: 12px;
+}
+.plan-check::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 2px;
+  width: 12px;
+  height: 6px;
+  border-left: 3.5px solid rgba(255, 255, 255, 0.72);
+  border-bottom: 3.5px solid rgba(255, 255, 255, 0.72);
+  border-radius: 1px;
+  transform: rotate(-45deg);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
 }
 
 /* The gradient CTA used across the editor */
@@ -540,6 +379,38 @@ body {
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 55%, transparent);
 }
 
+/* The cursor trailing a streaming answer. Eased rather than stepped, so it
+   reads as a soft pulse next to the text instead of a hard flicker. */
+@keyframes ai-caret {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    opacity: 0.1;
+  }
+}
+.ai-caret {
+  animation: ai-caret 1.1s ease-in-out infinite;
+}
+
+/* Each block of an answer as it lands. Applied to the block, never to the
+   characters — those re-render many times a second and would strobe. */
+@keyframes ai-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ai-answer > * {
+  animation: ai-fade-in 220ms ease-out both;
+}
+
 /* A task with no measurable progress — one request, answered when it's
    answered. The bar says "still working" without claiming to know how far. */
 @keyframes ai-progress {
@@ -566,7 +437,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .ai-swap .ProseMirror,
-  .ai-streaming {
+  .ai-streaming,
+  .ai-caret,
+  .ai-answer > * {
     animation: none;
   }
   /* Still needs to read as busy, so hold it steady across the track. */

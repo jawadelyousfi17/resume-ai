@@ -13,10 +13,6 @@ export function downloadBlob(filename: string, blob: Blob) {
 }
 
 /** Download a string as a .tex file. */
-export function downloadTex(filename: string, content: string) {
-  const name = filename.endsWith(".tex") ? filename : `${filename}.tex`;
-  downloadBlob(name, new Blob([content], { type: "application/x-tex" }));
-}
 
 /** Turn a resume name into a safe file base, e.g. "Resume 1" -> "resume-1". */
 export function slugify(name: string): string {

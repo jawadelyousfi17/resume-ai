@@ -14,7 +14,7 @@ import { GUIDES } from "@/lib/content/guides";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Resume Guides — Writing, Formatting and ATS | resumeai",
+  title: "Resume Guides — Writing, Formatting and ATS | maniacv",
   description:
     "Practical guides to writing a resume: bullet points, summaries, formats, ATS parsing, career changes and applying abroad.",
   alternates: { canonical: "/guides" },

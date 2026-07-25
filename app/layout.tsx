@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { fontVariables } from "./fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 const siteUrl = configuredSiteUrl();
 
@@ -19,7 +13,7 @@ export const metadata: Metadata = {
   // against this. Left undefined when NEXT_PUBLIC_SITE_URL isn't set, so those
   // URLs stay relative rather than pointing at a host we guessed wrong.
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
-  title: "resumeai — Build a standout resume",
+  title: "maniacv — Build a standout resume",
   description: "Create, customize, and export a beautiful resume in minutes.",
 };
 
@@ -29,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full font-sans", manrope.variable)}>
+    <html lang="en" className={cn("h-full font-sans", fontVariables)}>
       <body className="min-h-full">
         {/* Caps the whole app at 7xl and centres it, so it doesn't sprawl on
             wide monitors. Children still own their own full-height layout. */}

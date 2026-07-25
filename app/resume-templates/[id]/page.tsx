@@ -28,7 +28,7 @@ export async function generateMetadata(
   const template = TEMPLATES.find((t) => t.id === id);
   if (!template) return {};
 
-  const title = `${template.name} Resume Template — Free and ATS-Ready | resumeai`;
+  const title = `${template.name} Resume Template — Free and ATS-Ready | maniacv`;
   return {
     title,
     description: template.description,
@@ -92,7 +92,7 @@ export default async function TemplateDetailPage(
           name: `${template.name} resume template`,
           description: template.description,
           image: `/templates/${template.id}.png`,
-          isPartOf: { "@type": "ItemList", name: "resumeai resume templates" },
+          isPartOf: { "@type": "ItemList", name: "maniacv resume templates" },
         }}
       />
 

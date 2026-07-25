@@ -50,7 +50,11 @@ function DialogOverlay({
 function DialogContent({
   className,
   children,
-  showCloseButton = true,
+  // Off by default across the app: every dialog here closes on Escape, on a
+  // click outside, and on finishing whatever it was opened for, so the corner
+  // X was only ever competing with the content. Pass it explicitly to bring
+  // it back for a dialog that needs one.
+  showCloseButton = false,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean

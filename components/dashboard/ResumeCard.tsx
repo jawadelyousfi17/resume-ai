@@ -3,7 +3,12 @@
 import Link from "next/link";
 import type { Resume } from "@/lib/types";
 import { formatRelative } from "@/lib/relative-time";
-import { DotsIcon } from "@/components/ui/icons";
+import {
+  CopyIcon,
+  DotsIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@/components/ui/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,15 +57,17 @@ export function ResumeCard({
               <DotsIcon className="h-[18px] w-[18px]" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={onRename}>Rename</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem onClick={onRename}>
+              <PencilIcon />
+              Rename
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={onDuplicate}>
+              <CopyIcon />
               Duplicate
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={onDelete}
-              className="text-danger focus:text-danger"
-            >
+            <DropdownMenuItem onClick={onDelete} variant="destructive">
+              <TrashIcon />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

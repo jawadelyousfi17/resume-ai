@@ -6,6 +6,7 @@
 // random id would differ between the server and client trees.
 
 import type { ResumeData } from "@/lib/types";
+import { avatarUrl } from "@/lib/avatar";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import type { TemplateId } from "@/lib/types";
 import { getTemplate } from "@/lib/templates";
@@ -17,6 +18,9 @@ export const SAMPLE_RESUME: ResumeData = {
     email: "amara.diaz@email.com",
     phone: "+1 (415) 555-0134",
     location: "San Francisco, CA",
+    // The sample person has a photo of her own, the same as any resume that
+    // uses a photo template would. The renderer never supplies one.
+    photo: avatarUrl("Amara Diaz"),
     contactOrder: ["email", "phone", "location"],
     links: [
       { id: "l1", label: "LinkedIn", url: "linkedin.com/in/amaradiaz" },
@@ -150,7 +154,7 @@ export const SAMPLE_RESUME: ResumeData = {
   settings: { ...DEFAULT_SETTINGS },
 };
 
-/** The same document, laid out with one of the five templates. */
+/** The same document, laid out with one of the templates. */
 export function sampleWithTemplate(id: TemplateId): ResumeData {
   const template = getTemplate(id);
   return {

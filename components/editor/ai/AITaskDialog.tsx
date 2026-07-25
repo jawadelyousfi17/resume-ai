@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useResume } from "@/lib/store";
 import { useGeneration } from "@/lib/ai/use-generation";
+import { useTypewriter } from "@/lib/ai/use-typewriter";
 import { AI_TASKS, type AITaskId } from "@/lib/ai/tasks";
 import { applyHighlights, applySkills, applySummary } from "@/lib/ai/apply";
 import { parseLines } from "@/lib/ai/parse";
@@ -190,7 +191,11 @@ function TaskDialog({
             </ChoiceList>
           )
         ) : (
-          <div className="mt-6">
+          // `space-y` rather than margins on the children: the progress bar
+          // comes and goes, and a fixed top margin below it left a hole in the
+          // layout once it did. DialogContent's own grid gap already separates
+          // this from the title.
+          <div className="space-y-4">
             {/* Translate answers with a whole document, so there's nothing to
                 stream — the bar is all the progress there is to show. */}
             {task === "translate" ? (
@@ -201,9 +206,9 @@ function TaskDialog({
             ) : (
               <>
                 {gen.busy && <ProgressBar />}
-                <div className="mt-4 max-h-[46vh] overflow-y-auto rounded-xl bg-panel p-5">
+                <div className="max-h-[46vh] overflow-y-auto rounded-xl bg-panel p-5">
                   {gen.error ? (
-                    <p className="text-[14px] leading-relaxed text-danger">
+                    <p className="text-[14px] leading-relaxed font-medium text-danger">
                       {gen.error}
                     </p>
                   ) : (
@@ -354,7 +359,7 @@ function Actions({
 
   if (task === "translate") {
     return (
-      <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         {translated && (
           <button
             type="button"
@@ -380,7 +385,7 @@ function Actions({
   const canApply = meta.output !== "prose" && Boolean(text) && !gen.busy;
 
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {gen.busy && (
         <button
           type="button"
@@ -439,7 +444,7 @@ function Actions({
   );
 }
 
-/** Renders the answer the way its task shapes it. */
+/** Renders the answer the way its task shapes it, typed out as it arrives. */
 function Suggestion({
   task,
   text,
@@ -450,6 +455,11 @@ function Suggestion({
   streaming: boolean;
 }) {
   const meta = AI_TASKS[task];
+  // Hooks before any early return.
+  const shown = useTypewriter(text, streaming);
+  // The cursor belongs on screen until the last character is out, which is a
+  // moment after the stream itself closes.
+  const typing = streaming || shown.length < text.length;
 
   if (!text) {
     return (
@@ -461,9 +471,9 @@ function Suggestion({
 
   if (meta.output === "prose") {
     return (
-      <p className="text-[14px] leading-relaxed whitespace-pre-wrap text-ink">
-        {text}
-        {streaming && <Caret />}
+      <p className="text-[14px] leading-relaxed font-medium whitespace-pre-wrap text-ink">
+        {shown}
+        {typing && <Caret />}
       </p>
     );
   }
@@ -472,8 +482,8 @@ function Suggestion({
     // Mid-stream the last line is usually half-written; showing the parse is
     // still clearer than raw text, and it settles as the rest arrives.
     return (
-      <div className="flex flex-wrap items-center gap-1.5">
-        {parseLines(text).map((skill, i) => (
+      <div className="ai-answer flex flex-wrap items-center gap-1.5">
+        {parseLines(shown).map((skill, i) => (
           <span
             key={i}
             className="rounded-lg bg-purple-soft px-2.5 py-1 text-[13px] font-medium text-purple"
@@ -481,19 +491,19 @@ function Suggestion({
             {skill}
           </span>
         ))}
-        {streaming && <Caret />}
+        {typing && <Caret />}
       </div>
     );
   }
 
   return (
-    <div className="text-[14px] leading-relaxed text-ink">
-      <MarkdownView md={text} />
-      {streaming && <Caret />}
+    <div className="ai-answer text-[14px] leading-relaxed font-medium text-ink">
+      <MarkdownView md={shown} />
+      {typing && <Caret />}
     </div>
   );
 }
 
 const Caret = () => (
-  <span className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.15em] animate-pulse bg-purple" />
+  <span className="ai-caret ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.15em] rounded-full bg-purple align-middle" />
 );

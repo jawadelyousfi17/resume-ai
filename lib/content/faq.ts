@@ -1,5 +1,5 @@
 // Questions about the product itself. The writing-advice questions live with
-// their guides in ./guides — these are the ones about resumeai.
+// their guides in ./guides — these are the ones about maniacv.
 
 import type { FaqEntry } from "./guides";
 
@@ -13,7 +13,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     title: "Getting started",
     entries: [
       {
-        question: "Do I need an account to use resumeai?",
+        question: "Do I need an account to use maniacv?",
         answer:
           "No. You can build one resume, preview it live and download the PDF without signing in — it's kept in your browser. Sign in when you want more than one, or when you want it saved to your account rather than to this device.",
       },
@@ -38,7 +38,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     title: "The AI writing tools",
     entries: [
       {
-        question: "Which model does resumeai use?",
+        question: "Which model does maniacv use?",
         answer:
           "Claude Sonnet 5, from Anthropic. It's used for writing help, resume review, importing an existing resume and translation.",
       },

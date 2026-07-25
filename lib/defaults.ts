@@ -13,7 +13,6 @@ import type {
   EducationSection,
   ExperienceItem,
   ExperienceSection,
-  FontFamily,
   PageFormat,
   PersonalDetails,
   Resume,
@@ -69,12 +68,9 @@ export const PAGE_SIZES: Record<
   Letter: { width: 816, height: 1056, latex: "letterpaper" },
 };
 
-/** CSS font stacks used by the live preview, per family choice. */
-export const FONT_STACKS: Record<FontFamily, string> = {
-  sans: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-  serif: "Georgia, 'Times New Roman', Times, serif",
-  mono: "'SFMono-Regular', Menlo, Consolas, monospace",
-};
+// The font stacks moved to lib/fonts.ts, next to the catalogue the Customize
+// panel reads. Re-exported here so existing importers keep working.
+export { FONT_STACKS, fontStack } from "./fonts";
 
 export function createEmptyResume(name = "Resume 1"): Resume {
   const now = Date.now();

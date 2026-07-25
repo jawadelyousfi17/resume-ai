@@ -5,15 +5,20 @@
 // Anything the app already has an icon for comes from components/ui/icons —
 // these are only the marks that don't exist there.
 
+import { avatarUrl } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
+import { Logo, LogoLockup } from "@/components/ui/logo";
 
 /* -------------------------------------------------------------------------- */
 /* Brand                                                                      */
 /* -------------------------------------------------------------------------- */
 
 /**
- * The wordmark, identical to the one in the dashboard sidebar and the editor's
- * top bar — the landing page is the same product, so it wears the same badge.
+ * The wordmark, the same one the dashboard sidebar and the editor's top bar
+ * wear — the landing page is the same product, so it wears the same badge.
+ *
+ * On a dark background the lockup's black wordmark would disappear, so the
+ * footer gets the mark beside the name set in the page's own type.
  */
 export function Wordmark({
   className,
@@ -22,18 +27,13 @@ export function Wordmark({
   className?: string;
   tone?: "dark" | "light";
 }) {
+  if (tone === "dark") return <LogoLockup className={cn("h-8", className)} />;
+
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-navy text-base font-black text-white">
-        r
-      </span>
-      <span
-        className={cn(
-          "text-[18px] font-extrabold tracking-tight",
-          tone === "dark" ? "text-ink" : "text-white",
-        )}
-      >
-        resume<span className="text-brand">ai</span>
+      <Logo className="h-8 w-8" />
+      <span className="text-[20px] font-light tracking-tight text-white">
+        mania<span className="font-black">cv</span>
       </span>
     </span>
   );
@@ -43,47 +43,36 @@ export function Wordmark({
 /* People                                                                     */
 /* -------------------------------------------------------------------------- */
 
-// Slate and blue, so the stand-in faces sit inside the app's palette rather
-// than beside it.
-const AVATAR_TONES = [
-  "from-[#93c5fd] to-[#3b82f6]",
-  "from-[#a5b4fc] to-[#6366f1]",
-  "from-[#67e8f9] to-[#06b6d4]",
-  "from-[#cbd5e1] to-[#64748b]",
-  "from-[#7dd3fc] to-[#0284c7]",
-  "from-[#c4b5fd] to-[#8b5cf6]",
-];
-
 /**
- * Stand-in for a photo: a gradient disc carrying the person's initials. `seed`
- * keeps a given name on the same tone across the page.
+ * A face for someone quoted on the page — the same DiceBear illustrations the
+ * resume templates use for a missing photo, so the two agree. The style and
+ * seed come from the name, so a person keeps their face across the page and
+ * between server and client renders.
+ *
+ * A plain <img> rather than next/image: these are SVGs, and serving remote SVG
+ * through the image optimiser means turning on `dangerouslyAllowSVG`, which is
+ * not worth it for a decorative avatar.
  */
 export function Avatar({
   name,
   className,
-  seed = 0,
 }: {
   name: string;
   className?: string;
-  seed?: number;
 }) {
-  const initials = name
-    .split(" ")
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("");
-
   return (
-    <span
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={avatarUrl(name)}
+      alt=""
+      loading="lazy"
+      decoding="async"
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-bold text-white",
-        AVATAR_TONES[seed % AVATAR_TONES.length],
+        "shrink-0 rounded-full bg-field object-cover",
         className,
       )}
       aria-hidden="true"
-    >
-      {initials}
-    </span>
+    />
   );
 }
 

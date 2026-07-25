@@ -39,13 +39,10 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
         open={mode !== null}
         onOpenChange={(next) => !next && setMode(null)}
       >
-        <DialogContent
-          showCloseButton
-          className="max-w-[480px] p-8 sm:max-w-[480px]"
-        >
+        <DialogContent className="max-w-[480px] p-8 sm:max-w-[480px]">
           {/* The card carries its own heading; this one names the dialog for
               screen readers without being drawn twice. */}
-          <DialogTitle className="sr-only">Sign in to ResumeAI</DialogTitle>
+          <DialogTitle className="sr-only">Sign in to maniacv</DialogTitle>
           <AuthCard
             // Land back where they were. A guest signing in from the editor
             // returns to the editor, and their resume follows them.

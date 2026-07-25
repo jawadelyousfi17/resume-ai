@@ -24,16 +24,15 @@ import type {
 import {
   contactOrder,
   DEFAULT_SETTINGS,
-  FONT_STACKS,
   isTagGroupSection,
   PAGE_SIZES,
   showsDates,
 } from "@/lib/defaults";
+import { fontStack } from "@/lib/fonts";
 import { isRtl, levelLabel } from "@/lib/i18n";
 import { getTemplate, tagColumns, type Template } from "@/lib/templates";
 import { formatRange } from "@/lib/format";
 import { isMarkdownEmpty } from "@/lib/markdown";
-import { avatarUrl } from "@/lib/avatar";
 import { MarkdownView } from "@/components/ui/markdown-view";
 
 const INK = "#111827";
@@ -90,9 +89,10 @@ export function ResumePreview({
   const rtl = isRtl(s.language);
 
   const page: React.CSSProperties = {
-    // The template owns the typeface; the font control still picks the exact
-    // stack within that family.
-    fontFamily: FONT_STACKS[template.font === "serif" ? "serif" : s.fontFamily],
+    // The chosen typeface wins outright. Picking a template already writes its
+    // preferred family into settings, so overriding again here only had the
+    // effect of pinning every serif template to one stack.
+    fontFamily: fontStack(s.fontFamily),
     fontSize: `${s.fontSize}pt`,
     lineHeight: s.lineHeight,
     color: BODY,
@@ -302,17 +302,17 @@ function Avatar({
   stacked?: boolean;
 }) {
   const { template: t } = ctx;
-  if (t.photo === "none") return null;
+  // Only a photo the person actually uploaded. A template reserving space for
+  // one is a layout that adapts, not a demand — inventing a placeholder put a
+  // stranger's face on somebody's resume.
+  if (t.photo === "none" || !personal.photo) return null;
 
-  // An uploaded photo wins; otherwise DiceBear fills the frame so the layout
-  // reads as designed rather than showing an empty circle.
-  const src = personal.photo || avatarUrl(personal.fullName);
   const size = stacked ? "9.5em" : "6.4em";
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={personal.photo}
       alt=""
       aria-hidden="true"
       style={{

@@ -14,9 +14,9 @@ import { ALL_FAQS, FAQ_GROUPS } from "@/lib/content/faq";
 import { GUIDES } from "@/lib/content/guides";
 
 export const metadata: Metadata = {
-  title: "FAQ — resumeai",
+  title: "FAQ — maniacv",
   description:
-    "Answers about accounts, the AI writing tools, privacy, PDF export, ATS compatibility and the languages resumeai supports.",
+    "Answers about accounts, the AI writing tools, privacy, PDF export, ATS compatibility and the languages maniacv supports.",
   alternates: { canonical: "/faq" },
 };
 
@@ -41,7 +41,7 @@ export default function FaqPage() {
         <PageHeader
           eyebrow="FAQ"
           title="Frequently asked questions"
-          intro="What resumeai does, what it costs, what happens to your data, and what the AI will and won't do to your resume."
+          intro="What maniacv does, what it costs, what happens to your data, and what the AI will and won't do to your resume."
         />
 
         {FAQ_GROUPS.map((group) => (

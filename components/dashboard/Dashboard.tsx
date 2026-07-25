@@ -16,11 +16,13 @@ import {
   BriefcaseIcon,
   CapIcon,
   FileTextIcon,
+  LogoutIcon,
   MailIcon,
   PlusIcon,
   TagIcon,
   UserIcon,
 } from "@/components/ui/icons";
+import { LogoLockup } from "@/components/ui/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -189,13 +191,8 @@ export function Dashboard({
     <div className="flex min-h-dvh">
       {/* Sidebar */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-black/5 px-4 py-6 md:flex">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-navy text-lg font-black text-white">
-            r
-          </span>
-          <span className="text-[18px] font-extrabold tracking-tight text-ink">
-            resume<span className="text-brand">ai</span>
-          </span>
+        <div className="mb-8 flex items-center px-2">
+          <LogoLockup className="h-9" />
         </div>
 
         <nav className="space-y-1">
@@ -253,21 +250,22 @@ export function Dashboard({
                   </span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuItem asChild>
-                  <form action={signOutAction}>
-                    <button type="submit" className="w-full text-left">
-                      Sign out
-                    </button>
-                  </form>
+              <DropdownMenuContent align="start" className="w-56">
+                {/* Called straight from the row — the action redirects, so
+                      there's nothing here to wrap in a form. */}
+                <DropdownMenuItem
+                  onSelect={() => startTransition(() => signOutAction())}
+                >
+                  <LogoutIcon />
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="mt-2 rounded-xl bg-white p-3 shadow-sm">
               <p className="text-[12.5px] leading-relaxed text-ink-soft">
-                You&rsquo;re working as a guest. Sign in to keep this resume
-                and build more.
+                You&rsquo;re working as a guest. Sign in to keep this resume and
+                build more.
               </p>
               <button
                 type="button"

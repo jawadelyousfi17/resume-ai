@@ -131,7 +131,21 @@ export type Section =
   | EducationSection
   | SkillsSection;
 
-export type FontFamily = "sans" | "serif" | "mono";
+/** A typeface choice. The first three are system stacks and predate the rest —
+ *  saved resumes store these ids, so none of them may be renamed. The
+ *  catalogue behind them is in lib/fonts.ts. */
+export type FontFamily =
+  | "sans"
+  | "serif"
+  | "mono"
+  | "inter"
+  | "source-sans"
+  | "roboto"
+  | "source-serif"
+  | "lora"
+  | "merriweather"
+  | "eb-garamond"
+  | "jetbrains-mono";
 
 /** The paper the resume is laid out for. */
 export type PageFormat = "A4" | "Letter";

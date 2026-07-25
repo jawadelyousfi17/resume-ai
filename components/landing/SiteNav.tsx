@@ -5,6 +5,7 @@ import { Wordmark } from "./marks";
 const LINKS = [
   { label: "Features", href: "/#features" },
   { label: "Templates", href: "/resume-templates" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Guides", href: "/guides" },
   { label: "FAQ", href: "/faq" },
 ];
@@ -15,7 +16,7 @@ export function SiteNav() {
   return (
     <header className="sticky top-0 z-30 bg-cream/85 px-3 py-3 backdrop-blur-sm sm:px-4 sm:py-4">
       <div className="mx-auto flex h-14 max-w-[1180px] items-center gap-8 rounded-2xl border border-black/5 bg-panel px-4 shadow-[var(--shadow-panel)] sm:px-5">
-        <Link href="/" aria-label="resumeai home">
+        <Link href="/" aria-label="maniacv home">
           <Wordmark />
         </Link>
 

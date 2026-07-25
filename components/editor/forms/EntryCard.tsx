@@ -7,6 +7,7 @@
 // toggle, and delete.
 
 import { createContext, useContext, useState } from "react";
+import type { DragProps } from "../reorder";
 import {
   BulbIcon,
   DragIcon,
@@ -49,36 +50,9 @@ export function useEntryList<T extends { id: string }>(
   };
 }
 
-/** Drag-to-reorder for the closed rows. The form owns the move; this owns the
- *  "which row am I dragging" state and hands each row its drag props. */
-export function useEntryDrag(
-  ids: string[],
-  move: (from: string, to: string) => void,
-) {
-  const [dragId, setDragId] = useState<string | null>(null);
-
-  return (id: string): EntryDrag => ({
-    dragging: dragId === id,
-    onDragStart: () => setDragId(id),
-    onDragEnd: () => setDragId(null),
-    onDragEnter: () => {
-      if (dragId && dragId !== id) move(dragId, id);
-    },
-    // Keyboard equivalent of a drag: swap with the neighbour one slot away.
-    onNudge: (delta: number) => {
-      const target = ids[ids.indexOf(id) + delta];
-      if (target) move(id, target);
-    },
-  });
-}
-
-export type EntryDrag = {
-  dragging: boolean;
-  onDragStart: () => void;
-  onDragEnd: () => void;
-  onDragEnter: () => void;
-  onNudge: (delta: number) => void;
-};
+/** Drag-to-reorder for the closed rows — the same hook the section list uses,
+ *  so an entry and a section are dragged the same way. */
+export { useListDrag as useEntryDrag } from "../reorder";
 
 export function EntryCard({
   open,
@@ -105,7 +79,7 @@ export function EntryCard({
   tip?: string;
   hidden?: boolean;
   /** Drag-to-reorder props for the closed row, from `useEntryDrag`. */
-  drag?: EntryDrag;
+  drag?: DragProps;
   onToggleHidden?: () => void;
   onDelete?: () => void;
   children: React.ReactNode;

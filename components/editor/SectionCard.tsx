@@ -9,10 +9,12 @@ import {
   CalendarIcon,
   CalendarOffIcon,
   ChevronDownIcon,
+  DragIcon,
   PencilIcon,
   PlusIcon,
   TrashIcon,
 } from "@/components/ui/icons";
+import type { DragProps } from "./reorder";
 
 export function SectionCard({
   icon: Icon,
@@ -20,6 +22,7 @@ export function SectionCard({
   open,
   onToggle,
   onRename,
+  drag,
   flush,
   footer,
   children,
@@ -30,6 +33,9 @@ export function SectionCard({
   onToggle: () => void;
   /** Enables the "Edit Heading" pill next to the title. */
   onRename?: (title: string) => void;
+  /** Drag-to-reorder props, from `useListDrag`. Omitted for the cards that
+   *  don't move — personal details is always first. */
+  drag?: DragProps;
   /** Content supplies its own padding — for the full-bleed entry rows. */
   flush?: boolean;
   footer?: React.ReactNode;
@@ -43,11 +49,53 @@ export function SectionCard({
   }, [renaming]);
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-panel shadow-[var(--shadow-panel)]">
+    <div
+      // The whole card is the drop target, so a section can be dropped onto a
+      // neighbour whether that neighbour is open or collapsed.
+      onDragOver={drag ? (e) => e.preventDefault() : undefined}
+      onDragEnter={drag?.onDragEnter}
+      onDrop={
+        drag
+          ? (e) => {
+              e.preventDefault();
+              drag.onDragEnd();
+            }
+          : undefined
+      }
+      className={`overflow-hidden rounded-2xl bg-panel shadow-[var(--shadow-panel)] transition ${
+        drag?.dragging ? "opacity-40" : ""
+      }`}
+    >
       <div
         className="flex cursor-pointer items-center gap-3 px-5 py-5"
         onClick={() => !renaming && onToggle()}
       >
+        {/* Personal details can't move, but it keeps the handle's gutter so
+            every card's title starts on the same line. */}
+        {!drag && <span className="-ml-2 w-6 shrink-0" aria-hidden="true" />}
+
+        {drag && (
+          <span
+            draggable
+            tabIndex={0}
+            role="button"
+            onClick={(e) => e.stopPropagation()}
+            onDragStart={drag.onDragStart}
+            onDragEnd={drag.onDragEnd}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                e.preventDefault();
+                drag.onNudge(e.key === "ArrowUp" ? -1 : 1);
+              }
+            }}
+            aria-label={`Reorder ${title}`}
+            title="Drag to reorder, or press ↑ / ↓"
+            className="-ml-2 inline-flex h-9 w-6 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing"
+          >
+            <DragIcon className="h-[18px] w-[18px]" />
+          </span>
+        )}
+
         {Icon && <Icon className="h-6 w-6 shrink-0 text-ink" />}
 
         {renaming && onRename ? (
@@ -101,7 +149,9 @@ export function SectionCard({
       {open && (
         <>
           {/* Flush content draws its own dividers, one per row. */}
-          <div className={flush ? "" : "border-t border-black/5 px-5 pb-5 pt-4"}>
+          <div
+            className={flush ? "" : "border-t border-black/5 px-5 pb-5 pt-4"}
+          >
             {children}
           </div>
           {footer}
@@ -130,7 +180,11 @@ export function SectionFooter({
       <div className="flex-1">
         {onToggleDates && (
           <FooterIcon
-            label={showDates ? "Hide dates in this section" : "Show dates in this section"}
+            label={
+              showDates
+                ? "Hide dates in this section"
+                : "Show dates in this section"
+            }
             active={showDates}
             onClick={onToggleDates}
           >

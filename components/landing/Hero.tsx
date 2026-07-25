@@ -43,12 +43,11 @@ export function Hero() {
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5 lg:mt-12">
             <span className="flex -space-x-2.5">
-              {FACES.map((name, i) => (
+              {FACES.map((name) => (
                 <Avatar
                   key={name}
                   name={name}
-                  seed={i}
-                  className="h-11 w-11 text-[13px] ring-4 ring-cream"
+                  className="h-11 w-11 ring-4 ring-cream"
                 />
               ))}
             </span>

@@ -4,17 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useResume } from "@/lib/store";
-import { generateLatex } from "@/lib/latex";
-import { downloadBlob, downloadTex, slugify } from "@/lib/export";
+import { downloadBlob, slugify } from "@/lib/export";
 import { Button } from "@/components/ui/button";
+import { Logo, LogoLockup } from "@/components/ui/logo";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  ChevronDownIcon,
   DownloadIcon,
   FileTextIcon,
   SparklesIcon,
@@ -24,9 +17,21 @@ import {
 export type EditorTab = "content" | "customize" | "ai";
 
 const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
-  { id: "content", label: "Content", icon: <FileTextIcon className="h-[18px] w-[18px]" /> },
-  { id: "customize", label: "Customize", icon: <WandIcon className="h-[18px] w-[18px]" /> },
-  { id: "ai", label: "AI Tools", icon: <SparklesIcon className="h-[18px] w-[18px]" /> },
+  {
+    id: "content",
+    label: "Content",
+    icon: <FileTextIcon className="h-[18px] w-[18px]" />,
+  },
+  {
+    id: "customize",
+    label: "Customize",
+    icon: <WandIcon className="h-[18px] w-[18px]" />,
+  },
+  {
+    id: "ai",
+    label: "AI Tools",
+    icon: <SparklesIcon className="h-[18px] w-[18px]" />,
+  },
 ];
 
 export function TopBar({
@@ -39,8 +44,6 @@ export function TopBar({
   const { name, data, format } = useResume();
 
   const [busy, setBusy] = useState(false);
-  const buildTex = () => generateLatex({ name, data, format });
-
   const handlePdf = async () => {
     setBusy(true);
     const toastId = toast.loading("Building your PDF…");
@@ -48,7 +51,7 @@ export function TopBar({
       const res = await fetch("/api/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tex: buildTex() }),
+        body: JSON.stringify({ data, format }),
       });
       if (!res.ok) {
         const info = await res.json().catch(() => ({}) as { error?: string });
@@ -67,20 +70,18 @@ export function TopBar({
     }
   };
 
-  const handleTex = () => {
-    downloadTex(`${slugify(name)}.tex`, buildTex());
-    toast.success("Downloaded resume.tex");
-  };
-
   return (
     <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-black/5 bg-panel px-3 py-2">
       <div className="flex items-center gap-2">
         {/* Left: identity — wordmark, then the document this bar is acting on. */}
         <Link
           href="/dashboard"
-          className="hidden shrink-0 px-1 text-[15px] font-extrabold tracking-tight text-ink sm:block"
+          className="flex shrink-0 items-center gap-1.5 px-1 text-[15px] font-extrabold tracking-tight text-ink"
         >
-          resume<span className="text-brand">ai</span>
+          {/* The bar is crowded on a narrow screen, so the wordmark drops and
+              the mark carries the link on its own. */}
+          <Logo className="h-7 w-7 sm:hidden" />
+          <LogoLockup className="hidden h-7 sm:block" />
         </Link>
 
         <span className="hidden h-5 w-px shrink-0 bg-black/10 sm:block" />
@@ -114,31 +115,14 @@ export function TopBar({
 
         {/* Right: the one primary action. */}
         <div className="flex shrink-0 items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                disabled={busy}
-                className="h-auto gap-2 rounded-lg bg-navy px-3.5 py-2 text-[14px] font-bold text-white hover:bg-navy/90"
-              >
-                <DownloadIcon className="h-[18px] w-[18px]" />
-                {busy ? "Building…" : "Download"}
-                <ChevronDownIcon className="h-4 w-4 opacity-70" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60">
-              <DropdownMenuItem onClick={handlePdf}>
-                <DownloadIcon className="h-4 w-4" />
-                Download PDF
-                <span className="ml-auto text-[11px] font-semibold text-ink-faint">
-                  LaTeX
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleTex}>
-                <FileTextIcon className="h-4 w-4" />
-                Download .tex source
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            onClick={handlePdf}
+            disabled={busy}
+            className="h-auto gap-2 rounded-lg bg-navy px-3.5 py-2 text-[14px] font-bold text-white hover:bg-navy/90"
+          >
+            <DownloadIcon className="h-[18px] w-[18px]" />
+            {busy ? "Building…" : "Download PDF"}
+          </Button>
         </div>
       </div>
     </header>

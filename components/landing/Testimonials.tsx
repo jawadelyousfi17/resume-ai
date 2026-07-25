@@ -53,7 +53,7 @@ export function Testimonials() {
           <br className="block md:hidden" /> by job seekers everywhere
         </h2>
         <p className={lede}>
-          People use resumeai to get the boring part over with quickly, so they
+          People use maniacv to get the boring part over with quickly, so they
           can spend their evening on the application itself.
         </p>
       </div>
@@ -61,7 +61,7 @@ export function Testimonials() {
       {/* Scrolls horizontally; snapping keeps a card aligned to the shell. */}
       <div className="scroll-slim mt-10 snap-x snap-mandatory overflow-x-auto pb-2 lg:mt-12">
         <div className="flex w-max gap-4 px-5 sm:gap-6 sm:px-8 lg:px-[max(2rem,calc((100vw-1180px)/2))]">
-          {QUOTES.map((q, i) => (
+          {QUOTES.map((q) => (
             <figure
               key={q.name}
               className="flex w-[300px] shrink-0 snap-start flex-col justify-between rounded-3xl bg-panel p-6 shadow-[var(--shadow-panel)] ring-1 ring-black/5 sm:w-[360px] lg:w-[420px] lg:p-8"
@@ -70,7 +70,7 @@ export function Testimonials() {
                 {q.quote}
               </blockquote>
               <figcaption className="mt-8 flex items-center gap-3">
-                <Avatar name={q.name} seed={i} className="h-11 w-11 text-sm" />
+                <Avatar name={q.name} className="h-11 w-11" />
                 <div>
                   <p className="text-[15px] font-bold text-ink">{q.name}</p>
                   <p className="text-[13px] text-ink-soft">{q.role}</p>

@@ -1,0 +1,159 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+import {
+  Breadcrumbs,
+  FaqList,
+  JsonLd,
+} from "@/components/content/ContentShell";
+import { SiteFooter } from "@/components/landing/SiteFooter";
+import { SiteNav } from "@/components/landing/SiteNav";
+import { PlanGrid, PLANS } from "@/components/landing/Pricing";
+import { btnPrimary, Eyebrow } from "@/components/landing/ui";
+
+export const metadata: Metadata = {
+  title: "Pricing — maniacv",
+  description:
+    "One resume free forever, with unlimited watermark-free PDFs. Basic from $3/month for AI writing and three resumes; Ultimate from $5/month for unlimited resumes, cover letters and translation.",
+  alternates: { canonical: "/pricing" },
+};
+
+const FAQS = [
+  {
+    question: "Is the free plan really free?",
+    answer:
+      "Yes. One resume, all templates, full layout control and unlimited watermark-free PDF downloads, with no card and no trial period. It doesn't expire and it doesn't upgrade itself.",
+  },
+  {
+    question: "What's the difference between monthly and yearly?",
+    answer:
+      "Only the price. Paid yearly, Basic works out at $3 a month and Ultimate at $5 a month; paid month to month they're $9 and $17. The features are identical either way.",
+  },
+  {
+    question: "What happens to my resumes if I stop paying?",
+    answer:
+      "Nothing is deleted. You keep editing and downloading one resume on the free plan, and the rest stay in your account, ready to unlock again if you come back.",
+  },
+  {
+    question: "Do I need an account to start?",
+    answer:
+      "No. You can build a resume, preview it and download the PDF without signing in — it's kept in your browser. Signing in later brings that resume with you.",
+  },
+  {
+    question: "Can I cancel any time?",
+    answer:
+      "Yes, from your account, and you keep the paid features until the period you've already paid for runs out.",
+  },
+];
+
+export default function PricingPage() {
+  return (
+    // The site's cream page, not a scene of its own: the plan cards bring all
+    // the colour this page needs, and everything around them is the same white
+    // panel the rest of maniacv uses.
+    //
+    // Composed directly rather than through <ContentPage> because the written
+    // pages sit in a 760px reading column and three plan cards need the full
+    // width. The padding matches SiteNav's, so the page lines up with the bar.
+    <div className="min-h-dvh bg-cream">
+      <SiteNav />
+
+      <main className="px-3 pt-6 pb-16 sm:px-4">
+        <div className="mx-auto w-full max-w-[1180px]">
+          <JsonLd
+            data={{
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: FAQS.map((faq) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: { "@type": "Answer", text: faq.answer },
+              })),
+            }}
+          />
+
+          <Breadcrumbs
+            trail={[{ label: "Home", href: "/" }, { label: "Pricing" }]}
+          />
+
+          {/* The heading runs the full width; only the prose is held to a
+              readable measure. */}
+          <header className="mt-6 text-center">
+            <Eyebrow>Pricing</Eyebrow>
+            <h1 className="mx-auto mt-5 max-w-[18ch] text-[34px] leading-[1.08] font-extrabold tracking-tight text-ink sm:text-[44px] lg:text-[52px]">
+              One resume free, forever
+            </h1>
+            <p className="mx-auto mt-5 max-w-[58ch] text-[17px] leading-relaxed text-ink-soft lg:text-[19px]">
+              No card to start and no watermark on the way out. Pay only when
+              you want the AI writing tools, or when one resume stops being
+              enough.
+            </p>
+          </header>
+
+          <PlanGrid className="mt-12 lg:mt-14" />
+
+          <p className="mt-8 text-center text-[13.5px] text-ink-soft">
+            Prices in USD. Cancel any time — your resumes stay downloadable on
+            the free plan.
+          </p>
+
+          {/* Two columns below the plans, so the width is used without letting
+              any line of text run to 1180px. */}
+          <div className="mt-16 grid gap-12 lg:mt-20 lg:grid-cols-2 lg:gap-14">
+            <section>
+              <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+                What each plan includes
+              </h2>
+              <dl className="mt-5 space-y-3">
+                {PLANS.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className="rounded-2xl bg-panel px-6 py-5 shadow-[var(--shadow-panel)] ring-1 ring-black/5"
+                  >
+                    <dt className="flex flex-wrap items-baseline justify-between gap-x-3">
+                      <span className="text-[16.5px] font-extrabold text-ink">
+                        {plan.name}
+                      </span>
+                      <span className="text-[14px] font-bold text-brand">
+                        {plan.price}
+                        <span className="font-medium text-ink-soft">
+                          {plan.period}
+                        </span>
+                      </span>
+                    </dt>
+                    <dd className="mt-2 text-[15px] leading-relaxed text-ink-soft">
+                      {plan.featuresHeading}: {plan.features.join(" · ")}.
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section>
+              <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+                Questions about billing
+              </h2>
+              <FaqList entries={FAQS} />
+            </section>
+          </div>
+
+          {/* Closing action. */}
+          <section className="mt-16 text-center lg:mt-20">
+            <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink sm:text-[32px]">
+              Start with the free plan
+            </h2>
+            <p className="mx-auto mt-3 max-w-[46ch] text-[15.5px] leading-relaxed text-ink-soft">
+              Build a resume first, decide about paying later. Nothing here asks
+              for a card.
+            </p>
+            <Link href="/dashboard" className={`${btnPrimary} mt-7`}>
+              Get started for free ✨
+            </Link>
+          </section>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}

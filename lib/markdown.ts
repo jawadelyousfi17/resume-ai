@@ -3,8 +3,9 @@
 // Long-form fields (summary, highlights, descriptions) are stored as Markdown
 // so one visual editor can back all of them. Only what a resume actually needs
 // is supported — paragraphs, bullet and numbered lists, bold and italic — and
-// every renderer here (HTML for the editor, React for the preview, LaTeX for
-// the PDF) works from the same parse, so the three can't drift apart.
+// both renderers here (HTML for the editor, React for the preview — which is
+// also what the PDF is printed from) work from the same parse, so they can't
+// drift apart.
 //
 // Nested emphasis (**bold with *italic* inside**) is out of scope: the inner
 // run is left as literal text rather than silently dropped.
@@ -139,34 +140,6 @@ export function markdownToText(md: string): string {
     .trim();
 }
 
-/** LaTeX for one document body. `escape` is the caller's text escaper so this
- *  stays independent of the LaTeX module's own escaping rules. */
-export function markdownToLatex(
-  md: string,
-  escape: (s: string) => string,
-): string {
-  const spans = (list: MdSpan[]) =>
-    list
-      .map((s) => {
-        const text = escape(s.text).replace(/\n/g, "\\\\\n");
-        if (s.bold) return `\\textbf{${text}}`;
-        if (s.italic) return `\\textit{${text}}`;
-        return text;
-      })
-      .join("");
-
-  return parseMarkdown(md)
-    .map((block) => {
-      if (block.type === "paragraph") return spans(block.spans);
-      const env = block.ordered ? "enumerate" : "itemize";
-      return [
-        `\\begin{${env}}`,
-        ...block.items.map((item) => `  \\item ${spans(item)}`),
-        `\\end{${env}}`,
-      ].join("\n");
-    })
-    .join("\n\n");
-}
 
 // ------------------------------------------------- editor document → source
 

@@ -14,7 +14,9 @@ import {
   CalendarCheckIn01Icon,
   Camera01Icon,
   Cancel01Icon,
+  Copy01Icon,
   Delete02Icon,
+  Logout02Icon,
   ViewIcon,
   ViewOffSlashIcon,
   Download04Icon,
@@ -95,3 +97,5 @@ export const ItalicIcon = icon(TextItalicIcon);
 export const BulletListIcon = icon(LeftToRightListBulletIcon);
 export const NumberListIcon = icon(LeftToRightListNumberIcon);
 export const TranslateIcon = icon(HugeTranslateIcon);
+export const CopyIcon = icon(Copy01Icon);
+export const LogoutIcon = icon(Logout02Icon);

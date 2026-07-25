@@ -5,13 +5,14 @@ import { FreePlan } from "@/components/landing/FreePlan";
 import { Hero } from "@/components/landing/Hero";
 import { Highlights } from "@/components/landing/Highlights";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Pricing } from "@/components/landing/Pricing";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
 import { Templates } from "@/components/landing/Templates";
 import { Testimonials } from "@/components/landing/Testimonials";
 
 export const metadata: Metadata = {
-  title: "resumeai — Build a job-winning resume for free",
+  title: "maniacv — Build a job-winning resume for free",
   description:
     "Free online resume builder. Your first resume is free forever, with unlimited watermark-free PDF downloads, AI writing help and ATS-ready templates.",
   alternates: { canonical: "/" },
@@ -29,6 +30,7 @@ export default function LandingPage() {
         <HowItWorks />
         <Templates />
         <FreePlan />
+        <Pricing />
         <Testimonials />
         <Faq />
       </main>

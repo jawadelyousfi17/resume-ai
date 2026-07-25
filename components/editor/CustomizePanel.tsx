@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useResume } from "@/lib/store";
-import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
+import type {
+  DateFormat,
+  FontFamily,
+  PageFormat,
+  ResumeSettings,
+} from "@/lib/types";
+import { FONT_CATEGORIES, FONTS, fontsIn } from "@/lib/fonts";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import {
   inCategory,
@@ -24,6 +30,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -54,12 +62,6 @@ const ACCENTS = [
   "#e11d48",
   "#d97706",
   "#0f172a",
-];
-
-const FONTS: { value: ResumeSettings["fontFamily"]; label: string }[] = [
-  { value: "sans", label: "Sans" },
-  { value: "serif", label: "Serif" },
-  { value: "mono", label: "Mono" },
 ];
 
 const PAGE_FORMATS: { value: PageFormat; label: string; note: string }[] = [
@@ -341,10 +343,8 @@ export function CustomizePanel() {
         </Group>
 
         <Group id="cz-font" title="Font">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">Typeface</p>
-          <Segmented
+          <FontPicker
             value={s.fontFamily}
-            options={FONTS}
             onChange={(v) => set("fontFamily", v)}
           />
         </Group>
@@ -427,7 +427,6 @@ function TemplatePicker({
           typography. `scroll-slim` keeps the scrolling and drops the bar. */}
       <DialogContent
         aria-describedby={undefined}
-        showCloseButton={false}
         className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 sm:max-w-5xl"
       >
         {/* Title and filters ride along at the top while the grid scrolls
@@ -496,6 +495,74 @@ function TemplatePicker({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** The typeface dropdown.
+ *
+ *  Every name — on the trigger and in the list — is set in the face it
+ *  selects. A font is chosen by how it looks, and a list of names all in one
+ *  typeface tells you nothing about any of them. */
+function FontPicker({
+  value,
+  onChange,
+}: {
+  value: FontFamily;
+  onChange: (value: FontFamily) => void;
+}) {
+  const active = FONTS.find((f) => f.id === value) ?? FONTS[0];
+  const activeCategory = FONT_CATEGORIES.find(
+    (c) => c.id === active.category,
+  )?.label;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex w-full items-center gap-3 rounded-xl border border-field-border px-4 py-3.5 text-left transition hover:border-ink/30"
+        >
+          <span className="min-w-0 flex-1">
+            <span
+              className="block truncate text-[17px] text-ink"
+              style={{ fontFamily: active.stack }}
+            >
+              {active.label}
+            </span>
+            {/* Three of these are called "System", so the trigger has to say
+                which one is selected. */}
+            <span className="mt-0.5 block text-[12.5px] font-semibold text-ink-faint">
+              {activeCategory}
+            </span>
+          </span>
+          <ChevronDownIcon className="h-4 w-4 shrink-0 text-ink-soft" />
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="start" className="max-h-[380px] p-2">
+        {FONT_CATEGORIES.map((category, i) => (
+          <Fragment key={category.id}>
+            {i > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuLabel className="text-[11.5px] font-bold tracking-wide text-ink-faint uppercase">
+              {category.label}
+            </DropdownMenuLabel>
+            {fontsIn(category.id).map((font) => (
+              <DropdownMenuItem
+                key={font.id}
+                onClick={() => onChange(font.id)}
+                style={{ fontFamily: font.stack }}
+                className="py-3 text-[16px] font-normal"
+              >
+                {font.label}
+                {font.id === value && (
+                  <CheckIcon className="ml-auto h-4 w-4 shrink-0 text-brand" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </Fragment>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

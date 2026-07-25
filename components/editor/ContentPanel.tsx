@@ -9,12 +9,14 @@ import {
   isCredentialSection,
   isTagGroupSection,
   isTimelineSection,
+  moveById,
   newEntry,
   showsDates,
 } from "@/lib/defaults";
 import type { Section, SectionType } from "@/lib/types";
 import { PlusIcon, UserIcon } from "@/components/ui/icons";
 import { SectionCard, SectionFooter, DoneButton } from "./SectionCard";
+import { useListDrag } from "./reorder";
 import { SECTION_ICONS } from "./section-icons";
 import { AddContentModal } from "./AddContentModal";
 import { PersonalDetailsForm } from "./forms/PersonalDetailsForm";
@@ -76,6 +78,13 @@ export function ContentPanel() {
     }
   };
 
+  // Sections come out on the page in the order they sit in here, so dragging
+  // one is how the resume is rearranged.
+  const sectionDrag = useListDrag(
+    data.sections.map((s) => s.id),
+    (from, to) => update((d) => moveById(d.sections, from, to)),
+  );
+
   const existingTypes = new Set(data.sections.map((s) => s.type));
 
   // One entry open means it owns the column: the section list, the personal
@@ -117,17 +126,21 @@ export function ContentPanel() {
               onRename={(title) =>
                 withSection(section.id, (s) => void (s.title = title))
               }
+              drag={sectionDrag(section.id)}
               // The summary is one text box; every other section is a list of
               // full-bleed rows with its own footer of controls.
               flush={section.type !== "summary"}
               footer={
                 <SectionFooter
-                  showDates={hasDates(section) ? showsDates(section) : undefined}
+                  showDates={
+                    hasDates(section) ? showsDates(section) : undefined
+                  }
                   onToggleDates={
                     hasDates(section)
                       ? () =>
                           withSection(section.id, (s) => {
-                            if (hasDates(s)) s.showDates = s.showDates === false;
+                            if (hasDates(s))
+                              s.showDates = s.showDates === false;
                           })
                       : undefined
                   }

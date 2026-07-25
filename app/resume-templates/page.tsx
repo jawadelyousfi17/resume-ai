@@ -13,7 +13,7 @@ import {
 import { TEMPLATES } from "@/lib/templates";
 
 export const metadata: Metadata = {
-  title: "Resume Templates — Free, ATS-Ready Layouts | resumeai",
+  title: "Resume Templates — Free, ATS-Ready Layouts | maniacv",
   description:
     "Professional resume templates you can edit and export as a real PDF — serif and sans, single and two-column, with or without a photo. Every one is ATS-readable.",
   alternates: { canonical: "/resume-templates" },
@@ -51,7 +51,7 @@ export default function ResumeTemplatesPage() {
           "@graph": [
             {
               "@type": "ItemList",
-              name: "resumeai resume templates",
+              name: "maniacv resume templates",
               itemListElement: TEMPLATES.map((template, i) => ({
                 "@type": "ListItem",
                 position: i + 1,

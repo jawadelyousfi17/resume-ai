@@ -1,40 +1,51 @@
-// Compiles a LaTeX document to PDF using Tectonic, invoked from the editor's
-// Download action. Runs on the Node.js runtime because it shells out to the
-// `tectonic` binary and touches the filesystem.
+// Renders a resume to PDF, invoked from the editor's Download action.
+//
+// The document is parked in the print store, then a headless browser is pointed
+// at /print/<token> — the same React component and stylesheet the editor
+// previews with. Runs on the Node.js runtime because it drives a browser.
 
-import { spawn } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { homedir, tmpdir } from "node:os";
-import { join } from "node:path";
+import { PdfError, renderResumePdf } from "@/lib/pdf";
+import { createPrintJob } from "@/lib/print-store";
+import { siteOrigin } from "@/lib/site-url";
+import { parseResumeData, pageFormatSchema } from "@/lib/validation";
+import type { ResumeData } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const TECTONIC_BIN = process.env.TECTONIC_BIN || "tectonic";
-
 export async function POST(req: Request) {
   // Open to guests: a visitor who builds a resume signed out still needs to
   // walk away with the PDF. That does mean an anonymous caller can start a
-  // Tectonic process, so this route wants a rate limit in front of it before
-  // it faces real traffic.
+  // browser render, so this route wants a rate limit in front of it before it
+  // faces real traffic.
 
-  let tex: unknown;
+  let body: { data?: unknown; format?: unknown };
   try {
-    ({ tex } = await req.json());
+    body = (await req.json()) as { data?: unknown; format?: unknown };
   } catch {
     return jsonError("Invalid request body", 400);
   }
 
-  if (typeof tex !== "string" || !tex.trim()) {
-    return jsonError("Missing LaTeX source", 400);
+  const parsedData = parseResumeData(body.data);
+  if (!parsedData.ok) return jsonError(parsedData.error, 400);
+
+  const parsedFormat = pageFormatSchema.safeParse(body.format ?? "A4");
+  if (!parsedFormat.success) {
+    return jsonError("That page format isn't one we support.", 400);
   }
 
-  const dir = await mkdtemp(join(tmpdir(), "resumeai-"));
+  const token = createPrintJob({
+    // Loose by design — see the note at the top of lib/validation.ts.
+    data: parsedData.data as unknown as ResumeData,
+    format: parsedFormat.data,
+  });
+
   try {
-    const input = join(dir, "resume.tex");
-    await writeFile(input, tex, "utf8");
-    await runTectonic(input, dir);
-    const pdf = await readFile(join(dir, "resume.pdf"));
+    const pdf = await renderResumePdf(
+      await siteOrigin(),
+      token,
+      parsedFormat.data,
+    );
 
     return new Response(new Uint8Array(pdf), {
       status: 200,
@@ -46,59 +57,19 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     return jsonError(
-      err instanceof Error ? err.message : "Compilation failed",
+      err instanceof PdfError
+        ? err.message
+        : err instanceof Error
+          ? err.message
+          : "Couldn't render the PDF",
       500,
     );
-  } finally {
-    await rm(dir, { recursive: true, force: true });
   }
 }
 
-function runTectonic(input: string, outdir: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const proc = spawn(
-      TECTONIC_BIN,
-      [input, "--outdir", outdir, "--chatter", "minimal", "--keep-logs"],
-      {
-        // Ensure the usual install locations are on PATH for the server —
-        // Homebrew, /usr/local, and the per-user bin a plain tarball install
-        // lands in — since a service manager may start us with a bare PATH.
-        env: {
-          ...process.env,
-          PATH: [
-            process.env.PATH ?? "",
-            "/opt/homebrew/bin",
-            "/usr/local/bin",
-            join(homedir(), ".local/bin"),
-          ].join(":"),
-        },
-      },
-    );
-
-    let stderr = "";
-    proc.stderr.on("data", (chunk) => (stderr += chunk.toString()));
-    proc.on("error", (e) =>
-      reject(
-        e instanceof Error && "code" in e && e.code === "ENOENT"
-          ? new Error("Tectonic is not installed on the server.")
-          : e,
-      ),
-    );
-    proc.on("close", (code) => {
-      if (code === 0) return resolve();
-      // Surface the most relevant TeX error line if we can find one.
-      const line = stderr
-        .split("\n")
-        .find((l) => /error/i.test(l))
-        ?.trim();
-      reject(new Error(line || `Tectonic exited with code ${code}`));
-    });
-  });
-}
-
-function jsonError(message: string, status: number) {
-  return new Response(JSON.stringify({ error: message }), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
+function jsonError(error: string, status: number) {
+  return Response.json(
+    { error },
+    { status, headers: { "Cache-Control": "no-store" } },
+  );
 }
