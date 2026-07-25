@@ -119,7 +119,11 @@ body {
 .lp-rail {
   display: flex;
   width: max-content;
-  animation: lp-marquee 46s linear infinite;
+  animation: lp-marquee var(--rail-duration, 46s) linear infinite;
+}
+/* Stop the drift while someone is reading a card. */
+.lp-rail:hover {
+  animation-play-state: paused;
 }
 .lp-rail-reverse {
   animation-direction: reverse;
@@ -141,8 +145,218 @@ body {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   Hero demo reel.
+
+   A looping walkthrough of the product: the pointer clicks Generate, then
+   Edit, then Template, then Export, and the page reacts to each. It's built
+   entirely from keyframes so the hero stays a server component and ships no
+   JavaScript.
+
+   One 10s clock, four 2.5s beats. Every piece runs the full 10s and is offset
+   into its own beat with a negative `animation-delay` — 0s, -7.5s, -5s, -2.5s
+   for beats 0 to 3 — so a beat is "the same animation, started earlier".
+   Because they all start at page load they stay in phase, and each click lands
+   on the thing it is supposed to cause.
+   --------------------------------------------------------------------------- */
+
+/* The rendered page. Two templates alternate, swapping under the Template
+   beat's click. */
+@keyframes lp-demo-layer {
+  0%,
+  48% {
+    opacity: 1;
+  }
+  54%,
+  98% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.lp-demo-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: lp-demo-layer 10s ease-in-out infinite;
+}
+/* The first layer stays in flow so the stack has a height to occupy. */
+.lp-demo-layer:first-child {
+  position: relative;
+  opacity: 1;
+}
+
+/* The pointer, moving one stop along the toolbar per beat. The percentages are
+   the centres of a four-column grid. */
+@keyframes lp-demo-cursor {
+  0%,
+  19% {
+    left: 12.5%;
+  }
+  25%,
+  44% {
+    left: 37.5%;
+  }
+  50%,
+  69% {
+    left: 62.5%;
+  }
+  75%,
+  94% {
+    left: 87.5%;
+  }
+  100% {
+    left: 12.5%;
+  }
+}
+.lp-demo-cursor {
+  animation: lp-demo-cursor 10s cubic-bezier(0.65, 0, 0.2, 1) infinite;
+}
+
+/* Each control dips under the press and stays lit for its beat. */
+@keyframes lp-demo-press {
+  0%,
+  2%,
+  7%,
+  100% {
+    transform: scale(1);
+  }
+  4% {
+    transform: scale(0.93);
+  }
+}
+@keyframes lp-demo-active {
+  0%,
+  2% {
+    background-color: var(--color-field);
+    color: var(--color-ink-soft);
+  }
+  5%,
+  22% {
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand);
+  }
+  25%,
+  100% {
+    background-color: var(--color-field);
+    color: var(--color-ink-soft);
+  }
+}
+/* One delay value covers both animations — the list repeats to match. */
+.lp-demo-pill {
+  animation:
+    lp-demo-press 10s ease-out infinite,
+    lp-demo-active 10s ease-out infinite;
+}
+
+/* A ring leaving the control at the moment of the click. */
+@keyframes lp-demo-ripple {
+  0%,
+  3% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  5% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  15%,
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+.lp-demo-ripple {
+  animation: lp-demo-ripple 10s ease-out infinite;
+}
+
+/* The generic beat: overlays arrive just after their click and leave before
+   the next one. */
+@keyframes lp-demo-beat {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  7%,
+  20% {
+    opacity: 1;
+    transform: none;
+  }
+  24%,
+  100% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.lp-demo-beat {
+  opacity: 0;
+  animation: lp-demo-beat 10s ease-out infinite;
+}
+
+/* The generating pass: a band of light travelling down the page. */
+@keyframes lp-demo-sweep {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translateY(-110%);
+  }
+  6%,
+  19% {
+    opacity: 1;
+  }
+  22%,
+  100% {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+}
+.lp-demo-sweep {
+  animation: lp-demo-sweep 10s ease-in-out infinite;
+}
+
+/* Small change: a caret blinking in the line being rewritten. */
+@keyframes lp-demo-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.lp-demo-caret {
+  animation: lp-demo-caret 1s steps(1) infinite;
+}
+
+/* Three dots thinking, while a status chip is up. */
+@keyframes lp-demo-dot {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+.lp-demo-dot {
+  animation: lp-demo-dot 0.9s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .lp-rail {
+  .lp-rail,
+  .lp-demo-layer,
+  .lp-demo-cursor,
+  .lp-demo-pill,
+  .lp-demo-ripple,
+  .lp-demo-beat,
+  .lp-demo-sweep,
+  .lp-demo-caret,
+  .lp-demo-dot {
     animation: none;
   }
 }
@@ -326,9 +540,39 @@ body {
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 55%, transparent);
 }
 
+/* A task with no measurable progress — one request, answered when it's
+   answered. The bar says "still working" without claiming to know how far. */
+@keyframes ai-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(320%);
+  }
+}
+.ai-progress-track {
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-field);
+}
+.ai-progress-track > span {
+  display: block;
+  width: 30%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-purple);
+  animation: ai-progress 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ai-swap .ProseMirror,
   .ai-streaming {
     animation: none;
+  }
+  /* Still needs to read as busy, so hold it steady across the track. */
+  .ai-progress-track > span {
+    width: 100%;
+    animation: none;
+    opacity: 0.5;
   }
 }

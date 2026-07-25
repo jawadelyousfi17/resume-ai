@@ -1,14 +1,20 @@
-// Pure renderer for the resume document. Given ResumeData (including
-// customization settings), produces the formatted A4 content. All typographic
-// sizes are em-relative to the configured base font size, so the whole document
-// scales with the Customize controls. No interactivity — reusable for export.
+// Pure renderer for the resume document.
+//
+// Every template goes through this one component: `lib/templates` describes
+// the layout decisions — header shape, heading treatment, where dates sit, how
+// tag sections column up — and the markup below reads that descriptor. One
+// renderer means a change to spacing or typography lands on all of them, and
+// no template can quietly drift away from the rest.
+//
+// All typographic sizes are em-relative to the configured base font size, so
+// the whole document scales with the Customize controls. No interactivity —
+// reusable for the marketing pages and for screenshotting.
 
 import type {
   EducationSection,
   ExperienceSection,
-  HeadingStyle,
-  PersonalDetails,
   PageFormat,
+  PersonalDetails,
   ResumeData,
   ResumeSettings,
   Section,
@@ -24,14 +30,26 @@ import {
   showsDates,
 } from "@/lib/defaults";
 import { isRtl, levelLabel } from "@/lib/i18n";
-import { getTemplate, type Template } from "@/lib/templates";
+import { getTemplate, tagColumns, type Template } from "@/lib/templates";
 import { formatRange } from "@/lib/format";
 import { isMarkdownEmpty } from "@/lib/markdown";
+import { avatarUrl } from "@/lib/avatar";
 import { MarkdownView } from "@/components/ui/markdown-view";
 
 const INK = "#111827";
 const MUTED = "#4b5563";
 const BODY = "#374151";
+/** The grey a banded heading sits on. */
+const BAND = "#eceef1";
+
+/** Everything the blocks need, gathered once rather than threaded field by
+ *  field through six components. */
+interface Ctx {
+  settings: ResumeSettings;
+  template: Template;
+  /** True inside a dark rail, where every colour has to invert. */
+  onDark?: boolean;
+}
 
 export function ResumePreview({
   data,
@@ -68,196 +86,193 @@ export function ResumePreview({
   }
 
   const template = getTemplate(s.template);
-
+  const ctx: Ctx = { settings: s, template };
   const rtl = isRtl(s.language);
+
   const page: React.CSSProperties = {
-    fontFamily: FONT_STACKS[s.fontFamily],
+    // The template owns the typeface; the font control still picks the exact
+    // stack within that family.
+    fontFamily: FONT_STACKS[template.font === "serif" ? "serif" : s.fontFamily],
     fontSize: `${s.fontSize}pt`,
     lineHeight: s.lineHeight,
     color: BODY,
-    // Right-to-left languages flip the whole document: headings, contact
-    // rows, list markers and the date column all follow the text direction.
+    minHeight,
+    // Right-to-left languages flip the whole document: headings, contact rows,
+    // list markers and the date column all follow the text direction.
     direction: rtl ? "rtl" : undefined,
     textAlign: rtl ? "right" : undefined,
   };
 
-  // The sidebar rail bleeds to the page edge, so that layout pads its two
-  // columns individually rather than padding the page as a whole.
-  if (template.layout === "sidebar") {
-    const rail = sections.filter(isTagGroupSection);
-    const main = sections.filter((section) => !isTagGroupSection(section));
+  const pad = `${s.marginY}mm ${s.marginX}mm`;
 
-    return (
-      <div
-        dir={rtl ? "rtl" : undefined}
-        style={{ ...page, minHeight }}
-        className="flex items-stretch"
-      >
+  // ---- two-column layouts ------------------------------------------------
+  if (template.sidebar !== "none") {
+    const rail = sections.filter(
+      (section) => isTagGroupSection(section) || section.type === "summary",
+    );
+    const main = sections.filter(
+      (section) => !isTagGroupSection(section) && section.type !== "summary",
+    );
+
+    const dark = template.sidebar === "dark";
+    const railCtx: Ctx = { ...ctx, onDark: dark };
+    const railPad = `${s.marginY}mm ${Math.max(s.marginX * 0.72, 8)}mm`;
+
+    const columns = (
+      <div className="flex flex-1 items-stretch">
         <aside
           style={{
-            width: "31%",
-            backgroundColor: `${s.accent}0f`,
-            padding: `${s.marginY}mm ${Math.max(s.marginX * 0.7, 8)}mm`,
+            width: dark ? "34%" : "31%",
+            backgroundColor: dark ? s.accent : `${s.accent}14`,
+            color: dark ? "rgba(255,255,255,0.86)" : undefined,
+            padding: railPad,
           }}
           className="shrink-0"
         >
-          <ContactList personal={personal} accent={s.accent} stacked />
+          {template.sidebarHeader === "inside" && (
+            <Header personal={personal} ctx={railCtx} stacked />
+          )}
           {rail.map((section) => (
-            <SectionBlock
-              key={section.id}
-              section={section}
-              settings={s}
-              template={template}
-            />
+            <SectionBlock key={section.id} section={section} ctx={railCtx} />
           ))}
         </aside>
 
-        <div
-          style={{ padding: `${s.marginY}mm ${s.marginX}mm` }}
-          className="min-w-0 flex-1"
-        >
-          <Header personal={personal} settings={s} template={template} nameOnly />
+        <div style={{ padding: railPad }} className="min-w-0 flex-1">
           {main.map((section) => (
-            <SectionBlock
-              key={section.id}
-              section={section}
-              settings={s}
-              template={template}
-            />
+            <SectionBlock key={section.id} section={section} ctx={ctx} />
           ))}
         </div>
       </div>
     );
-  }
 
-  return (
-    <div
-      dir={rtl ? "rtl" : undefined}
-      style={{ ...page, padding: `${s.marginY}mm ${s.marginX}mm` }}
-    >
-      <Header personal={personal} settings={s} template={template} />
-      {sections.map((section) => (
-        <SectionBlock
-          key={section.id}
-          section={section}
-          settings={s}
-          template={template}
-        />
-      ))}
-    </div>
-  );
-}
+    // A header that spans both columns sits above them; one that belongs to
+    // the rail is rendered inside it, and the columns run the full height.
+    if (template.sidebarHeader === "inside") {
+      return (
+        <div dir={rtl ? "rtl" : undefined} style={page} className="flex items-stretch">
+          {columns}
+        </div>
+      );
+    }
 
-function ContactList({
-  personal,
-  accent,
-  stacked,
-}: {
-  personal: PersonalDetails;
-  accent: string;
-  stacked?: boolean;
-}) {
-  const contacts = [
-    ...contactOrder(personal).map((field) => personal[field]),
-    ...personal.links.map((l) => l.url || l.label),
-  ].filter(Boolean);
-
-  if (contacts.length === 0) return null;
-
-  if (stacked) {
     return (
-      <div
-        style={{ fontSize: "0.86em", color: MUTED, marginBottom: "1.3em" }}
-        className="space-y-1"
-      >
-        {contacts.map((c, i) => (
-          <p key={i} className="break-words">
-            {c}
-          </p>
-        ))}
+      <div dir={rtl ? "rtl" : undefined} style={page} className="flex flex-col">
+        <div style={{ padding: pad, paddingBottom: 0 }}>
+          <Header personal={personal} ctx={ctx} />
+        </div>
+        {columns}
       </div>
     );
   }
 
+  // ---- single column -----------------------------------------------------
   return (
-    <div style={{ fontSize: "0.86em", color: MUTED, marginTop: "0.5em" }}>
-      {contacts.map((c, i) => (
-        <span key={i}>
-          {i > 0 && (
-            <span style={{ margin: "0 0.4em", color: `${accent}80` }}>•</span>
-          )}
-          {c}
-        </span>
-      ))}
+    <div dir={rtl ? "rtl" : undefined} style={page} className="flex items-stretch">
+      {template.edgeStrip && (
+        <div
+          aria-hidden="true"
+          style={{ width: "7%", backgroundColor: s.accent }}
+          className="shrink-0"
+        />
+      )}
+
+      <div className="min-w-0 flex-1">
+        {/* A banded header bleeds to the page edge, so it pads itself. */}
+        <div style={{ padding: template.headerBand ? 0 : pad, paddingBottom: 0 }}>
+          <Header personal={personal} ctx={ctx} />
+        </div>
+        <div style={{ padding: pad, paddingTop: template.headerBand ? undefined : 0 }}>
+          {sections.map((section) => (
+            <SectionBlock key={section.id} section={section} ctx={ctx} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
+// ---------------------------------------------------------------- header
+
 function Header({
   personal,
-  settings,
-  template,
-  nameOnly,
+  ctx,
+  stacked,
 }: {
   personal: PersonalDetails;
-  settings: ResumeSettings;
-  template: Template;
-  /** Sidebar layout renders contacts in the rail instead. */
-  nameOnly?: boolean;
+  ctx: Ctx;
+  /** Inside a narrow rail: everything on its own line. */
+  stacked?: boolean;
 }) {
-  const accent = settings.accent;
-  const centered = template.header === "centered";
-  const band = template.header === "band";
-
-  const nameColor = template.nameColor === "accent" ? accent : INK;
+  const { settings: s, template: t, onDark } = ctx;
+  const centered = t.headerAlign === "center" && !stacked;
+  const nameColor = onDark ? "#ffffff" : INK;
 
   const identity = (
     <>
-      {personal.fullName && (
-        <div
-          style={{ fontSize: "2em", color: nameColor, lineHeight: 1.05 }}
-          className="font-extrabold tracking-tight"
-        >
-          {personal.fullName}
-        </div>
-      )}
-      {personal.title && (
-        <div
-          style={{
-            fontSize: "1.12em",
-            color: band ? MUTED : accent,
-            marginTop: "0.15em",
-          }}
-          className="font-medium"
-        >
-          {personal.title}
-        </div>
-      )}
-      {!nameOnly && !band && (
-        <ContactList personal={personal} accent={accent} />
-      )}
+      <div
+        className={t.headerInlineTitle && !stacked ? "flex flex-wrap items-baseline gap-x-3" : ""}
+      >
+        {personal.fullName && (
+          <span
+            style={{ fontSize: stacked ? "1.6em" : "1.95em", color: nameColor, lineHeight: 1.08 }}
+            className="block font-extrabold tracking-tight"
+          >
+            {personal.fullName}
+          </span>
+        )}
+        {personal.title && (
+          <span
+            style={{
+              fontSize: t.headerInlineTitle && !stacked ? "1.15em" : "1.12em",
+              color: onDark ? "rgba(255,255,255,0.75)" : t.headerBand ? MUTED : s.accent,
+              marginTop: t.headerInlineTitle && !stacked ? 0 : "0.15em",
+            }}
+            className={
+              t.headerInlineTitle && !stacked
+                ? "italic"
+                : "block font-medium"
+            }
+          >
+            {personal.title}
+          </span>
+        )}
+      </div>
+      <ContactList personal={personal} ctx={ctx} stacked={stacked} centered={centered} />
     </>
   );
 
-  if (band) {
+  const photo = <Avatar personal={personal} ctx={ctx} stacked={stacked} />;
+
+  const inner = stacked ? (
+    <div className="mb-5">
+      {photo}
+      {identity}
+    </div>
+  ) : centered ? (
+    <div className="text-center">
+      {photo && <div className="flex justify-center">{photo}</div>}
+      {identity}
+    </div>
+  ) : (
+    <div className="flex items-center gap-5">
+      {t.photo === "left" && photo}
+      <div className="min-w-0 flex-1">{identity}</div>
+      {t.photo === "right" && photo}
+    </div>
+  );
+
+  const marginBottom = `${1.25 * ctx.template.density}em`;
+
+  if (t.headerBand) {
     return (
-      <header style={{ marginBottom: `${1.3 * template.density}em` }}>
-        <div
-          style={{
-            backgroundColor: `${accent}14`,
-            borderLeft: `3px solid ${accent}`,
-            padding: "0.7em 0.9em",
-          }}
-          className="flex items-start justify-between gap-6"
-        >
-          <div className="min-w-0">{identity}</div>
-          <Photo personal={personal} />
-        </div>
-        {!nameOnly && (
-          <div style={{ marginTop: "0.45em" }}>
-            <ContactList personal={personal} accent={accent} />
-          </div>
-        )}
+      <header
+        style={{
+          backgroundColor: `${s.accent}1f`,
+          padding: `${s.marginY * 0.8}mm ${s.marginX}mm`,
+          marginBottom,
+        }}
+      >
+        {inner}
       </header>
     );
   }
@@ -265,140 +280,334 @@ function Header({
   return (
     <header
       style={{
-        marginBottom: `${1.3 * template.density}em`,
-        paddingBottom: template.headerRule ? "0.7em" : undefined,
-        borderTop: template.headerRule ? `1px solid ${accent}55` : undefined,
-        paddingTop: template.headerRule ? "0.7em" : undefined,
-        borderBottom: template.headerRule ? `1px solid ${accent}55` : undefined,
+        marginBottom,
+        paddingTop: t.headerRule ? "0.7em" : undefined,
+        paddingBottom: t.headerRule ? "0.7em" : undefined,
+        borderTop: t.headerRule ? `1px solid ${s.accent}55` : undefined,
+        borderBottom: t.headerRule ? `1px solid ${s.accent}55` : undefined,
       }}
-      className={
-        centered
-          ? "text-center"
-          : "flex items-start justify-between gap-6"
-      }
     >
-      {centered ? (
-        <div>{identity}</div>
-      ) : (
-        <>
-          <div className="min-w-0">{identity}</div>
-          <Photo personal={personal} />
-        </>
-      )}
+      {inner}
     </header>
   );
 }
 
-function Photo({ personal }: { personal: PersonalDetails }) {
-  if (!personal.photo) return null;
+function Avatar({
+  personal,
+  ctx,
+  stacked,
+}: {
+  personal: PersonalDetails;
+  ctx: Ctx;
+  stacked?: boolean;
+}) {
+  const { template: t } = ctx;
+  if (t.photo === "none") return null;
+
+  // An uploaded photo wins; otherwise DiceBear fills the frame so the layout
+  // reads as designed rather than showing an empty circle.
+  const src = personal.photo || avatarUrl(personal.fullName);
+  const size = stacked ? "9.5em" : "6.4em";
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={personal.photo}
+      src={src}
       alt=""
-      className="shrink-0 rounded-full object-cover"
-      style={{ height: "7em", width: "7em" }}
+      aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: t.photoShape === "circle" ? "50%" : "0.35em",
+        objectFit: "cover",
+        marginBottom: stacked ? "1.1em" : undefined,
+      }}
+      className="shrink-0 bg-black/5"
     />
   );
 }
 
-function SectionHeading({
-  children,
-  accent,
-  style,
-}: {
-  children: React.ReactNode;
-  accent: string;
-  style: HeadingStyle;
-}) {
-  const base: React.CSSProperties = {
-    fontSize: "1em",
-    color: accent,
-    marginBottom: "0.5em",
-    paddingBottom: "0.15em",
+/** The small marks beside each contact row. Kept local and tiny so the
+ *  preview stays self-contained and legible at 8pt. */
+function ContactIcon({ kind, color }: { kind: string; color: string }) {
+  const common = {
+    width: "1em",
+    height: "1em",
+    viewBox: "0 0 16 16",
+    fill: "none",
+    stroke: color,
+    strokeWidth: 1.4,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    style: { flexShrink: 0, marginTop: "0.15em" },
   };
-  if (style === "underline") {
-    base.borderBottom = `1px solid ${accent}66`;
-  } else if (style === "uppercase") {
-    base.borderBottom = `1px solid ${accent}66`;
-    base.textTransform = "uppercase";
-    base.letterSpacing = "0.08em";
+
+  if (kind === "email") {
+    return (
+      <svg {...common}>
+        <rect x="1.8" y="3.4" width="12.4" height="9.2" rx="1.4" />
+        <path d="m2.4 4.4 5.6 4 5.6-4" />
+      </svg>
+    );
+  }
+  if (kind === "phone") {
+    return (
+      <svg {...common}>
+        <path d="M5.2 2.4 6.6 5.2 5.3 6.5a8 8 0 0 0 4.2 4.2l1.3-1.3 2.8 1.4v2.2c0 .6-.5 1.1-1.1 1A11.5 11.5 0 0 1 2 3.5c0-.6.4-1.1 1-1.1z" />
+      </svg>
+    );
+  }
+  if (kind === "location") {
+    return (
+      <svg {...common}>
+        <path d="M8 14.2s5-4.4 5-8a5 5 0 0 0-10 0c0 3.6 5 8 5 8Z" />
+        <circle cx="8" cy="6.2" r="1.8" />
+      </svg>
+    );
   }
   return (
-    <div style={base} className="font-bold">
-      {children}
+    <svg {...common}>
+      <path d="M6.6 9.4a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 1 0-4-4l-.7.7" />
+      <path d="M9.4 6.6a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 1 0 4 4l.7-.7" />
+    </svg>
+  );
+}
+
+function ContactList({
+  personal,
+  ctx,
+  stacked,
+  centered,
+}: {
+  personal: PersonalDetails;
+  ctx: Ctx;
+  stacked?: boolean;
+  centered?: boolean;
+}) {
+  const { settings: s, template: t, onDark } = ctx;
+  const color = onDark ? "rgba(255,255,255,0.72)" : MUTED;
+
+  const contacts = [
+    ...contactOrder(personal)
+      .map((field) => ({ kind: field, value: personal[field] }))
+      .filter((c) => c.value),
+    ...personal.links
+      .map((l) => ({ kind: "link", value: l.url || l.label }))
+      .filter((c) => c.value),
+  ];
+
+  if (contacts.length === 0) return null;
+
+  const base: React.CSSProperties = {
+    fontSize: "0.86em",
+    color,
+    marginTop: "0.75em",
+  };
+
+  // A rail: one per line, no icons competing for the narrow width.
+  if (stacked) {
+    return (
+      <div style={{ ...base, marginBottom: "0.4em" }} className="space-y-1.5">
+        {contacts.map((c, i) => (
+          <p key={i} className="flex items-start gap-2 break-words">
+            <ContactIcon kind={c.kind} color={color} />
+            <span className="min-w-0 break-words">{c.value}</span>
+          </p>
+        ))}
+      </div>
+    );
+  }
+
+  // A two-column grid with icons.
+  if (t.headerContacts === "grid") {
+    return (
+      <div
+        style={base}
+        className={`grid gap-x-8 gap-y-1.5 sm:grid-cols-2 ${centered ? "justify-items-center" : ""}`}
+      >
+        {contacts.map((c, i) => (
+          <span key={i} className="flex items-start gap-2">
+            <ContactIcon kind={c.kind} color={color} />
+            <span className="min-w-0 break-words">{c.value}</span>
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  // One flowing row.
+  return (
+    <div style={base} className={centered ? "text-center" : undefined}>
+      {contacts.map((c, i) => (
+        <span key={i}>
+          {i > 0 && (
+            <span style={{ margin: "0 0.45em", color: `${s.accent}80` }}>•</span>
+          )}
+          {c.value}
+        </span>
+      ))}
     </div>
   );
 }
 
-function SectionBlock({
-  section,
-  settings,
-  template,
-}: {
-  section: Section;
-  settings: ResumeSettings;
-  template: Template;
-}) {
-  // Templates set the vertical rhythm; everything else is per-block.
+// -------------------------------------------------------------- headings
+
+function SectionHeading({ children, ctx }: { children: string; ctx: Ctx }) {
+  const { settings: s, template: t, onDark } = ctx;
+
+  // The template sets the default; the Customize control still overrides it.
+  const caps = s.headingStyle === "uppercase" || t.headingCaps;
+  const text = caps ? children.toUpperCase() : children;
+
+  const type: React.CSSProperties = {
+    fontSize: "1.02em",
+    letterSpacing: caps ? "0.06em" : undefined,
+    color: onDark ? "#ffffff" : t.headingAccentRule ? s.accent : INK,
+    textAlign: t.headingAlign === "center" ? "center" : undefined,
+  };
+
+  if (t.headingStyle === "band") {
+    return (
+      <h2
+        style={{
+          ...type,
+          backgroundColor: onDark ? "rgba(255,255,255,0.12)" : BAND,
+          padding: "0.3em 0.7em",
+          marginBottom: "0.6em",
+        }}
+        className="font-bold"
+      >
+        {text}
+      </h2>
+    );
+  }
+
+  if (t.headingStyle === "plain" && s.headingStyle === "plain") {
+    return (
+      <h2 style={{ ...type, marginBottom: "0.45em" }} className="font-bold">
+        {text}
+      </h2>
+    );
+  }
+
+  const ruleColor = onDark
+    ? "rgba(255,255,255,0.35)"
+    : t.headingAccentRule
+      ? s.accent
+      : INK;
+
+  return (
+    <h2
+      style={{
+        ...type,
+        borderBottom: `1.2px solid ${ruleColor}`,
+        paddingBottom: "0.22em",
+        marginBottom: "0.55em",
+      }}
+      className="font-bold"
+    >
+      {text}
+    </h2>
+  );
+}
+
+function SectionBlock({ section, ctx }: { section: Section; ctx: Ctx }) {
   const wrap: React.CSSProperties = {
-    marginBottom: `${1.3 * template.density}em`,
+    marginBottom: `${1.15 * ctx.template.density}em`,
   };
 
   switch (section.type) {
     case "summary":
-      return <SummaryBlock section={section} settings={settings} wrap={wrap} />;
+      return <SummaryBlock section={section} ctx={ctx} wrap={wrap} />;
     case "experience":
     case "projects":
     case "volunteering":
-      return (
-        <ExperienceBlock section={section} settings={settings} wrap={wrap} />
-      );
+      return <ExperienceBlock section={section} ctx={ctx} wrap={wrap} />;
     case "education":
     case "certifications":
     case "awards":
-      return (
-        <EducationBlock section={section} settings={settings} wrap={wrap} />
-      );
+      return <EducationBlock section={section} ctx={ctx} wrap={wrap} />;
     case "skills":
     case "languages":
     case "interests":
-      return <SkillsBlock section={section} settings={settings} wrap={wrap} />;
+      return <TagBlock section={section} ctx={ctx} wrap={wrap} />;
   }
 }
 
+// ----------------------------------------------------------------- blocks
+
 function SummaryBlock({
   section,
-  settings,
+  ctx,
   wrap,
 }: {
   section: SummarySection;
-  settings: ResumeSettings;
+  ctx: Ctx;
   wrap: React.CSSProperties;
 }) {
   if (isMarkdownEmpty(section.content)) return null;
   return (
     <section style={wrap}>
-      <SectionHeading accent={settings.accent} style={settings.headingStyle}>
-        {section.title}
-      </SectionHeading>
+      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
       <MarkdownView
         md={section.content}
-        style={{ fontSize: "0.95em", color: BODY }}
+        style={{
+          fontSize: "0.95em",
+          color: ctx.onDark ? "rgba(255,255,255,0.8)" : BODY,
+        }}
       />
     </section>
   );
 }
 
+/** The dates-and-place column, wherever the template puts it. */
+function Meta({
+  range,
+  location,
+  ctx,
+  align,
+}: {
+  range: string;
+  location: string;
+  ctx: Ctx;
+  align: "left" | "right";
+}) {
+  const { template: t, onDark } = ctx;
+  const color = onDark ? "rgba(255,255,255,0.6)" : "#6b7280";
+  const style: React.CSSProperties = {
+    fontSize: "0.85em",
+    color,
+    textAlign: align,
+  };
+
+  if (!range && !location) return null;
+
+  if (t.dates === "right-inline") {
+    return (
+      <p style={style} className="shrink-0 whitespace-nowrap">
+        {[range, location].filter(Boolean).join("  |  ")}
+      </p>
+    );
+  }
+
+  return (
+    <div style={style} className={t.dates === "right" ? "shrink-0" : undefined}>
+      {range && <p className="whitespace-nowrap">{range}</p>}
+      {location && <p>{location}</p>}
+    </div>
+  );
+}
+
 function ExperienceBlock({
   section,
-  settings,
+  ctx,
   wrap,
 }: {
   section: ExperienceSection;
-  settings: ResumeSettings;
+  ctx: Ctx;
   wrap: React.CSSProperties;
 }) {
+  const { settings: s, template: t, onDark } = ctx;
   const items = section.items.filter(
     (i) => !i.hidden && (i.role || i.company || !isMarkdownEmpty(i.highlights)),
   );
@@ -406,49 +615,63 @@ function ExperienceBlock({
 
   return (
     <section style={wrap}>
-      <SectionHeading accent={settings.accent} style={settings.headingStyle}>
-        {section.title}
-      </SectionHeading>
-      <div className="space-y-3">
+      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      <div style={{ display: "grid", rowGap: `${0.7 * t.density}em` }}>
         {items.map((item) => {
           const range = showsDates(section)
-            ? formatRange(item.startDate, item.endDate, item.current, settings.language, settings.dateFormat)
+            ? formatRange(item.startDate, item.endDate, item.current, s.language, s.dateFormat)
             : "";
+
+          const heading = (
+            <p style={{ fontSize: "1em", color: onDark ? "#fff" : INK }}>
+              <span className="font-bold">{item.role}</span>
+              {item.role && item.company && (
+                <span style={{ color: onDark ? "rgba(255,255,255,0.7)" : MUTED }}>
+                  {", "}
+                </span>
+              )}
+              <span
+                style={{ color: onDark ? "rgba(255,255,255,0.8)" : BODY }}
+                className="italic"
+              >
+                {item.company}
+              </span>
+            </p>
+          );
+
+          const body = !isMarkdownEmpty(item.highlights) && (
+            <MarkdownView
+              md={item.highlights}
+              style={{
+                fontSize: "0.95em",
+                color: onDark ? "rgba(255,255,255,0.8)" : BODY,
+              }}
+            />
+          );
+
+          // Dates get their own column to the left of the entry.
+          if (t.dates === "left-column") {
+            return (
+              <div
+                key={item.id}
+                style={{ display: "grid", gridTemplateColumns: "9em 1fr", columnGap: "1em" }}
+              >
+                <Meta range={range} location={item.location} ctx={ctx} align="left" />
+                <div className="min-w-0">
+                  {heading}
+                  {body}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <div key={item.id}>
-              <div className="flex items-baseline justify-between gap-3">
-                <p style={{ fontSize: "1em", color: INK }} className="font-semibold">
-                  {item.role}
-                  {item.role && item.company && (
-                    <span style={{ color: MUTED }} className="font-normal">
-                      {" · "}
-                    </span>
-                  )}
-                  <span style={{ color: BODY }} className="font-medium">
-                    {item.company}
-                  </span>
-                </p>
-                {range && (
-                  <p
-                    style={{ fontSize: "0.85em", color: "#6b7280" }}
-                    className="shrink-0"
-                  >
-                    {range}
-                  </p>
-                )}
+              <div className="flex items-baseline justify-between gap-4">
+                <div className="min-w-0">{heading}</div>
+                <Meta range={range} location={item.location} ctx={ctx} align="right" />
               </div>
-              {item.location && (
-                <p
-                  style={{ fontSize: "0.85em", color: "#6b7280" }}
-                  className="italic"
-                >
-                  {item.location}
-                </p>
-              )}
-              <MarkdownView
-                md={item.highlights}
-                style={{ fontSize: "0.95em", color: BODY }}
-              />
+              {body}
             </div>
           );
         })}
@@ -459,51 +682,75 @@ function ExperienceBlock({
 
 function EducationBlock({
   section,
-  settings,
+  ctx,
   wrap,
 }: {
   section: EducationSection;
-  settings: ResumeSettings;
+  ctx: Ctx;
   wrap: React.CSSProperties;
 }) {
+  const { settings: s, template: t, onDark } = ctx;
   const items = section.items.filter((i) => !i.hidden && (i.degree || i.school));
   if (items.length === 0) return null;
 
   return (
     <section style={wrap}>
-      <SectionHeading accent={settings.accent} style={settings.headingStyle}>
-        {section.title}
-      </SectionHeading>
-      <div className="space-y-3">
+      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      <div style={{ display: "grid", rowGap: `${0.55 * t.density}em` }}>
         {items.map((item) => {
           const range = showsDates(section)
-            ? formatRange(item.startDate, item.endDate, false, settings.language, settings.dateFormat)
+            ? formatRange(item.startDate, item.endDate, false, s.language, s.dateFormat)
             : "";
+
+          const heading = (
+            <p style={{ fontSize: "1em", color: onDark ? "#fff" : INK }}>
+              <span className="font-bold">{item.degree}</span>
+              {item.degree && item.school && (
+                <span style={{ color: onDark ? "rgba(255,255,255,0.7)" : MUTED }}>
+                  {", "}
+                </span>
+              )}
+              <span
+                style={{ color: onDark ? "rgba(255,255,255,0.8)" : BODY }}
+                className="italic"
+              >
+                {item.school}
+              </span>
+            </p>
+          );
+
+          const body = !isMarkdownEmpty(item.description) && (
+            <MarkdownView
+              md={item.description}
+              style={{
+                fontSize: "0.9em",
+                color: onDark ? "rgba(255,255,255,0.72)" : MUTED,
+              }}
+            />
+          );
+
+          if (t.dates === "left-column") {
+            return (
+              <div
+                key={item.id}
+                style={{ display: "grid", gridTemplateColumns: "9em 1fr", columnGap: "1em" }}
+              >
+                <Meta range={range} location={item.location} ctx={ctx} align="left" />
+                <div className="min-w-0">
+                  {heading}
+                  {body}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <div key={item.id}>
-              <div className="flex items-baseline justify-between gap-3">
-                <p style={{ fontSize: "1em", color: INK }} className="font-semibold">
-                  {item.degree}
-                </p>
-                {range && (
-                  <p
-                    style={{ fontSize: "0.85em", color: "#6b7280" }}
-                    className="shrink-0"
-                  >
-                    {range}
-                  </p>
-                )}
+              <div className="flex items-baseline justify-between gap-4">
+                <div className="min-w-0">{heading}</div>
+                <Meta range={range} location={item.location} ctx={ctx} align="right" />
               </div>
-              <p style={{ fontSize: "0.95em", color: BODY }}>
-                {item.school}
-                {item.school && item.location && (
-                  <span style={{ color: "#6b7280" }}> · {item.location}</span>
-                )}
-              </p>
-              <MarkdownView
-                md={item.description}
-                style={{ fontSize: "0.9em", color: MUTED, marginTop: "0.15em" }}
-              />
+              {body}
             </div>
           );
         })}
@@ -512,42 +759,134 @@ function EducationBlock({
   );
 }
 
-function SkillsBlock({
+/** Five dots, filled to the stated level. */
+function Dots({ level, ctx }: { level: number; ctx: Ctx }) {
+  const { settings: s, onDark } = ctx;
+  const filled = onDark ? "rgba(255,255,255,0.9)" : s.accent;
+  const empty = onDark ? "rgba(255,255,255,0.25)" : "#d5d9e0";
+
+  return (
+    <span className="flex shrink-0 items-center gap-[0.3em]">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: "0.45em",
+            height: "0.45em",
+            borderRadius: "50%",
+            // A four-step scale shown on five dots: 4 fills them all.
+            backgroundColor: i <= Math.round((level / 4) * 5) ? filled : empty,
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function TagBlock({
   section,
-  settings,
+  ctx,
   wrap,
 }: {
   section: SkillsSection;
-  settings: ResumeSettings;
+  ctx: Ctx;
   wrap: React.CSSProperties;
 }) {
+  const { settings: s, template: t, onDark } = ctx;
   const items = section.items.filter((i) => !i.hidden && i.name.trim());
   if (items.length === 0) return null;
 
-  return (
-    <section style={wrap}>
-      <SectionHeading accent={settings.accent} style={settings.headingStyle}>
-        {section.title}
-      </SectionHeading>
-      {/* One flowing line: a resume shouldn't spend a row per skill. Levels
-          ride alongside the name they qualify. */}
-      <p style={{ fontSize: "0.95em", color: BODY }}>
-        {items.map((item, i) => {
-          const level = levelLabel(section.type, item.level, settings.language);
-          return (
-            <span key={item.id}>
-              {i > 0 && <span style={{ color: MUTED }}> · </span>}
-              {item.name}
-              {level && (
-                <span style={{ color: MUTED, fontSize: "0.9em" }}>
-                  {" "}
-                  ({level})
-                </span>
-              )}
+  const color = onDark ? "rgba(255,255,255,0.85)" : BODY;
+  const size = "0.95em";
+
+  const inner = () => {
+    // One flowing line, pipe-separated.
+    if (t.tags === "inline") {
+      return (
+        <p style={{ fontSize: size, color }}>
+          {items.map((item, i) => {
+            const level = levelLabel(section.type, item.level, s.language);
+            return (
+              <span key={item.id}>
+                {i > 0 && (
+                  <span style={{ margin: "0 0.5em", color: `${s.accent}66` }}>|</span>
+                )}
+                <span className="font-medium">{item.name}</span>
+                {level && (
+                  <span style={{ color: MUTED }}> ({level})</span>
+                )}
+              </span>
+            );
+          })}
+        </p>
+      );
+    }
+
+    // Name on the left, a proficiency meter on the right.
+    if (t.tags === "dots") {
+      return (
+        <div
+          style={{ fontSize: size, color, display: "grid", columnGap: "2.5em", rowGap: "0.35em" }}
+          className="sm:grid-cols-2"
+        >
+          {items.map((item) => (
+            <span key={item.id} className="flex items-center justify-between gap-3">
+              <span className="min-w-0">{item.name}</span>
+              <Dots level={item.level ?? 3} ctx={ctx} />
             </span>
+          ))}
+        </div>
+      );
+    }
+
+    // Bulleted columns.
+    const cols = tagColumns(t.tags);
+    return (
+      <ul
+        style={{
+          fontSize: size,
+          color,
+          display: "grid",
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+          columnGap: "1.5em",
+          rowGap: "0.3em",
+        }}
+      >
+        {items.map((item) => {
+          const level = levelLabel(section.type, item.level, s.language);
+          return (
+            <li key={item.id} className="flex items-start gap-2">
+              <span
+                aria-hidden="true"
+                style={{
+                  marginTop: "0.55em",
+                  width: "0.28em",
+                  height: "0.28em",
+                  borderRadius: "50%",
+                  backgroundColor: onDark ? "rgba(255,255,255,0.6)" : "#9ca3af",
+                }}
+                className="shrink-0"
+              />
+              <span className="min-w-0">
+                {item.name}
+                {level && (
+                  <span style={{ color: onDark ? "rgba(255,255,255,0.6)" : MUTED }}>
+                    {" "}
+                    ({level})
+                  </span>
+                )}
+              </span>
+            </li>
           );
         })}
-      </p>
+      </ul>
+    );
+  };
+
+  return (
+    <section style={wrap}>
+      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      {inner()}
     </section>
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { MailIcon } from "@/components/ui/icons";
 
 import { SOCIALS, SocialIcon, Wordmark } from "./marks";
-import { btnOnNavy, btnPrimary } from "./ui";
+import { btnPrimary, btnQuiet } from "./ui";
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -53,79 +53,88 @@ function PhoneIcon({ className }: { className?: string }) {
 
 export function SiteFooter() {
   return (
-    <footer className="px-5 pb-5 sm:px-8 sm:pb-8">
-      <div className="mx-auto max-w-[1180px] rounded-3xl bg-navy px-6 pt-14 shadow-[var(--shadow-panel)] sm:px-10 sm:pt-16">
-        {/* Closing CTA */}
-        <div className="flex flex-col gap-8 pb-16 lg:flex-row lg:items-center lg:justify-between lg:pb-20">
-          <h2 className="max-w-[16ch] text-[28px] leading-[1.2] font-extrabold tracking-tight text-white sm:text-[34px]">
-            Discover the full scale of{" "}
-            <span className="underline decoration-accent-2 decoration-[5px] underline-offset-[8px]">
-              resumeai
-            </span>{" "}
-            capabilities
-          </h2>
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <a href="#features" className={btnOnNavy}>
-              Get a Demo
-            </a>
-            <Link href="/dashboard" className={btnPrimary}>
-              Start for Free
-            </Link>
-          </div>
+    <footer className="mt-20 md:mt-24 lg:mt-32">
+      {/* Closing CTA, on cream, above the dark footer slab. */}
+      <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 text-center sm:px-8 lg:pb-28">
+        <h2 className="mx-auto max-w-[18ch] text-[30px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[38px] lg:text-[44px]">
+          Your first resume is free. Start writing it now.
+        </h2>
+        <p className="mx-auto mt-4 max-w-[52ch] text-[16px] leading-[1.7] text-ink-soft lg:text-[18px]">
+          No account needed to begin, no watermark on the way out, and no credit
+          card at any point.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link href="/dashboard" className={btnPrimary}>
+            Get started for free ✨
+          </Link>
+          <Link href="/resume-templates" className={btnQuiet}>
+            Browse templates
+          </Link>
         </div>
+      </div>
 
-        {/* Sitemap */}
-        <div className="grid gap-10 pb-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-          <div>
-            <Wordmark tone="light" />
-            <div className="mt-6 space-y-3 text-[13.5px] text-white/55">
-              <a
-                href="mailto:hello@resumeai.com"
-                className="flex items-center gap-2.5 transition-colors hover:text-white"
-              >
-                <MailIcon className="h-4 w-4" />
-                hello@resumeai.com
-              </a>
-              <a
-                href="tel:+14155550134"
-                className="flex items-center gap-2.5 transition-colors hover:text-white"
-              >
-                <PhoneIcon className="h-4 w-4" />
-                +1 (415) 555-0134
-              </a>
+      <div className="w-full bg-navy">
+        <div className="mx-auto w-full max-w-[1180px] px-5 pt-12 pb-8 sm:px-8 lg:pt-16 lg:pb-10">
+          {/* Mission + sitemap */}
+          <div className="flex flex-wrap gap-y-10">
+            <div className="w-full lg:w-[45%] lg:pr-10">
+              <Wordmark tone="light" />
+              <p className="mt-6 max-w-md text-[15px] leading-[1.7] text-white/60 md:text-base">
+                resumeai is a small, independent project. The goal is simple:
+                make the hour before an application deadline a lot less
+                miserable, and give you a page you&apos;re happy to send.
+              </p>
+              <div className="mt-6 space-y-3 text-[13.5px] text-white/55">
+                <a
+                  href="mailto:hello@resumeai.com"
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
+                >
+                  <MailIcon className="h-4 w-4" />
+                  hello@resumeai.com
+                </a>
+                <a
+                  href="tel:+14155550134"
+                  className="flex items-center gap-2.5 transition-colors hover:text-white"
+                >
+                  <PhoneIcon className="h-4 w-4" />
+                  +1 (415) 555-0134
+                </a>
+              </div>
             </div>
+
+            <nav className="grid w-full grid-cols-2 gap-8 sm:grid-cols-3 lg:w-[55%]">
+              {COLUMNS.map((col) => (
+                <div key={col.title}>
+                  <h3 className="text-[13px] font-bold tracking-[0.5px] text-white uppercase">
+                    {col.title}
+                  </h3>
+                  <ul className="mt-4 space-y-2.5 lg:mt-5">
+                    {col.links.map((link) => (
+                      <li key={link.href + link.label}>
+                        <Link
+                          href={link.href}
+                          className="text-[13.5px] text-white/55 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
           </div>
 
-          {COLUMNS.map((col) => (
-            <div key={col.title}>
-              <h3 className="text-[13.5px] font-bold text-white">
-                {col.title}
-              </h3>
-              <ul className="mt-5 space-y-3">
-                {col.links.map((link) => (
-                  <li key={link.href + link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-[13.5px] text-white/55 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          {/* Legal */}
+          <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-6 sm:flex-row">
+            <p className="text-[12.5px] text-white/40">
+              © 2026 resumeai. All rights reserved.
+            </p>
+            <div className="flex items-center gap-5">
+              {SOCIALS.map((s) => (
+                <SocialIcon key={s.label} {...s} />
+              ))}
             </div>
-          ))}
-        </div>
-
-        {/* Legal */}
-        <div className="flex flex-col items-center justify-between gap-5 border-t border-white/10 py-6 sm:flex-row">
-          <p className="text-[12.5px] text-white/40">
-            © Copyright 2026 resumeai. All rights reserved.
-          </p>
-          <div className="flex items-center gap-5">
-            {SOCIALS.map((s) => (
-              <SocialIcon key={s.label} {...s} />
-            ))}
           </div>
         </div>
       </div>

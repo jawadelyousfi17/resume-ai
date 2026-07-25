@@ -5,7 +5,7 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
 /** API routes a signed-out visitor may call. Everything else under /api is
  *  turned away here; the pages are all public, because the app works as a
  *  guest and the marketing and guide pages have to be crawlable. */
-const PUBLIC_API_PATHS = ["/api/compile"];
+const PUBLIC_API_PATHS = ["/api/compile", "/api/pdf-check"];
 
 function isPublicApi(pathname: string) {
   return PUBLIC_API_PATHS.some(

@@ -10,37 +10,20 @@ import {
   JsonLd,
   PageHeader,
 } from "@/components/content/ContentShell";
-import { panel } from "@/components/landing/ui";
 import { TEMPLATES } from "@/lib/templates";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Resume Templates — Five ATS-Ready Layouts | resumeai",
+  title: "Resume Templates — Free, ATS-Ready Layouts | resumeai",
   description:
-    "Five resume templates you can edit and export as a real PDF: Classic, Modern, Minimal, Sidebar and Editorial. All single-column-safe and ATS-readable.",
+    "Professional resume templates you can edit and export as a real PDF — serif and sans, single and two-column, with or without a photo. Every one is ATS-readable.",
   alternates: { canonical: "/resume-templates" },
-};
-
-/** Which situation each layout is actually for — the thing a template gallery
- *  usually leaves you to guess. */
-const SUITED_TO: Record<string, string> = {
-  classic:
-    "Any application where you don't want the layout to be the thing anyone notices. The safest choice, and the right default.",
-  modern:
-    "Roles where a little visual confidence helps — product, marketing, startups — without straying from a single readable column.",
-  minimal:
-    "Dense resumes. With no rules or fills competing for attention, more content fits before the page feels crowded.",
-  sidebar:
-    "People with a long skills or tools list that would otherwise eat the main column. Check the text order after export.",
-  editorial:
-    "Writing, research, academia and law, where serif type and a centred header read as appropriate rather than decorative.",
 };
 
 const FAQS = [
   {
     question: "Are these templates ATS-friendly?",
     answer:
-      "Yes. Every template exports to a real-text, conventionally-headed PDF, which is what applicant tracking systems parse. The Sidebar layout is the one to check — copy the text out of the exported PDF and confirm it reads in a sensible order.",
+      "Yes. Every template exports to a real-text, conventionally-headed PDF, which is what applicant tracking systems parse. The two-column layouts are the ones to check — copy the text out of the exported PDF and confirm it reads in a sensible order.",
   },
   {
     question: "Can I change a template after I've written my resume?",
@@ -55,7 +38,7 @@ const FAQS = [
   {
     question: "Do the templates work in other languages?",
     answer:
-      "All five render in ten languages, including right-to-left Arabic, which flips the whole document. PDF export for non-Latin scripts needs a matching font installed on the server.",
+      "All of them render in ten languages, including right-to-left Arabic, which flips the whole document. PDF export for non-Latin scripts needs a matching font installed on the server.",
   },
 ];
 
@@ -88,30 +71,42 @@ export default function ResumeTemplatesPage() {
         }}
       />
 
-      <Column>
+      <Column className="max-w-[900px]">
         <Breadcrumbs
           trail={[{ label: "Home", href: "/" }, { label: "Templates" }]}
         />
         <PageHeader
           eyebrow="Templates"
           title="Resume templates"
-          intro="Five layouts, all built on the same document. Pick one now and change your mind later — switching template re-renders what you've written rather than starting it over."
+          intro="Every one is a render of the same document, so you can compare them like for like. Pick one now and change your mind later — switching template re-renders what you've written rather than starting it over."
         />
 
-        <div className="mt-10 space-y-3">
+        {/* Screenshots of the real render, captured off each template's own
+            page by scripts/shoot-templates.mjs. */}
+        <div className="mt-10 grid gap-5 sm:grid-cols-2">
           {TEMPLATES.map((template) => (
-            <article key={template.id} className={cn(panel, "px-6 py-5")}>
-              <h2 className="text-[18px] font-extrabold text-ink">
+            <Link
+              key={template.id}
+              href={`/resume-templates/${template.id}`}
+              className="group block"
+            >
+              <span className="block overflow-hidden rounded-xl bg-white shadow-[var(--shadow-panel)] ring-1 ring-black/5 transition group-hover:-translate-y-0.5 group-hover:shadow-[var(--shadow-paper)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/templates/${template.id}.png`}
+                  alt={`${template.name} resume template`}
+                  loading="lazy"
+                  className="block w-full"
+                  style={{ aspectRatio: "210 / 297", objectFit: "cover", objectPosition: "top" }}
+                />
+              </span>
+              <span className="mt-3 block text-[16px] font-extrabold text-ink">
                 {template.name}
-              </h2>
-              <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
+              </span>
+              <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
                 {template.description}
-              </p>
-              <p className="mt-2 text-[14.5px] leading-relaxed text-ink-faint">
-                <span className="font-bold text-ink-soft">Suited to: </span>
-                {SUITED_TO[template.id]}
-              </p>
-            </article>
+              </span>
+            </Link>
           ))}
         </div>
 
@@ -122,7 +117,7 @@ export default function ResumeTemplatesPage() {
           <p className="mt-4 text-[16px] leading-[1.75] text-ink-soft">
             Template choice is the smallest decision on this page. No layout
             rescues weak bullet points, and no recruiter has ever hired someone
-            for their margins. If you are undecided, take Classic and spend the
+            for their margins. If you are undecided, take Ledger and spend the
             time you saved on{" "}
             <Link
               href="/guides/resume-bullet-points"
@@ -155,7 +150,7 @@ export default function ResumeTemplatesPage() {
 
         <ContentCta
           heading="Try a template"
-          body="Open the editor, write one entry, and switch between all five to see the difference."
+          body="Open the editor, write one entry, and switch between them to see the difference."
         />
       </Column>
     </ContentPage>

@@ -141,8 +141,21 @@ export type PageFormat = "A4" | "Letter";
 export type DateFormat = "short" | "long" | "numeric" | "iso";
 export type HeadingStyle = "underline" | "plain" | "uppercase";
 
-/** Which of the five templates the document is rendered with. */
+/** Which template the document is rendered with. The last five predate the
+ *  rest and are kept because saved resumes still reference them. */
 export type TemplateId =
+  | "ledger"
+  | "meridian"
+  | "chronicle"
+  | "bergen"
+  | "atlas"
+  | "compass"
+  | "verdant"
+  | "onyx"
+  | "portrait"
+  | "compact"
+  | "oxford"
+  | "ashford"
   | "classic"
   | "modern"
   | "minimal"

@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useResume } from "@/lib/store";
 import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
-import { TEMPLATES, type Template } from "@/lib/templates";
+import {
+  inCategory,
+  TEMPLATE_CATEGORIES,
+  TEMPLATES,
+  templatesIn,
+  type Template,
+  type TemplateCategory,
+} from "@/lib/templates";
 import {
   isDefaultTitle,
   language,
@@ -110,6 +117,9 @@ export function CustomizePanel() {
       d.settings.template = t.id;
       d.settings.fontFamily = t.presets.fontFamily;
       d.settings.headingStyle = t.presets.headingStyle;
+      // Each template was designed around an accent. It stays a setting — the
+      // colour swatches below still override it.
+      if (t.accent) d.settings.accent = t.accent;
     });
 
   const goto = (id: string) => {
@@ -396,130 +406,149 @@ function TemplatePicker({
   accent: string;
   onPick: (template: Template) => void;
 }) {
+  // Null is "All". Nothing is typed here — the filter is a row of buttons.
+  const [category, setCategory] = useState<TemplateCategory | null>(null);
+
+  const shown = category
+    ? TEMPLATES.filter((t) => inCategory(t, category))
+    : TEMPLATES;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        // Reopening should start from the whole set, not the last filter.
+        if (!next) setCategory(null);
+        onOpenChange(next);
+      }}
+    >
+      {/* Wide on purpose: a template is judged by how the page looks, and a
+          thumbnail small enough to fit a narrow dialog shows layout but not
+          typography. `scroll-slim` keeps the scrolling and drops the bar. */}
       <DialogContent
         aria-describedby={undefined}
-        className="max-h-[85vh] gap-6 overflow-y-auto rounded-3xl p-7 sm:max-w-3xl"
+        showCloseButton={false}
+        className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 sm:max-w-5xl"
       >
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-extrabold text-ink">
-            Choose a template
-          </DialogTitle>
-        </DialogHeader>
+        {/* Title and filters ride along at the top while the grid scrolls
+            under them. The negative margins take the block out to the
+            dialog's edges so nothing shows through beside it, and the padding
+            puts it back where it was. */}
+        <div className="sticky top-0 z-10 -mx-7 rounded-t-3xl bg-popover px-7 pt-7 pb-4">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-extrabold text-ink">
+              Choose a template
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {TEMPLATES.map((t) => {
-            const selected = t.id === selectedId;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => onPick(t)}
-                aria-pressed={selected}
-                className={`group relative overflow-hidden rounded-2xl border-2 text-left transition ${
-                  selected
-                    ? "border-brand"
-                    : "border-field-border hover:border-ink/25"
-                }`}
-              >
-                <TemplateThumb template={t} accent={accent} />
-                <span className="flex items-center gap-1.5 px-3 py-2.5">
-                  <span className="text-[14px] font-bold text-ink">
-                    {t.name}
-                  </span>
-                  {selected && (
-                    <CheckIcon className="ml-auto h-4 w-4 shrink-0 text-brand" />
-                  )}
-                </span>
-              </button>
-            );
-          })}
+          <div className="mt-5 flex flex-wrap gap-2.5">
+            <FilterChip
+              label="All"
+              count={TEMPLATES.length}
+              active={category === null}
+              onClick={() => setCategory(null)}
+            />
+            {TEMPLATE_CATEGORIES.map((c) => (
+              <FilterChip
+                key={c.id}
+                label={c.label}
+                count={templatesIn(c.id).length}
+                active={category === c.id}
+                onClick={() => setCategory(c.id)}
+              />
+            ))}
+          </div>
         </div>
+
+        {shown.length === 0 ? (
+          <p className="py-10 text-center text-[14.5px] font-medium text-ink-soft">
+            Nothing in that group yet.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+            {shown.map((t) => {
+              const selected = t.id === selectedId;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => onPick(t)}
+                  aria-pressed={selected}
+                  className={`group relative overflow-hidden rounded-2xl border-2 text-left transition ${
+                    selected
+                      ? "border-brand"
+                      : "border-field-border hover:border-ink/25"
+                  }`}
+                >
+                  <TemplateThumb template={t} accent={accent} />
+                  <span className="flex items-center gap-1.5 px-4 py-3">
+                    <span className="text-[15px] font-bold text-ink">
+                      {t.name}
+                    </span>
+                    {selected && (
+                      <CheckIcon className="ml-auto h-4.5 w-4.5 shrink-0 text-brand" />
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function TemplateThumb({
-  template,
-  accent,
+/** One filter button. The count is worth showing — it tells you whether a
+ *  group is worth opening before you open it. */
+function FilterChip({
+  label,
+  count,
+  active,
+  onClick,
 }: {
-  template: Template;
-  accent: string;
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
 }) {
-  const line = (w: string, i: number) => (
-    <span
-      key={i}
-      className="block rounded-[1px] bg-ink-faint/30"
-      style={{ width: w, height: 2, marginTop: 3 }}
-    />
-  );
-  const heading = (
-    <span
-      className="block rounded-[1px]"
-      style={{ width: "45%", height: 3, backgroundColor: accent, marginTop: 6 }}
-    />
-  );
-
-  const body = (
-    <>
-      {heading}
-      {["90%", "75%", "82%"].map((w, i) => line(w, i))}
-      {heading}
-      {["85%", "70%"].map((w, i) => line(w, i + 10))}
-    </>
-  );
-
   return (
-    <span className="block bg-white p-2" style={{ aspectRatio: "1 / 1.15" }}>
-      {template.layout === "sidebar" ? (
-        <span className="flex h-full gap-1.5">
-          <span
-            className="block w-1/3 shrink-0 rounded-[2px] p-1"
-            style={{ backgroundColor: `${accent}1f` }}
-          >
-            {["80%", "60%", "70%"].map((w, i) => line(w, i))}
-          </span>
-          <span className="block min-w-0 flex-1">
-            <span
-              className="block rounded-[1px]"
-              style={{ width: "70%", height: 5, backgroundColor: accent }}
-            />
-            {body}
-          </span>
-        </span>
-      ) : (
-        <span className="block h-full">
-          <span
-            className={
-              template.header === "centered" ? "block text-center" : "block"
-            }
-            style={
-              template.header === "band"
-                ? {
-                    backgroundColor: `${accent}1f`,
-                    borderLeft: `2px solid ${accent}`,
-                    padding: 3,
-                  }
-                : template.headerRule
-                  ? {
-                      borderTop: `1px solid ${accent}66`,
-                      borderBottom: `1px solid ${accent}66`,
-                      padding: "3px 0",
-                    }
-                  : undefined
-            }
-          >
-            <span
-              className="inline-block rounded-[1px] bg-ink/70"
-              style={{ width: "60%", height: 5 }}
-            />
-          </span>
-          {body}
-        </span>
-      )}
-    </span>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full px-5 py-3 text-[15.5px] font-bold transition ${
+        active
+          ? "bg-navy text-white"
+          : "bg-field text-ink-soft hover:bg-black/[0.06] hover:text-ink"
+      }`}
+    >
+      {label}
+      <span
+        className={`ml-2 text-[13.5px] font-semibold ${
+          active ? "text-white/60" : "text-ink-faint"
+        }`}
+      >
+        {count}
+      </span>
+    </button>
+  );
+}
+
+function TemplateThumb({ template }: { template: Template; accent?: string }) {
+  // A screenshot of the real render, produced by scripts/shoot-templates.mjs.
+  // A drawn approximation would be one more thing that can disagree with what
+  // the editor actually outputs.
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/templates/${template.id}.png`}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      className="block w-full bg-white"
+      style={{ aspectRatio: "210 / 297", objectFit: "cover", objectPosition: "top" }}
+    />
   );
 }
 

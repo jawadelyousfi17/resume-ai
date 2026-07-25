@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { GUIDES } from "@/lib/content/guides";
+import { TEMPLATES } from "@/lib/templates";
 import { siteOrigin } from "@/lib/site-url";
 
 /** Only the pages worth indexing: the marketing and written content. The
@@ -22,6 +23,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: page.priority,
+    })),
+    ...TEMPLATES.map((template) => ({
+      url: `${origin}/resume-templates/${template.id}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
     ...GUIDES.map((guide) => ({
       url: `${origin}/guides/${guide.slug}`,

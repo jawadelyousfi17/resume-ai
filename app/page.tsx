@@ -1,29 +1,37 @@
 import type { Metadata } from "next";
 
-import { Features } from "@/components/landing/Features";
+import { Faq } from "@/components/landing/Faq";
+import { FreePlan } from "@/components/landing/FreePlan";
 import { Hero } from "@/components/landing/Hero";
-import { Integrations } from "@/components/landing/Integrations";
-import { Proof } from "@/components/landing/Proof";
+import { Highlights } from "@/components/landing/Highlights";
+import { HowItWorks } from "@/components/landing/HowItWorks";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
+import { Templates } from "@/components/landing/Templates";
+import { Testimonials } from "@/components/landing/Testimonials";
 
 export const metadata: Metadata = {
-  title: "resumeai — One tool to write resumes that get you hired",
+  title: "resumeai — Build a job-winning resume for free",
   description:
-    "Draft, tailor and export your resume faster, with AI writing help, live preview and ATS-ready formatting.",
+    "Free online resume builder. Your first resume is free forever, with unlimited watermark-free PDF downloads, AI writing help and ATS-ready templates.",
+  alternates: { canonical: "/" },
 };
 
 export default function LandingPage() {
   return (
-    // Same shape as the rest of the app: one cream page with white panels
-    // floating on it, so arriving here and arriving in the editor feel like the
-    // same product.
-    <div className="min-h-dvh bg-cream">
+    // Same cream page and floating white panels as the rest of the app, so
+    // arriving here and arriving in the editor feel like one product.
+    <div className="flex min-h-dvh w-full flex-col overflow-x-hidden bg-cream">
       <SiteNav />
-      <Hero />
-      <Features />
-      <Integrations />
-      <Proof />
+      <main className="grow">
+        <Hero />
+        <Highlights />
+        <HowItWorks />
+        <Templates />
+        <FreePlan />
+        <Testimonials />
+        <Faq />
+      </main>
       <SiteFooter />
     </div>
   );

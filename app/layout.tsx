@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
 
 const manrope = Manrope({
@@ -11,8 +12,14 @@ const manrope = Manrope({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+const siteUrl = configuredSiteUrl();
+
 export const metadata: Metadata = {
-  title: "ResumeAI — Build a standout resume",
+  // Pages declare canonical and Open Graph URLs as paths; Next resolves them
+  // against this. Left undefined when NEXT_PUBLIC_SITE_URL isn't set, so those
+  // URLs stay relative rather than pointing at a host we guessed wrong.
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+  title: "resumeai — Build a standout resume",
   description: "Create, customize, and export a beautiful resume in minutes.",
 };
 

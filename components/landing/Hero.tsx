@@ -1,98 +1,61 @@
 import Link from "next/link";
 
-import { SparklesIcon } from "@/components/ui/icons";
+import { HeroDemo } from "./HeroDemo";
+import { Avatar } from "./marks";
+import { btnHero, shell } from "./ui";
 
-import { Avatar, CursorTag, PARTNERS } from "./marks";
-import { btnPrimary, btnQuiet } from "./ui";
-
-// Floating "who's on the page" avatars. Positions are percentages of the hero
-// box so they track the headline as it reflows; they're decorative, so they
-// drop out entirely below lg where there's no room beside the text.
-const FLOATERS = [
-  {
-    name: "Amara Diaz",
-    pos: "left-[11%] top-[14%]",
-    tag: "-right-2.5 -bottom-1",
-  },
-  {
-    name: "Jonas Weber",
-    pos: "right-[11%] top-[12%]",
-    tag: "-left-2.5 -bottom-1 -scale-x-100",
-  },
-  { name: "Priya Nair", pos: "left-[16%] top-[54%]", tag: "-right-4 top-1/2" },
-  {
-    name: "Tomas Ruiz",
-    pos: "right-[15%] top-[58%]",
-    tag: "-left-4 top-1/2 -scale-x-100",
-  },
+const FACES = [
+  "Priya Nair",
+  "Tomas Ruiz",
+  "Ada Chen",
+  "Jonas Weber",
+  "Maya Okafor",
 ];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="lp-grid absolute inset-0" aria-hidden="true" />
+    <section className={`${shell} pt-8 lg:pt-14`}>
+      <div className="grid grid-cols-1 items-start gap-y-16 md:grid-cols-[55%_45%] lg:grid-cols-[57%_43%]">
+        {/* The paper leads on mobile and sits to the right on desktop. */}
+        <div className="flex justify-center md:order-2">
+          <HeroDemo />
+        </div>
 
-      {/* Floating avatars */}
-      <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
-        {FLOATERS.map((f, i) => (
-          <div key={f.name} className={`absolute ${f.pos}`}>
-            <Avatar
-              name={f.name}
-              seed={i}
-              className="h-16 w-16 text-[15px] shadow-[var(--shadow-paper)] ring-4 ring-cream"
-            />
-            <CursorTag className={`absolute text-navy ${f.tag}`} />
-          </div>
-        ))}
-      </div>
-
-      <div className="relative mx-auto max-w-[1180px] px-5 pt-14 pb-10 sm:px-8 sm:pt-20">
-        <div className="flex flex-col items-center text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-panel px-3 py-1.5 text-[11px] font-bold tracking-[0.12em] text-brand uppercase shadow-[var(--shadow-panel)]">
-            <SparklesIcon className="h-3.5 w-3.5" />
-            Built for speed
-          </span>
-
-          <h1 className="mt-6 max-w-[13ch] text-[40px] leading-[1.06] font-extrabold tracking-tight text-ink sm:text-[52px] lg:text-[58px]">
-            One tool to{" "}
-            <span className="underline decoration-accent-2 decoration-[6px] underline-offset-[10px]">
-              write
-            </span>{" "}
-            resumes that get you hired
+        {/* Copy */}
+        <div className="md:pr-6 lg:pr-10">
+          <h1 className="text-[15px] font-bold tracking-tight text-ink-soft uppercase lg:text-lg">
+            Free online resume builder
           </h1>
 
-          <p className="mt-6 max-w-[46ch] text-[16px] leading-[1.7] text-ink-soft">
-            resumeai helps you draft, tailor and export faster — with AI writing
-            help, a live preview and ATS-ready formatting that keeps every
-            application sharp.
+          <h2 className="mt-3 text-[40px] leading-[1.04] font-black tracking-[-0.035em] text-ink sm:text-[52px] lg:mt-4 lg:text-[62px] xl:text-[72px]">
+            Build a job-winning resume for&nbsp;free
+          </h2>
+
+          <p className="mt-5 max-w-[500px] text-[17px] leading-[1.7] text-ink-soft lg:mt-6 lg:text-[20px] lg:leading-[1.75]">
+            Your first resume is 100% free forever. Unlimited downloads. No
+            hidden fees.
+            <span className="block">Yes, really 🚀</span>
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/dashboard" className={btnPrimary}>
-              Start for Free
-            </Link>
-            <a href="#features" className={btnQuiet}>
-              Get a Demo
-            </a>
-          </div>
-        </div>
-      </div>
+          <Link href="/dashboard" className={`${btnHero} mt-8 lg:mt-10`}>
+            Get started for free ✨
+          </Link>
 
-      {/* Social proof rail */}
-      <div className="relative mx-auto flex max-w-[1180px] flex-col items-center gap-6 px-5 pb-16 sm:px-8 md:flex-row md:gap-10">
-        <p className="max-w-[14ch] shrink-0 text-center text-[13.5px] leading-[1.45] font-bold text-ink-soft md:text-left">
-          More than 100k+ job seekers hired
-        </p>
-        <div className="flex flex-1 flex-wrap items-center justify-center gap-x-9 gap-y-5 md:justify-between">
-          {PARTNERS.map(({ name, Glyph }) => (
-            <span
-              key={name}
-              className="inline-flex items-center gap-1.5 text-[15px] font-bold tracking-tight text-ink-faint"
-            >
-              <Glyph className="h-[18px] w-[18px]" />
-              {name}
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5 lg:mt-12">
+            <span className="flex -space-x-2.5">
+              {FACES.map((name, i) => (
+                <Avatar
+                  key={name}
+                  name={name}
+                  seed={i}
+                  className="h-11 w-11 text-[13px] ring-4 ring-cream"
+                />
+              ))}
             </span>
-          ))}
+            <p className="text-[15px] font-bold text-ink lg:text-[17px]">
+              Trusted by 100k+ job seekers
+            </p>
+          </div>
         </div>
       </div>
     </section>
