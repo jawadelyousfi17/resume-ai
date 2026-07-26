@@ -71,6 +71,26 @@ Supabase owns `auth.users`; Prisma owns `public`. The link is the shared UUID,
 written by `syncUser()` on sign-in rather than by a database trigger, so it
 lives in the repo where you can find it.
 
+## Deploying
+
+`npm run build` runs `prisma generate` before `next build`. That looks
+redundant next to the `postinstall` hook, but it isn't: the client is generated
+into `generated/` (gitignored, and outside `node_modules`), so on a host like
+Vercel that restores a dependency cache and skips the install step,
+`postinstall` never fires and the build fails on `@/generated/prisma/client`.
+Generating in `build` makes it unconditional. Don't remove it.
+
+Set every variable from `.env.example` in the host's environment settings —
+`.env` is gitignored and never ships. `NEXT_PUBLIC_SITE_URL` is the one that
+bites: unset, OAuth sign-in bounces users to whatever host the request reports.
+
+Migrations don't run at build time. Apply them against the production database
+with `npm run db:deploy` (needs `DIRECT_URL`) as a release step.
+
+One caveat on Vercel: PDF export launches a real Chromium through Playwright
+(`lib/pdf.ts`), which the standard serverless runtime has no browser binary for.
+Export needs a host that can run `npx playwright install --with-deps chromium`.
+
 ## Scripts
 
 | Script | What it does |
@@ -83,5 +103,11 @@ lives in the repo where you can find it.
 
 ## PDF export
 
-Export shells out to [Tectonic](https://tectonic-typesetting.github.io/). Put it
-on the server's `PATH`, or point `TECTONIC_BIN` at it.
+Export points a headless Chromium at `/print/<token>`, which renders the same
+component and stylesheet the editor previews with — one renderer, so the PDF
+matches the screen. Install the browser on the server with
+`npx playwright install --with-deps chromium`.
+
+`PDF_ORIGIN` overrides where the renderer fetches pages from; it defaults to the
+site origin, and wants the local server when the public URL goes through a proxy
+or CDN.
