@@ -13,6 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { migrateInlinePhoto } from "@/lib/upload-image";
 import { toast } from "sonner";
 import type { PageFormat, Resume, ResumeData } from "./types";
 import {
@@ -171,6 +172,19 @@ export function ResumeProvider({
       if (unsaved.current) void write(unsaved.current);
     };
   }, []);
+
+  // Photos used to live inside the document as data URLs. One left there keeps
+  // the resume too big to save and too big to export, so the first time we see
+  // one we move it to storage and carry on — the edit saves itself.
+  const movedPhoto = useRef(false);
+  useEffect(() => {
+    const photo = data.personal.photo;
+    if (guest || movedPhoto.current || !photo?.startsWith("data:")) return;
+    movedPhoto.current = true;
+    void migrateInlinePhoto(photo).then((url) => {
+      if (url) update((d) => void (d.personal.photo = url));
+    });
+  }, [guest, data.personal.photo, update]);
 
   // Closing the tab can't be awaited, so ask before it takes an edit with it.
   useEffect(() => {

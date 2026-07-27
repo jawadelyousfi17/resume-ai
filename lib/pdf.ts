@@ -28,8 +28,9 @@ let browserPromise: Promise<Browser> | null = null;
 
 function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
-    browserPromise = import("playwright").then(({ chromium }) =>
-      chromium.launch({ args: ["--font-render-hinting=none"] }),
+    browserPromise = import(/* webpackIgnore: true */ "playwright").then(
+      ({ chromium }) =>
+        chromium.launch({ args: ["--font-render-hinting=none"] }),
     );
     // A crashed browser must not poison every later request.
     browserPromise.then(

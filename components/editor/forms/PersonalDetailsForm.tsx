@@ -7,6 +7,8 @@ import { NudgeButtons } from "../NudgeButtons";
 import { Field, Input, Label } from "@/components/ui/fields";
 import { CameraIcon, ChevronUpDownIcon } from "@/components/ui/icons";
 import { PlusIcon, CloseIcon as XIcon } from "@/components/ui/svg-icons";
+import { Spinner } from "@/components/ui/spinner";
+import { removePhoto, uploadPhoto } from "@/lib/upload-image";
 import type { ContactField, ContactLink } from "@/lib/types";
 
 const LINK_PRESETS = ["LinkedIn", "Website", "GitHub", "Twitter", "Portfolio"];
@@ -52,10 +54,32 @@ export function PersonalDetailsForm() {
     if (target) moveTo(field, target);
   };
 
-  const onPhoto = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => set("photo", reader.result as string);
-    reader.readAsDataURL(file);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  const onPhoto = async (file: File) => {
+    setPhotoError(null);
+    setPhotoBusy(true);
+    const previous = personal.photo;
+    try {
+      set("photo", await uploadPhoto(file));
+      // Only once the new one is in place, so a failed upload leaves the old
+      // photo on the resume rather than nothing.
+      void removePhoto(previous);
+    } catch (err) {
+      setPhotoError(
+        err instanceof Error ? err.message : "That photo couldn't be added.",
+      );
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const clearPhoto = () => {
+    const previous = personal.photo;
+    set("photo", undefined);
+    setPhotoError(null);
+    void removePhoto(previous);
   };
 
   const addLink = (label: string) => {
@@ -109,9 +133,12 @@ export function PersonalDetailsForm() {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
+            disabled={photoBusy}
             className="group relative flex h-[117px] w-[117px] items-center justify-center overflow-hidden rounded-full bg-field text-ink-faint transition hover:bg-field/70"
           >
-            {personal.photo ? (
+            {photoBusy ? (
+              <Spinner className="h-6 w-6" />
+            ) : personal.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={personal.photo}
@@ -123,11 +150,15 @@ export function PersonalDetailsForm() {
             )}
           </button>
           {/* Row is reserved either way so the circle doesn't resize on upload. */}
-          <span className="mt-1 block h-4 text-center text-[11px] font-medium leading-4 text-danger">
-            {personal.photo && (
-              <button type="button" onClick={() => set("photo", undefined)}>
-                Remove
-              </button>
+          <span className="mt-1 block min-h-4 w-[117px] text-center text-[11px] font-medium leading-4 text-danger">
+            {photoError ? (
+              <span className="block leading-4">{photoError}</span>
+            ) : (
+              personal.photo && (
+                <button type="button" onClick={clearPhoto}>
+                  Remove
+                </button>
+              )
             )}
           </span>
           <input
@@ -137,7 +168,7 @@ export function PersonalDetailsForm() {
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) onPhoto(file);
+              if (file) void onPhoto(file);
               e.target.value = "";
             }}
           />
