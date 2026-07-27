@@ -63,8 +63,21 @@ export async function renderViaService(
 
   // `PDF_ORIGIN` is the address the renderer should use, which is not always
   // the address a visitor uses: in development that's the machine's own IP on
-  // the network rather than localhost, which means nothing to another box.
+  // the network rather than localhost, which means nothing to another box. It
+  // wins over NEXT_PUBLIC_SITE_URL, being the more specific of the two — which
+  // is worth a word in the log if a deployment still carries a developer's.
   const base = process.env.PDF_ORIGIN?.trim().replace(/\/$/, "") || origin;
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.PDF_ORIGIN &&
+    base !== origin
+  ) {
+    console.warn(
+      `[pdf] PDF_ORIGIN (${base}) is overriding the site origin (${origin}). ` +
+        "Unset it in production unless the renderer really should fetch that address.",
+    );
+  }
 
   // A renderer on another machine can't reach your laptop. Worth saying so
   // plainly — the alternative is a Playwright stack trace about a refused
