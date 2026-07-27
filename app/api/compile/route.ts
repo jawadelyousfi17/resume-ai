@@ -35,6 +35,7 @@ export async function POST(req: Request) {
   }
 
   const token = createPrintJob({
+    kind: "resume",
     // Loose by design — see the note at the top of lib/validation.ts.
     data: parsedData.data as unknown as ResumeData,
     format: parsedFormat.data,

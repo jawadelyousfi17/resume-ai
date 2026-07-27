@@ -8,19 +8,18 @@
 
 import { createContext, useContext, useState } from "react";
 import type { DragProps } from "../reorder";
-import {
-  BulbIcon,
-  DragIcon,
-  EyeIcon,
-  EyeOffIcon,
-  TrashIcon,
-} from "@/components/ui/icons";
+import { NudgeButtons } from "../NudgeButtons";
+import { BulbIcon, EyeOffIcon } from "@/components/ui/icons";
+import { DragIcon, EyeIcon, TrashIcon } from "@/components/ui/svg-icons";
 
 export type OpenEntry = { sectionId: string; itemId: string } | null;
 
 const EntryEditContext = createContext<{
   openEntry: OpenEntry;
   setOpenEntry: (entry: OpenEntry) => void;
+  /** The screen is already one white sheet — the mobile setup flow — so an
+   *  open entry drops its panel rather than drawing a card on top of it. */
+  flat?: boolean;
 }>({ openEntry: null, setOpenEntry: () => {} });
 
 export const EntryEditProvider = EntryEditContext.Provider;
@@ -85,7 +84,7 @@ export function EntryCard({
   children: React.ReactNode;
 }) {
   const [showTip, setShowTip] = useState(false);
-  const { setOpenEntry } = useEntryEdit();
+  const { setOpenEntry, flat } = useEntryEdit();
 
   // Deleting the entry you are editing leaves nothing to edit — step back out.
   const remove = onDelete
@@ -138,11 +137,13 @@ export function EntryCard({
             }}
             aria-label="Reorder entry"
             title="Drag to reorder, or press ↑ / ↓"
-            className="inline-flex h-9 w-6 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing"
+            className="hidden h-9 w-6 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing md:inline-flex"
           >
             <DragIcon className="h-[18px] w-[18px]" />
           </span>
         )}
+
+        {drag && <NudgeButtons onNudge={drag.onNudge} label="entry" />}
 
         <button
           type="button"
@@ -165,11 +166,24 @@ export function EntryCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-panel shadow-[var(--shadow-panel)]">
-      <div className="flex items-center gap-1.5 px-5 pb-1 pt-5">
-        <p className="min-w-0 flex-1 truncate text-[22px] font-bold tracking-tight text-ink">
-          Edit Entry
-        </p>
+    <div
+      className={
+        flat
+          ? "overflow-hidden"
+          : "overflow-hidden rounded-2xl bg-panel shadow-[var(--shadow-panel)]"
+      }
+    >
+      <div
+        className={`flex items-center gap-1.5 px-5 pb-1 ${flat ? "pt-0" : "pt-5"}`}
+      >
+        {/* The step's own heading already names what is being edited. */}
+        {flat ? (
+          <span className="flex-1" />
+        ) : (
+          <p className="min-w-0 flex-1 truncate text-[22px] font-bold tracking-tight text-ink">
+            Edit Entry
+          </p>
+        )}
 
         {tip && (
           <button
@@ -194,7 +208,7 @@ export function EntryCard({
         )}
       </div>
 
-      <div className="px-5 pb-6 pt-5">
+      <div className={`px-5 pb-6 ${flat ? "pt-3" : "pt-5"}`}>
         {showTip && tip && (
           <p className="mb-3 rounded-lg bg-brand-soft px-3 py-2 text-[13.5px] font-medium text-brand">
             {tip}

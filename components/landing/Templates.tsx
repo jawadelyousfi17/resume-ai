@@ -11,7 +11,13 @@ import { btnQuiet, h2, lede, sectionGap, shell } from "./ui";
 // underneath carry the rest.
 const SHOWN = TEMPLATES.slice(0, 6);
 
-function Card({ id, name }: { id: (typeof SHOWN)[number]["id"]; name: string }) {
+function Card({
+  id,
+  name,
+}: {
+  id: (typeof SHOWN)[number]["id"];
+  name: string;
+}) {
   return (
     <Link
       href="/resume-templates"

@@ -7,10 +7,12 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
  *  guest and the marketing and guide pages have to be crawlable. */
 const PUBLIC_API_PATHS = ["/api/compile"];
 
+/** Exact matches only. A prefix match would have let `/api/compile/cover-letter`
+ *  in behind `/api/compile`, and a route nested under a public one is not
+ *  itself a reason to make it public — cover letters need an account. New
+ *  public routes go in the list above, one line each. */
 function isPublicApi(pathname: string) {
-  return PUBLIC_API_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
+  return PUBLIC_API_PATHS.includes(pathname);
 }
 
 /**

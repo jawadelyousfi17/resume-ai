@@ -64,31 +64,6 @@ export const btnOnNavy = cn(base, "h-12 bg-white text-ink hover:bg-white/90");
 export const btnMini =
   "inline-flex h-6 items-center gap-1 rounded-lg bg-navy px-2.5 text-[10px] font-bold text-white";
 
-/** The eyebrow above a section heading. */
-export function Eyebrow({
-  children,
-  icon,
-  tone = "light",
-}: {
-  children: React.ReactNode;
-  icon?: React.ReactNode;
-  tone?: "light" | "dark";
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-bold tracking-[0.12em] uppercase",
-        tone === "light"
-          ? "bg-brand-soft text-brand"
-          : "bg-white/10 text-white/70",
-      )}
-    >
-      {icon}
-      {children}
-    </span>
-  );
-}
-
 /** Right-pointing arrow for text links — the app's icon set has no arrow. */
 export function ArrowRight({ className }: { className?: string }) {
   return (

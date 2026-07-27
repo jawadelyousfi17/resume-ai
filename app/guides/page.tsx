@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
-  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -39,14 +38,12 @@ export default function GuidesIndexPage() {
       />
 
       <Column>
-        <Breadcrumbs trail={[{ label: "Home", href: "/" }, { label: "Guides" }]} />
         <PageHeader
-          eyebrow="Guides"
           title="Resume guides"
           intro="How to write the thing, not how to decorate it. Each guide is the advice we'd give someone sitting next to us — specific, opinionated, and free of the filler that makes most resume advice useless."
         />
 
-        <div className="mt-10 grid gap-3 sm:grid-cols-2">
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {GUIDES.map((guide) => (
             <Link
               key={guide.slug}

@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
-  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
   FaqList,
   JsonLd,
   PageHeader,
+  measure,
 } from "@/components/content/ContentShell";
 import { ALL_FAQS, FAQ_GROUPS } from "@/lib/content/faq";
 import { GUIDES } from "@/lib/content/guides";
@@ -37,9 +37,7 @@ export default function FaqPage() {
       />
 
       <Column>
-        <Breadcrumbs trail={[{ label: "Home", href: "/" }, { label: "FAQ" }]} />
         <PageHeader
-          eyebrow="FAQ"
           title="Frequently asked questions"
           intro="What maniacv does, what it costs, what happens to your data, and what the AI will and won't do to your resume."
         />
@@ -57,7 +55,9 @@ export default function FaqPage() {
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
             Questions about writing a resume
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+          <p
+            className={`mt-3 text-[15px] leading-relaxed text-ink-soft ${measure}`}
+          >
             Those are answered in the guides — each one ends with the questions
             people actually ask about that topic.
           </p>

@@ -13,7 +13,7 @@ import {
 } from "@/lib/guest";
 import { Editor } from "./Editor";
 
-export function GuestEditor() {
+export function GuestEditor({ mobile = false }: { mobile?: boolean }) {
   const resume = useSyncExternalStore(
     onGuestResumeChange,
     guestResumeSnapshot,
@@ -34,5 +34,5 @@ export function GuestEditor() {
     );
   }
 
-  return <Editor resume={resume} guest />;
+  return <Editor resume={resume} guest mobile={mobile} />;
 }

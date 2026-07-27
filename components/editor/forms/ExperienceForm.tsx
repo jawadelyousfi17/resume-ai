@@ -8,7 +8,11 @@ import { formatRange } from "@/lib/format";
 import { isMarkdownEmpty, markdownToText } from "@/lib/markdown";
 import { AssistedField } from "@/components/editor/ai/AssistedField";
 import { isTimelineSection, moveById, showsDates } from "@/lib/defaults";
-import type { ExperienceItem, ExperienceSection, TimelineType } from "@/lib/types";
+import type {
+  ExperienceItem,
+  ExperienceSection,
+  TimelineType,
+} from "@/lib/types";
 
 /** The shape is shared across timeline sections; only the wording changes. */
 const LABELS: Record<
@@ -75,7 +79,12 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
     [
       item.company,
       showsDates(section)
-        ? formatRange(item.startDate, item.endDate, item.current, data.settings.language)
+        ? formatRange(
+            item.startDate,
+            item.endDate,
+            item.current,
+            data.settings.language,
+          )
         : "",
     ]
       .filter(Boolean)
@@ -107,7 +116,7 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
           {/* Groups (who/where, when, highlights) sit further apart than the
               fields within each group — the personal details card's rhythm. */}
           <div className="space-y-7">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={labels.role}>
                 <Input
                   value={item.role}
@@ -118,14 +127,16 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
               <Field label={labels.org}>
                 <Input
                   value={item.company}
-                  onChange={(e) => patchItem(item.id, { company: e.target.value })}
+                  onChange={(e) =>
+                    patchItem(item.id, { company: e.target.value })
+                  }
                   placeholder={labels.orgPlaceholder}
                 />
               </Field>
             </div>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 <Field label="Start">
                   <Input
                     type="month"
@@ -140,11 +151,13 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
                     type="month"
                     value={item.endDate}
                     disabled={item.current}
-                    onChange={(e) => patchItem(item.id, { endDate: e.target.value })}
+                    onChange={(e) =>
+                      patchItem(item.id, { endDate: e.target.value })
+                    }
                     className={item.current ? "opacity-50" : ""}
                   />
                 </Field>
-                <Field label="Location">
+                <Field label="Location" className="col-span-2 sm:col-span-1">
                   <Input
                     value={item.location}
                     onChange={(e) =>
@@ -182,7 +195,6 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
           </div>
         </EntryCard>
       ))}
-
     </div>
   );
 }

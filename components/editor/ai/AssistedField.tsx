@@ -1,7 +1,7 @@
 "use client";
 
 // A long-form field with the writing assistant attached: label, editor, and
-// the review bar that appears once Claude has rewritten it.
+// the review bar that appears once the assistant has rewritten it.
 //
 // The suggestion is shown *in* the field, replacing what's there, so the change
 // can be read where it will land. It never reaches the document until the user
@@ -13,7 +13,11 @@ import { useAuthDialog } from "@/components/auth/AuthDialog";
 import { useGeneration } from "@/lib/ai/use-generation";
 import type { AIRequest } from "@/lib/ai/tasks";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
-import { CheckIcon, SparklesIcon, XIcon } from "@/components/ui/icons";
+import { CheckIcon } from "@/components/ui/icons";
+import {
+  MagicIcon as SparklesIcon,
+  CloseIcon as XIcon,
+} from "@/components/ui/svg-icons";
 
 export function AssistedField({
   label,
@@ -43,7 +47,8 @@ export function AssistedField({
   const auth = useAuthDialog();
   const gen = useGeneration();
 
-  const reviewing = !gen.busy && gen.status === "done" && Boolean(gen.text.trim());
+  const reviewing =
+    !gen.busy && gen.status === "done" && Boolean(gen.text.trim());
   // Whatever the field should show: the suggestion while there is one, the
   // document's own text otherwise.
   const showing = gen.busy || reviewing ? gen.text : value;
@@ -92,7 +97,9 @@ export function AssistedField({
           title={disabled && !gen.busy ? disabledHint : undefined}
           className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-bold text-purple transition hover:bg-purple-soft disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-transparent"
         >
-          <SparklesIcon className={`h-4 w-4 ${gen.busy ? "animate-pulse" : ""}`} />
+          <SparklesIcon
+            className={`h-4 w-4 ${gen.busy ? "animate-pulse" : ""}`}
+          />
           {gen.busy ? "Stop" : reviewing ? "Rewrite again" : assistLabel}
         </button>
       </div>
@@ -129,7 +136,7 @@ export function AssistedField({
       {(gen.busy || reviewing) && (
         <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-purple-soft/50 px-3 py-2.5">
           <span className="mr-auto text-[12.5px] font-bold text-purple">
-            {gen.busy ? "Claude is rewriting this…" : "Suggested rewrite"}
+            {gen.busy ? "Our AI is rewriting this…" : "Suggested rewrite"}
           </span>
 
           {reviewing && (

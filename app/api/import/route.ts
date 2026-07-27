@@ -56,16 +56,14 @@ export async function POST(req: Request) {
     content = await documentBlock(file);
   } catch (err) {
     return jsonError(
-      err instanceof UnsupportedFile
-        ? err.message
-        : "Couldn't read that file.",
+      err instanceof UnsupportedFile ? err.message : "Couldn't read that file.",
       400,
     );
   }
 
   let anthropic: Anthropic;
   try {
-    anthropic = (client ??= new Anthropic());
+    anthropic = client ??= new Anthropic();
   } catch {
     return jsonError(
       "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
@@ -130,7 +128,10 @@ export async function POST(req: Request) {
   }
 
   return Response.json(
-    { name: importedResumeName(extracted), data: toResumeData(extracted, lang) },
+    {
+      name: importedResumeName(extracted),
+      data: toResumeData(extracted, lang),
+    },
     { headers: { "Cache-Control": "no-store" } },
   );
 }
@@ -138,9 +139,7 @@ export async function POST(req: Request) {
 class UnsupportedFile extends Error {}
 
 /** The user content block for this upload, by type. */
-async function documentBlock(
-  file: File,
-): Promise<Anthropic.ContentBlockParam> {
+async function documentBlock(file: File): Promise<Anthropic.ContentBlockParam> {
   const type = file.type || guessType(file.name);
 
   if (type === PDF) {
@@ -159,7 +158,8 @@ async function documentBlock(
       type: "image",
       source: {
         type: "base64",
-        media_type: type as "image/png" | "image/jpeg" | "image/webp" | "image/gif",
+        media_type: type as
+          "image/png" | "image/jpeg" | "image/webp" | "image/gif",
         data: await base64(file),
       },
     };
@@ -195,13 +195,13 @@ function languageOf(value: FormDataEntryValue | null): LanguageCode {
 
 function apiError(err: unknown) {
   if (err instanceof Anthropic.AuthenticationError) {
-    return jsonError("The server's Anthropic API key was rejected.", 503);
+    return jsonError("The server's AI credentials were rejected.", 503);
   }
   if (err instanceof Anthropic.RateLimitError) {
     return jsonError("Rate limited by the API — try again shortly.", 429);
   }
   if (err instanceof Anthropic.APIConnectionError) {
-    return jsonError("Couldn't reach the Anthropic API.", 502);
+    return jsonError("Couldn't reach the AI service.", 502);
   }
   if (err instanceof Anthropic.APIError) {
     return jsonError(err.message, err.status ?? 500);

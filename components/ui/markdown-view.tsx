@@ -20,12 +20,16 @@ export function MarkdownView({
   md,
   style,
   listStyle,
+  blockSpacing = "0.35em",
 }: {
   md: string;
   /** Applied to paragraphs and lists alike — font size, colour, and so on. */
   style?: React.CSSProperties;
   /** Extra style for list blocks only. */
   listStyle?: React.CSSProperties;
+  /** Gap between blocks. The resume's default is tight because a highlight
+   *  sits inside an entry; a cover letter is read as prose and wants more. */
+  blockSpacing?: string;
 }) {
   const blocks = parseMarkdown(md);
   if (!blocks.length) return null;
@@ -35,7 +39,7 @@ export function MarkdownView({
       {blocks.map((block, i) => {
         // Blocks after the first need a little air; the first sits flush so it
         // keeps whatever spacing the surrounding entry gave it.
-        const spacing = i === 0 ? undefined : "0.35em";
+        const spacing = i === 0 ? undefined : blockSpacing;
 
         if (block.type === "paragraph") {
           return (

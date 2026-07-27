@@ -28,7 +28,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  resumes Resume[]
+  resumes      Resume[]
+  coverLetters CoverLetter[]
 
   @@map("users")
 }
@@ -46,9 +47,37 @@ model Resume {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coverLetters CoverLetter[]
 
   // The dashboard's only query: this user's resumes, newest edit first.
   @@index([userId, updatedAt(sort: Desc)])
   @@map("resumes")
+}
+
+/// A cover letter. Its own document rather than a field on a resume: one
+/// resume is sent to many jobs, and each one wants its own letter.
+model CoverLetter {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+
+  /// The resume it was drafted from, if any. `SetNull` rather than `Cascade`:
+  /// the letter already holds its own copy of everything it prints, so
+  /// deleting the resume it came from must not take the letter with it.
+  resumeId String? @db.Uuid
+
+  name   String
+  format PageFormat @default(A4)
+  /// A `CoverLetterData` document — shape in lib/types.ts, checked on the way
+  /// in by `parseCoverLetterData` in lib/validation.ts.
+  data   Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume Resume? @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("cover_letters")
 }

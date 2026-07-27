@@ -87,12 +87,14 @@ export const AI_TASKS: Record<AITaskId, AITaskMeta> = {
  *  it answers with a whole document from its own endpoint. */
 export type StreamingTaskId = Exclude<AITaskId, "translate">;
 
-/** The tasks the AI Tools tab offers, in the order it offers them. */
+/** The tasks the AI Tools tab offers, in the order it offers them. `review` is
+ *  absent: the Review tab does the same job properly — scored, proofread, and
+ *  prioritised — so offering a second, vaguer one here only splits the answer
+ *  in two. The task itself stays, since the endpoint still serves it. */
 export const PANEL_TASKS: AITaskId[] = [
   "summary",
   "highlights",
   "skills",
-  "review",
   "translate",
 ];
 

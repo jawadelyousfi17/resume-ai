@@ -25,7 +25,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
       {
         question: "Can I import a resume I already have?",
         answer:
-          "Yes. Upload a PDF, an image or a text file and Claude reads it into the editor — your details, roles, bullet points, education and skills. Word documents aren't supported yet; export to PDF first.",
+          "Yes. Upload a PDF, an image or a text file and our AI reads it into the editor — your details, roles, bullet points, education and skills. Word documents aren't supported yet; export to PDF first.",
       },
       {
         question: "Is there a free plan?",
@@ -38,9 +38,9 @@ export const FAQ_GROUPS: FaqGroup[] = [
     title: "The AI writing tools",
     entries: [
       {
-        question: "Which model does maniacv use?",
+        question: "What do the AI tools actually do?",
         answer:
-          "Claude Sonnet 5, from Anthropic. It's used for writing help, resume review, importing an existing resume and translation.",
+          "Our AI handles four things: writing help while you type, a review of the finished page, reading an existing resume you upload, and translation.",
       },
       {
         question: "Will the AI invent things about me?",
@@ -50,12 +50,12 @@ export const FAQ_GROUPS: FaqGroup[] = [
       {
         question: "Does my resume get used to train an AI model?",
         answer:
-          "No. Your resume is sent to Anthropic's API to produce a response and is not used for model training.",
+          "No. Your resume is sent to our AI only to produce the response you asked for, and is never used to train a model.",
       },
       {
         question: "Why do the AI tools need an account?",
         answer:
-          "Each use costs a model call. Tying that to an account is what keeps it available rather than rate-limited into uselessness.",
+          "Each use costs us something to run. Tying that to an account is what keeps it available rather than rate-limited into uselessness.",
       },
       {
         question: "Can I translate my resume?",
@@ -92,4 +92,6 @@ export const FAQ_GROUPS: FaqGroup[] = [
 ];
 
 /** Flattened, for the FAQPage structured data. */
-export const ALL_FAQS: FaqEntry[] = FAQ_GROUPS.flatMap((group) => group.entries);
+export const ALL_FAQS: FaqEntry[] = FAQ_GROUPS.flatMap(
+  (group) => group.entries,
+);

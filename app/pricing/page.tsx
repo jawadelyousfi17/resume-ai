@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import {
-  Breadcrumbs,
-  FaqList,
-  JsonLd,
-} from "@/components/content/ContentShell";
+import { FaqAccordion, JsonLd } from "@/components/content/ContentShell";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
-import { PlanGrid, PLANS } from "@/components/landing/Pricing";
-import { btnPrimary, Eyebrow } from "@/components/landing/ui";
+import { PlanComparison } from "@/components/landing/PlanComparison";
+import { PlanGrid } from "@/components/landing/Pricing";
+import { btnPrimary } from "@/components/landing/ui";
 
 export const metadata: Metadata = {
   title: "Pricing — maniacv",
@@ -58,7 +55,7 @@ export default function PricingPage() {
     <div className="min-h-dvh bg-cream">
       <SiteNav />
 
-      <main className="px-3 pt-6 pb-16 sm:px-4">
+      <main className="px-3 pt-6 sm:px-4">
         <div className="mx-auto w-full max-w-[1180px]">
           <JsonLd
             data={{
@@ -72,14 +69,9 @@ export default function PricingPage() {
             }}
           />
 
-          <Breadcrumbs
-            trail={[{ label: "Home", href: "/" }, { label: "Pricing" }]}
-          />
-
           {/* The heading runs the full width; only the prose is held to a
               readable measure. */}
           <header className="mt-6 text-center">
-            <Eyebrow>Pricing</Eyebrow>
             <h1 className="mx-auto mt-5 max-w-[18ch] text-[34px] leading-[1.08] font-extrabold tracking-tight text-ink sm:text-[44px] lg:text-[52px]">
               One resume free, forever
             </h1>
@@ -97,45 +89,18 @@ export default function PricingPage() {
             the free plan.
           </p>
 
-          {/* Two columns below the plans, so the width is used without letting
-              any line of text run to 1180px. */}
-          <div className="mt-16 grid gap-12 lg:mt-20 lg:grid-cols-2 lg:gap-14">
-            <section>
-              <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
-                What each plan includes
-              </h2>
-              <dl className="mt-5 space-y-3">
-                {PLANS.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className="rounded-2xl bg-panel px-6 py-5 shadow-[var(--shadow-panel)] ring-1 ring-black/5"
-                  >
-                    <dt className="flex flex-wrap items-baseline justify-between gap-x-3">
-                      <span className="text-[16.5px] font-extrabold text-ink">
-                        {plan.name}
-                      </span>
-                      <span className="text-[14px] font-bold text-brand">
-                        {plan.price}
-                        <span className="font-medium text-ink-soft">
-                          {plan.period}
-                        </span>
-                      </span>
-                    </dt>
-                    <dd className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-                      {plan.featuresHeading}: {plan.features.join(" · ")}.
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
+          <PlanComparison className="mt-16 lg:mt-20" />
 
-            <section>
-              <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          {/* The landing page's accordion, not the grid of cards the written
+              pages use — these answers are long and only one is read at a time. */}
+          <section className="mt-16 lg:mt-20">
+            <div className="mx-auto max-w-5xl">
+              <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink sm:text-[32px]">
                 Questions about billing
               </h2>
-              <FaqList entries={FAQS} />
-            </section>
-          </div>
+              <FaqAccordion entries={FAQS} />
+            </div>
+          </section>
 
           {/* Closing action. */}
           <section className="mt-16 text-center lg:mt-20">

@@ -21,7 +21,9 @@ export function Label({
   className?: string;
 }) {
   return (
-    <span className={cn("mb-2 block text-[14px] font-bold text-ink", className)}>
+    <span
+      className={cn("mb-2 block text-[14px] font-bold text-ink", className)}
+    >
       {children}
     </span>
   );
@@ -45,13 +47,16 @@ export function Textarea({
 
 export function Field({
   label,
+  className,
   children,
 }: {
   label: string;
+  /** For placing the field in a grid — spanning a row on a narrow screen. */
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
+    <label className={cn("block", className)}>
       <Label>{label}</Label>
       {children}
     </label>

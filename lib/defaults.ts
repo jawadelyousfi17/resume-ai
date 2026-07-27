@@ -2,11 +2,7 @@
 // "Add content" picker.
 
 import { escapeMarkdown } from "./markdown";
-import {
-  DEFAULT_LANGUAGE,
-  SECTION_TITLES,
-  type LanguageCode,
-} from "./i18n";
+import { DEFAULT_LANGUAGE, SECTION_TITLES, type LanguageCode } from "./i18n";
 import type {
   ContactField,
   EducationItem,
@@ -176,15 +172,15 @@ export const isTimelineSection = (s: Section): s is ExperienceSection =>
   s.type === "experience" || s.type === "projects" || s.type === "volunteering";
 
 export const isCredentialSection = (s: Section): s is EducationSection =>
-  s.type === "education" ||
-  s.type === "certifications" ||
-  s.type === "awards";
+  s.type === "education" || s.type === "certifications" || s.type === "awards";
 
 export const isTagGroupSection = (s: Section): s is SkillsSection =>
   s.type === "skills" || s.type === "languages" || s.type === "interests";
 
 /** Only dated sections carry the dates toggle. */
-export const hasDates = (s: Section): s is ExperienceSection | EducationSection =>
+export const hasDates = (
+  s: Section,
+): s is ExperienceSection | EducationSection =>
   isTimelineSection(s) || isCredentialSection(s);
 
 /** Whether a section prints its entries' dates — the default is yes. */
@@ -265,6 +261,29 @@ export function createSection(
   }
 }
 
+/** Where a section belongs when the app adds it for you — the conventional
+ *  reading order of a resume. Anything not listed goes at the end, which is
+ *  also where a section added by hand lands. */
+const SECTION_ORDER: SectionType[] = [
+  "summary",
+  "experience",
+  "education",
+  "skills",
+];
+
+/** Adds a section in its conventional place rather than at the end, so a
+ *  resume filled in step by step still reads in the usual order. */
+export function insertSection(sections: Section[], section: Section) {
+  const rank = (type: SectionType) => {
+    const i = SECTION_ORDER.indexOf(type);
+    return i === -1 ? SECTION_ORDER.length : i;
+  };
+
+  const at = sections.findIndex((s) => rank(s.type) > rank(section.type));
+  if (at === -1) sections.push(section);
+  else sections.splice(at, 0, section);
+}
+
 export interface SectionMeta {
   type: SectionType;
   title: string;
@@ -277,31 +296,36 @@ export const SECTION_META: SectionMeta[] = [
   {
     type: "summary",
     title: "Summary",
-    description: "Add a short summary of your key strengths, experience, and career goals.",
+    description:
+      "Add a short summary of your key strengths, experience, and career goals.",
     multiple: false,
   },
   {
     type: "experience",
     title: "Professional Experience",
-    description: "Add your professional roles and employer history including internships.",
+    description:
+      "Add your professional roles and employer history including internships.",
     multiple: true,
   },
   {
     type: "education",
     title: "Education",
-    description: "Add your degrees and schools. Include your focus, honors, or exchange terms.",
+    description:
+      "Add your degrees and schools. Include your focus, honors, or exchange terms.",
     multiple: true,
   },
   {
     type: "skills",
     title: "Skills",
-    description: "Add your hard and soft skills that help you stand out from the crowd today.",
+    description:
+      "Add your hard and soft skills that help you stand out from the crowd today.",
     multiple: true,
   },
   {
     type: "projects",
     title: "Projects",
-    description: "Show what you've built — side projects, open source, or work you shipped.",
+    description:
+      "Show what you've built — side projects, open source, or work you shipped.",
     multiple: true,
   },
   {
@@ -325,13 +349,15 @@ export const SECTION_META: SectionMeta[] = [
   {
     type: "volunteering",
     title: "Volunteering",
-    description: "Add unpaid roles, community work, and causes you've contributed to.",
+    description:
+      "Add unpaid roles, community work, and causes you've contributed to.",
     multiple: true,
   },
   {
     type: "interests",
     title: "Interests",
-    description: "Round out your profile with hobbies and interests outside of work.",
+    description:
+      "Round out your profile with hobbies and interests outside of work.",
     multiple: false,
   },
 ];

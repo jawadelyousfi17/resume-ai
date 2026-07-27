@@ -12,11 +12,13 @@ import { AITaskDialog } from "./AITaskDialog";
 import {
   AlignIcon,
   BulbIcon,
-  SparklesIcon,
   TagIcon,
   TranslateIcon,
-  WandIcon,
 } from "@/components/ui/icons";
+import {
+  MagicIcon as SparklesIcon,
+  DesignIcon as WandIcon,
+} from "@/components/ui/svg-icons";
 
 /** One glyph per tool card. Lives here rather than in `lib/ai/tasks.ts`, which
  *  the API route imports and which therefore stays free of components. */
@@ -56,8 +58,9 @@ export function AIPanel() {
     return null;
   };
 
-  // Every tool here spends money per call, so it needs an account. Guests get
-  // the whole editor; this one tab asks them to sign in first.
+  // Every tool that calls the model needs an account. The match score doesn't
+  // call anything, so a guest gets that much: paste a posting, see where you
+  // stand, and only meet the wall at the rewrite.
   if (guest) {
     return (
       <div className="space-y-3">
@@ -66,7 +69,7 @@ export function AIPanel() {
         <div className="rounded-2xl bg-panel p-6 text-center shadow-[var(--shadow-panel)]">
           <SparklesIcon className="mx-auto h-6 w-6 text-purple" />
           <h3 className="mt-3 text-[17px] font-extrabold text-ink">
-            Sign in to write with Claude
+            Sign in to write with AI
           </h3>
           <p className="mx-auto mt-1.5 max-w-sm text-[14px] leading-relaxed text-ink-soft">
             The writing tools come with an account. The resume you&rsquo;ve

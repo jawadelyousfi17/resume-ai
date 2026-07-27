@@ -35,23 +35,35 @@ function choiceFor(task: AITaskId): Choice {
 
 export function AITaskDialog({
   task,
+  jobDescription,
   onClose,
 }: {
   /** The open task, or null when the dialog is closed. */
   task: AITaskId | null;
+  /** The posting the tailor accepted, if there is one. Steers every task. */
+  jobDescription?: string;
   onClose: () => void;
 }) {
   if (!task) return null;
   // Keyed on the task, so opening a different one mounts a fresh dialog rather
   // than carrying the last answer across.
-  return <TaskDialog key={task} task={task} onClose={onClose} />;
+  return (
+    <TaskDialog
+      key={task}
+      task={task}
+      jobDescription={jobDescription}
+      onClose={onClose}
+    />
+  );
 }
 
 function TaskDialog({
   task,
+  jobDescription,
   onClose,
 }: {
   task: AITaskId;
+  jobDescription?: string;
   onClose: () => void;
 }) {
   const { data, update } = useResume();
@@ -72,7 +84,7 @@ function TaskDialog({
   // deliberately not a dependency: re-running on every keystroke of the resume
   // would restart the request mid-answer.
   useEffect(() => {
-    if (!choiceFor(task)) gen.run({ task, data });
+    if (!choiceFor(task)) gen.run({ task, data, jobDescription });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -81,6 +93,7 @@ function TaskDialog({
     gen.run({
       task: "highlights",
       data,
+      jobDescription,
       target: { sectionId: chosen.sectionId, itemId: chosen.itemId },
     });
   };
@@ -232,7 +245,7 @@ function TaskDialog({
               onRegenerate={() =>
                 task === "highlights" && entry
                   ? runHighlights(entry)
-                  : gen.run({ task, data })
+                  : gen.run({ task, data, jobDescription })
               }
               onRetryLanguage={() => setTarget(null)}
               onClose={close}

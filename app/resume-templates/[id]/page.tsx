@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
-  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -55,9 +54,7 @@ function traits(id: string) {
         ? "Two columns with a tinted rail"
         : "Single column",
   );
-  list.push(
-    t.photo === "none" ? "No photo" : "Includes an avatar or photo",
-  );
+  list.push(t.photo === "none" ? "No photo" : "Includes an avatar or photo");
   list.push(
     t.headingStyle === "band"
       ? "Headings on a tinted bar"
@@ -96,17 +93,8 @@ export default async function TemplateDetailPage(
         }}
       />
 
-      <Column className="max-w-[900px]">
-        <Breadcrumbs
-          trail={[
-            { label: "Home", href: "/" },
-            { label: "Templates", href: "/resume-templates" },
-            { label: template.name },
-          ]}
-        />
-
+      <Column>
         <PageHeader
-          eyebrow="Template"
           title={`${template.name} resume template`}
           intro={template.description}
         />
@@ -136,7 +124,7 @@ export default async function TemplateDetailPage(
           <h2 className="text-[17px] font-extrabold text-ink">
             What defines this layout
           </h2>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {traits(template.id).map((trait) => (
               <li
                 key={trait}
@@ -150,7 +138,7 @@ export default async function TemplateDetailPage(
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-[14px] leading-relaxed text-ink-faint">
+          <p className="mt-4 max-w-[80ch] text-[14px] leading-relaxed text-ink-faint">
             Every one of these is a setting, not a constraint — accent colour,
             font, size, spacing and page margins stay yours under Customize, and
             switching template later re-renders what you&rsquo;ve written rather
@@ -173,7 +161,7 @@ export default async function TemplateDetailPage(
                   {other.name}
                 </span>
                 <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
-                  {other.description}
+                  {other.short}
                 </span>
               </Link>
             ))}

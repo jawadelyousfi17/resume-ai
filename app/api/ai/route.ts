@@ -99,7 +99,11 @@ export async function POST(req: Request) {
 
       try {
         if (!first.done) push(first.value);
-        for (let next = await events.next(); !next.done; next = await events.next()) {
+        for (
+          let next = await events.next();
+          !next.done;
+          next = await events.next()
+        ) {
           push(next.value);
         }
         controller.close();
@@ -127,13 +131,13 @@ export async function POST(req: Request) {
 
 function apiError(err: unknown) {
   if (err instanceof Anthropic.AuthenticationError) {
-    return jsonError("The server's Anthropic API key was rejected.", 503);
+    return jsonError("The server's AI credentials were rejected.", 503);
   }
   if (err instanceof Anthropic.RateLimitError) {
     return jsonError("Rate limited by the API — try again shortly.", 429);
   }
   if (err instanceof Anthropic.APIConnectionError) {
-    return jsonError("Couldn't reach the Anthropic API.", 502);
+    return jsonError("Couldn't reach the AI service.", 502);
   }
   if (err instanceof Anthropic.APIError) {
     return jsonError(err.message, err.status ?? 500);
@@ -145,5 +149,8 @@ function apiError(err: unknown) {
 }
 
 function jsonError(error: string, status: number) {
-  return Response.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
+  return Response.json(
+    { error },
+    { status, headers: { "Cache-Control": "no-store" } },
+  );
 }

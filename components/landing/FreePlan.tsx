@@ -1,43 +1,44 @@
-import {
-  AwardIcon,
-  DownloadIcon,
-  EyeOffIcon,
-  GridIcon,
-  StackIcon,
-  WandIcon,
-} from "@/components/ui/icons";
 import { TEMPLATES } from "@/lib/templates";
+
+import {
+  DownloadDuotoneIcon,
+  GalleryIcon,
+  LayersIcon,
+  PrivateEyeIcon,
+  TrophyIcon,
+  WandDuotoneIcon,
+} from "./duotone";
 
 import { h2, lede, sectionGap, shell } from "./ui";
 
 const ITEMS = [
   {
-    Icon: AwardIcon,
+    Icon: TrophyIcon,
     title: "Your first resume is free forever",
     copy: "Create, edit and save one resume free for life. No trial, no credit card, no automatic upgrade.",
   },
   {
-    Icon: EyeOffIcon,
+    Icon: PrivateEyeIcon,
     title: "Just you on your resume",
     copy: "We never brand what you send out. No logo, no watermark — the page is entirely yours.",
   },
   {
-    Icon: DownloadIcon,
+    Icon: DownloadDuotoneIcon,
     title: "Unlimited PDF downloads",
     copy: "Update and re-export as often as you like. Take the LaTeX source with you too, if you want it.",
   },
   {
-    Icon: GridIcon,
+    Icon: GalleryIcon,
     title: `All ${TEMPLATES.length} templates, customizable`,
     copy: "ATS-friendly layouts you can bend: type, spacing, margins, colour and heading style are all yours.",
   },
   {
-    Icon: StackIcon,
+    Icon: LayersIcon,
     title: "Import or start from scratch",
     copy: "Bring in an existing resume and keep the content, or open a blank page and let the editor guide you.",
   },
   {
-    Icon: WandIcon,
+    Icon: WandDuotoneIcon,
     title: "AI that writes with you",
     copy: "Rewrite bullets, fix tone and match keywords in place — you approve every change before it lands.",
   },

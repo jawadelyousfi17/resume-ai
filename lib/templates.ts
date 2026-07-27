@@ -34,6 +34,8 @@ export interface Template {
   id: TemplateId;
   name: string;
   description: string;
+  /** A few words for a gallery card, where the full description is too much. */
+  short: string;
 
   /** Typeface personality. Overrides the font control while selected. */
   font: "serif" | "sans";
@@ -99,7 +101,10 @@ const BASE = {
   sidebarHeader: "above",
   edgeStrip: false,
   density: 1,
-} satisfies Omit<Template, "id" | "name" | "description" | "presets" | "accent">;
+} satisfies Omit<
+  Template,
+  "id" | "name" | "description" | "short" | "presets" | "accent"
+>;
 
 export const TEMPLATES: Template[] = [
   {
@@ -108,6 +113,7 @@ export const TEMPLATES: Template[] = [
     name: "Ledger",
     description:
       "Serif type with centred headings on a soft grey bar. Formal without being stiff.",
+    short: "Serif, centred banded headings.",
     font: "serif",
     headerContacts: "grid",
     headingStyle: "band",
@@ -121,6 +127,7 @@ export const TEMPLATES: Template[] = [
     name: "Meridian",
     description:
       "Blue headings over a full-width rule, contacts on one line. Clean and corporate.",
+    short: "Blue headings, corporate sans.",
     headingAccentRule: true,
     accent: "#2f5d8a",
     presets: { fontFamily: "sans", headingStyle: "plain" },
@@ -131,6 +138,7 @@ export const TEMPLATES: Template[] = [
     name: "Chronicle",
     description:
       "Dates in their own left column, skills rated with dots. Reads like a record.",
+    short: "Dates in their own column.",
     font: "serif",
     headerInlineTitle: true,
     headerContacts: "grid",
@@ -145,6 +153,7 @@ export const TEMPLATES: Template[] = [
     name: "Bergen",
     description:
       "Centred header, small-caps headings, skills as one flowing line. Very compact.",
+    short: "Centred small caps, very tight.",
     font: "serif",
     headerAlign: "center",
     headingCaps: true,
@@ -159,6 +168,7 @@ export const TEMPLATES: Template[] = [
     name: "Atlas",
     description:
       "Two columns with an avatar in the header and an amber rule under every heading.",
+    short: "Two columns with an avatar.",
     font: "serif",
     photo: "left",
     headerInlineTitle: true,
@@ -178,6 +188,7 @@ export const TEMPLATES: Template[] = [
     name: "Compass",
     description:
       "Avatar top right, banded headings, dates down the left. Roomy and easy to scan.",
+    short: "Roomy, avatar top right.",
     photo: "right",
     headerInlineTitle: true,
     headerContacts: "grid",
@@ -194,6 +205,7 @@ export const TEMPLATES: Template[] = [
     name: "Verdant",
     description:
       "A colour strip down the page edge with a square avatar. Quietly distinctive.",
+    short: "A colour strip down the edge.",
     photo: "right",
     photoShape: "square",
     edgeStrip: true,
@@ -206,6 +218,7 @@ export const TEMPLATES: Template[] = [
     name: "Onyx",
     description:
       "Dark rail carrying the avatar, profile and skills, history in the light column.",
+    short: "Dark rail carrying the photo.",
     font: "serif",
     photo: "left",
     sidebar: "dark",
@@ -224,6 +237,7 @@ export const TEMPLATES: Template[] = [
     name: "Portrait",
     description:
       "Avatar and contacts in a grey masthead, banded headings, dates on the left.",
+    short: "Grey masthead with an avatar.",
     font: "serif",
     photo: "left",
     headerBand: true,
@@ -241,6 +255,7 @@ export const TEMPLATES: Template[] = [
     name: "Compact",
     description:
       "Tight leading and four skill columns. For long histories that must fit.",
+    short: "Tight leading, four skill columns.",
     headerAlign: "center",
     headingCaps: true,
     headingAccentRule: true,
@@ -256,6 +271,7 @@ export const TEMPLATES: Template[] = [
     name: "Oxford",
     description:
       "Centred serif header, single-column skills, languages rated with dots.",
+    short: "Centred serif, one column.",
     font: "serif",
     headerAlign: "center",
     headingCaps: true,
@@ -269,6 +285,7 @@ export const TEMPLATES: Template[] = [
     name: "Ashford",
     description:
       "The Oxford header with two skill columns. The safest of the serif set.",
+    short: "Serif header, two skill columns.",
     font: "serif",
     headerAlign: "center",
     headingCaps: true,
@@ -282,7 +299,9 @@ export const TEMPLATES: Template[] = [
     ...BASE,
     id: "classic",
     name: "Classic",
-    description: "Left-aligned header with underlined section rules. Safe everywhere.",
+    description:
+      "Left-aligned header with underlined section rules. Safe everywhere.",
+    short: "Underlined headings. Safe anywhere.",
     presets: { fontFamily: "sans", headingStyle: "underline" },
   },
   {
@@ -290,6 +309,7 @@ export const TEMPLATES: Template[] = [
     id: "modern",
     name: "Modern",
     description: "Name on a tinted accent band, uppercase headings underneath.",
+    short: "Tinted name band, caps headings.",
     headerBand: true,
     headingCaps: true,
     presets: { fontFamily: "sans", headingStyle: "uppercase" },
@@ -299,6 +319,7 @@ export const TEMPLATES: Template[] = [
     id: "minimal",
     name: "Minimal",
     description: "No rules at all. Space does the separating. Lots of white.",
+    short: "No rules. Lots of white.",
     headingStyle: "plain",
     density: 1.3,
     presets: { fontFamily: "sans", headingStyle: "plain" },
@@ -307,7 +328,9 @@ export const TEMPLATES: Template[] = [
     ...BASE,
     id: "sidebar",
     name: "Sidebar",
-    description: "Contact and skills in a tinted rail, history in the main column.",
+    description:
+      "Contact and skills in a tinted rail, history in the main column.",
+    short: "Tinted rail for contact and skills.",
     sidebar: "tint",
     headingStyle: "plain",
     tags: "columns-1",
@@ -319,6 +342,7 @@ export const TEMPLATES: Template[] = [
     id: "editorial",
     name: "Editorial",
     description: "Serif type, centred header between rules. Reads like print.",
+    short: "Print serif, centred header.",
     font: "serif",
     headerAlign: "center",
     headerRule: true,
@@ -331,19 +355,27 @@ export const TEMPLATES: Template[] = [
 export const getTemplate = (id: TemplateId | undefined): Template =>
   TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0];
 
+/** Picking a template also moves the settings it has an opinion about. Applied
+ *  to a draft in place, so both the Customize panel and the mobile setup flow
+ *  choose a template the same way. */
+export function applyTemplate(settings: ResumeSettings, t: Template) {
+  settings.template = t.id;
+  settings.fontFamily = t.presets.fontFamily;
+  settings.headingStyle = t.presets.headingStyle;
+  // Each template was designed around an accent. It stays a setting — the
+  // colour swatches in Customize still override it.
+  if (t.accent) settings.accent = t.accent;
+}
+
 /** The buckets the picker filters by. A template can sit in several. */
 export type TemplateCategory =
-  | "classic"
-  | "modern"
-  | "minimal"
-  | "photo"
-  | "two-column"
-  | "compact";
+  "ats" | "classic" | "modern" | "minimal" | "photo" | "two-column" | "compact";
 
 export const TEMPLATE_CATEGORIES: {
   id: TemplateCategory;
   label: string;
 }[] = [
+  { id: "ats", label: "ATS-safe" },
   { id: "classic", label: "Classic" },
   { id: "modern", label: "Modern" },
   { id: "minimal", label: "Minimal" },
@@ -356,6 +388,11 @@ export const TEMPLATE_CATEGORIES: {
  *  template files it in the right buckets without a second list to keep up. */
 export function inCategory(t: Template, category: TemplateCategory): boolean {
   switch (category) {
+    // Every template exports real text, but a sidebar is the one thing that can
+    // make a parser read the page out of order — so a single column is what
+    // "safe" means here.
+    case "ats":
+      return t.sidebar === "none" && !t.edgeStrip;
     case "classic":
       return t.font === "serif";
     case "modern":

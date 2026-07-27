@@ -1,98 +1,26 @@
+"use client";
+
 // The plans, as a row of cards: a white panel floating on a lit gradient slab,
 // with that plan's features listed on the slab underneath it.
 //
-// The data lives here and both the landing section and /pricing render from it,
-// so the two can't drift apart. All server-rendered — the monthly and yearly
-// prices are both on the card rather than behind a toggle, which keeps the page
-// free of JavaScript and means someone scanning it sees the whole offer at once.
+// The data lives in lib/plans.ts and both the landing section and /pricing
+// render from it, so the two can't drift apart. The billing toggle is the only
+// state on the page: the headline figure is always what a month costs, and the
+// year's total sits under it when the year is what you're buying.
 
 import Link from "next/link";
+import { useState } from "react";
 
-import { TEMPLATES } from "@/lib/templates";
+import {
+  PLANS,
+  bestSaving,
+  planPrice,
+  type BillingCycle,
+  type Plan,
+} from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 import { h2, lede, sectionGap, shell } from "./ui";
-
-export interface Plan {
-  id: string;
-  /** The line above the name, in the mockup's "PLAN ~ promise" form. */
-  kicker: string;
-  /** Two-line name: a muted qualifier over the plan itself. */
-  qualifier: string;
-  name: string;
-  /** Headline price, in whole dollars per month. */
-  price: string;
-  period: string;
-  /** The monthly-billing alternative, or a note for the free plan. */
-  note: string;
-  cta: string;
-  href: string;
-  featuresHeading: string;
-  features: string[];
-  /** The one plan carrying the flame badge. */
-  featured?: boolean;
-}
-
-export const PLANS: Plan[] = [
-  {
-    id: "free",
-    kicker: "FREE ~ Everything you need to apply",
-    qualifier: "For one",
-    name: "well-made resume",
-    price: "$0",
-    period: "/forever",
-    note: "No card, no trial, no expiry",
-    cta: "Start for free",
-    href: "/dashboard",
-    featuresHeading: "What you get",
-    features: [
-      "1 resume, yours for good",
-      `All ${TEMPLATES.length} templates`,
-      "Unlimited PDF downloads",
-      "No watermark, ever",
-      "Full layout and design control",
-    ],
-  },
-  {
-    id: "basic",
-    kicker: "BASIC ~ Writing help where it counts",
-    qualifier: "For a real",
-    name: "job search",
-    price: "$3",
-    period: "/month, billed yearly",
-    note: "or $9 month-to-month",
-    cta: "Get Basic",
-    href: "/dashboard",
-    featuresHeading: "Everything in Free, plus",
-    features: [
-      "3 resumes at once",
-      "AI writing and rewriting",
-      "Import an existing resume",
-      "AI review of the whole page",
-      "Tailor a copy per role",
-    ],
-  },
-  {
-    id: "ultimate",
-    kicker: "ULTIMATE ~ Nothing held back",
-    qualifier: "For applying",
-    name: "everywhere at once",
-    price: "$5",
-    period: "/month, billed yearly",
-    note: "or $17 month-to-month",
-    cta: "Get Ultimate",
-    href: "/dashboard",
-    featuresHeading: "Everything in Basic, plus",
-    features: [
-      "Unlimited resumes",
-      "Cover letters that match",
-      "Translation into 40+ languages",
-      "LaTeX source export",
-      "Priority support",
-    ],
-    featured: true,
-  },
-];
 
 /** The flame, for the plan we'd point someone at. */
 function HotBadge() {
@@ -111,7 +39,61 @@ function HotBadge() {
   );
 }
 
-export function PlanCard({ plan }: { plan: Plan }) {
+/** Monthly or yearly, above the cards. */
+export function BillingToggle({
+  cycle,
+  onChange,
+  className,
+}: {
+  cycle: BillingCycle;
+  onChange: (cycle: BillingCycle) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Billing period"
+      className={cn(
+        "mx-auto inline-flex items-center gap-1 rounded-full bg-panel p-1.5 shadow-[var(--shadow-panel)] ring-1 ring-black/5",
+        className,
+      )}
+    >
+      {(["monthly", "yearly"] as const).map((option) => (
+        <button
+          key={option}
+          type="button"
+          role="radio"
+          aria-checked={cycle === option}
+          onClick={() => onChange(option)}
+          className={cn(
+            "inline-flex h-11 items-center gap-2 rounded-full px-6 text-[15px] font-bold transition",
+            cycle === option
+              ? "bg-navy text-white"
+              : "text-ink-soft hover:text-ink",
+          )}
+        >
+          {option === "monthly" ? "Monthly" : "Yearly"}
+          {option === "yearly" && (
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-[11.5px] font-bold",
+                cycle === "yearly"
+                  ? "bg-white/15 text-white"
+                  : "bg-brand-soft text-brand",
+              )}
+            >
+              −{bestSaving}%
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
+  const price = planPrice(plan, cycle);
+
   return (
     <article
       className={cn(
@@ -123,11 +105,13 @@ export function PlanCard({ plan }: { plan: Plan }) {
     >
       {/* The white card */}
       <div className="relative rounded-[15px] bg-white px-6 pt-7 pb-6 text-ink shadow-[0_0_0_1px_rgba(0,0,0,0.03)]">
-        <p className="max-w-[24ch] text-[13px] leading-snug font-medium tracking-tight text-ink-soft">
-          {plan.kicker}
-        </p>
-
-        <h3 className="mt-4 text-[26px] leading-[1.05] tracking-[-0.04em]">
+        <h3
+          className={cn(
+            "text-[26px] leading-[1.05] tracking-[-0.04em]",
+            // Clear of the flame, which floats in the same corner.
+            plan.featured && "pr-14",
+          )}
+        >
           <span className="block font-medium text-ink-faint">
             {plan.qualifier}
           </span>
@@ -138,13 +122,13 @@ export function PlanCard({ plan }: { plan: Plan }) {
 
         <div className="mt-8 flex items-baseline gap-2 whitespace-nowrap">
           <span className="text-[44px] leading-[0.9] font-semibold tracking-[-0.055em]">
-            {plan.price}
+            {price.amount}
           </span>
           <span className="text-[14px] font-normal tracking-[-0.035em] text-ink-soft">
-            {plan.period}
+            {price.period}
           </span>
         </div>
-        <p className="mt-2 text-[12.5px] text-ink-faint">{plan.note}</p>
+        <p className="mt-2 text-[12.5px] text-ink-faint">{price.note}</p>
 
         <Link
           href={plan.href}
@@ -175,13 +159,23 @@ export function PlanCard({ plan }: { plan: Plan }) {
   );
 }
 
-/** The three plans, side by side. Used by the landing page and by /pricing. */
+/** The toggle and the three plans. Used by the landing page and by /pricing. */
 export function PlanGrid({ className }: { className?: string }) {
+  // Yearly first: it's the price the headline copy quotes, and the monthly
+  // figure is one click away for anyone who doesn't want to commit a year.
+  const [cycle, setCycle] = useState<BillingCycle>("yearly");
+
   return (
-    <div className={cn("grid gap-4 md:grid-cols-3 md:gap-5", className)}>
-      {PLANS.map((plan) => (
-        <PlanCard key={plan.id} plan={plan} />
-      ))}
+    <div className={className}>
+      <div className="text-center">
+        <BillingToggle cycle={cycle} onChange={setCycle} />
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3 md:gap-5">
+        {PLANS.map((plan) => (
+          <PlanCard key={plan.id} plan={plan} cycle={cycle} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -202,7 +196,14 @@ export function Pricing() {
 
       <p className="mt-8 text-center text-[13.5px] text-ink-soft">
         Prices in USD. Cancel any time — your resumes stay downloadable on the
-        free plan.
+        free plan.{" "}
+        <Link
+          href="/pricing"
+          className="font-bold text-brand underline underline-offset-4"
+        >
+          Compare the plans in full
+        </Link>
+        .
       </p>
     </section>
   );

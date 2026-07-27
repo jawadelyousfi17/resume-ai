@@ -1,16 +1,11 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useResume } from "@/lib/store";
-import type {
-  DateFormat,
-  FontFamily,
-  PageFormat,
-  ResumeSettings,
-} from "@/lib/types";
-import { FONT_CATEGORIES, FONTS, fontsIn } from "@/lib/fonts";
+import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import {
+  applyTemplate,
   inCategory,
   TEMPLATE_CATEGORIES,
   TEMPLATES,
@@ -30,8 +25,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -41,7 +34,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StepperSlider } from "@/components/ui/stepper-slider";
-import { CheckIcon, ChevronDownIcon } from "@/components/ui/icons";
+import { CheckIcon } from "@/components/ui/icons";
+import { ChevronDownIcon } from "@/components/ui/svg-icons";
+import { FontPicker } from "./FontPicker";
 
 const GROUPS = [
   { id: "cz-document", label: "Document" },
@@ -113,16 +108,8 @@ export function CustomizePanel() {
       }
     });
 
-  /** Picking a template also moves the controls it has an opinion about. */
-  const applyTemplate = (t: Template) =>
-    update((d) => {
-      d.settings.template = t.id;
-      d.settings.fontFamily = t.presets.fontFamily;
-      d.settings.headingStyle = t.presets.headingStyle;
-      // Each template was designed around an accent. It stays a setting — the
-      // colour swatches below still override it.
-      if (t.accent) d.settings.accent = t.accent;
-    });
+  const pickTemplate = (t: Template) =>
+    update((d) => applyTemplate(d.settings, t));
 
   const goto = (id: string) => {
     setActive(id);
@@ -164,7 +151,9 @@ export function CustomizePanel() {
                 type="button"
                 className="flex w-full items-center gap-2.5 rounded-xl border border-field-border px-3.5 py-2.5 text-left text-[14px] font-bold text-ink transition hover:border-ink/30"
               >
-                <span className="text-[18px] leading-none">{activeLang.flag}</span>
+                <span className="text-[18px] leading-none">
+                  {activeLang.flag}
+                </span>
                 <span dir={activeLang.dir}>{activeLang.label}</span>
                 <span className="ml-auto text-[12.5px] font-medium text-ink-faint">
                   {activeLang.english}
@@ -258,20 +247,28 @@ export function CustomizePanel() {
         </Group>
 
         <Group id="cz-template" title="Template">
+          {/* The pages themselves are the button: three of them behind a
+              single call to action, the one in use first. */}
           <button
             type="button"
             onClick={() => setPickerOpen(true)}
-            className="flex w-full items-center gap-3 rounded-xl border border-field-border p-2.5 text-left transition hover:border-ink/30"
+            className="group relative block w-full overflow-hidden rounded-xl border border-field-border transition hover:border-ink/30"
           >
-            <span className="block w-12 shrink-0 overflow-hidden rounded-lg border border-field-border">
-              <TemplateThumb template={activeTemplate} accent={s.accent} />
+            <span className="grid grid-cols-3 gap-2 p-2">
+              {previewTemplates(activeTemplate).map((t) => (
+                <span
+                  key={t.id}
+                  className="block overflow-hidden rounded-lg border border-field-border"
+                >
+                  <TemplateThumb template={t} accent={s.accent} />
+                </span>
+              ))}
             </span>
-            <span className="text-[14px] font-bold text-ink">
-              {activeTemplate.name}
-            </span>
-            <span className="ml-auto flex items-center gap-1 pr-1 text-[13px] font-bold text-brand">
-              Change
-              <ChevronDownIcon className="h-4 w-4 -rotate-90" />
+
+            <span className="absolute inset-0 flex items-center justify-center bg-ink/45 transition group-hover:bg-ink/55">
+              <span className="rounded-xl bg-white px-5 py-2.5 text-[14.5px] font-bold text-ink shadow-lg">
+                Browse templates
+              </span>
             </span>
           </button>
 
@@ -281,7 +278,7 @@ export function CustomizePanel() {
             selectedId={activeTemplate.id}
             accent={s.accent}
             onPick={(t) => {
-              applyTemplate(t);
+              pickTemplate(t);
               setPickerOpen(false);
             }}
           />
@@ -350,7 +347,9 @@ export function CustomizePanel() {
         </Group>
 
         <Group id="cz-colors" title="Colors">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">Accent color</p>
+          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
+            Accent color
+          </p>
           <div className="flex flex-wrap items-center gap-2.5">
             {ACCENTS.map((color) => {
               const selected = s.accent.toLowerCase() === color.toLowerCase();
@@ -503,68 +502,6 @@ function TemplatePicker({
  *  Every name — on the trigger and in the list — is set in the face it
  *  selects. A font is chosen by how it looks, and a list of names all in one
  *  typeface tells you nothing about any of them. */
-function FontPicker({
-  value,
-  onChange,
-}: {
-  value: FontFamily;
-  onChange: (value: FontFamily) => void;
-}) {
-  const active = FONTS.find((f) => f.id === value) ?? FONTS[0];
-  const activeCategory = FONT_CATEGORIES.find(
-    (c) => c.id === active.category,
-  )?.label;
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-xl border border-field-border px-4 py-3.5 text-left transition hover:border-ink/30"
-        >
-          <span className="min-w-0 flex-1">
-            <span
-              className="block truncate text-[17px] text-ink"
-              style={{ fontFamily: active.stack }}
-            >
-              {active.label}
-            </span>
-            {/* Three of these are called "System", so the trigger has to say
-                which one is selected. */}
-            <span className="mt-0.5 block text-[12.5px] font-semibold text-ink-faint">
-              {activeCategory}
-            </span>
-          </span>
-          <ChevronDownIcon className="h-4 w-4 shrink-0 text-ink-soft" />
-        </button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="start" className="max-h-[380px] p-2">
-        {FONT_CATEGORIES.map((category, i) => (
-          <Fragment key={category.id}>
-            {i > 0 && <DropdownMenuSeparator />}
-            <DropdownMenuLabel className="text-[11.5px] font-bold tracking-wide text-ink-faint uppercase">
-              {category.label}
-            </DropdownMenuLabel>
-            {fontsIn(category.id).map((font) => (
-              <DropdownMenuItem
-                key={font.id}
-                onClick={() => onChange(font.id)}
-                style={{ fontFamily: font.stack }}
-                className="py-3 text-[16px] font-normal"
-              >
-                {font.label}
-                {font.id === value && (
-                  <CheckIcon className="ml-auto h-4 w-4 shrink-0 text-brand" />
-                )}
-              </DropdownMenuItem>
-            ))}
-          </Fragment>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 /** One filter button. The count is worth showing — it tells you whether a
  *  group is worth opening before you open it. */
@@ -602,6 +539,12 @@ function FilterChip({
   );
 }
 
+/** The one in use, then whatever comes next — enough to say "there are more". */
+function previewTemplates(active: Template): Template[] {
+  const at = TEMPLATES.findIndex((t) => t.id === active.id);
+  return [0, 1, 2].map((i) => TEMPLATES[(at + i) % TEMPLATES.length]);
+}
+
 function TemplateThumb({ template }: { template: Template; accent?: string }) {
   // A screenshot of the real render, produced by scripts/shoot-templates.mjs.
   // A drawn approximation would be one more thing that can disagree with what
@@ -614,7 +557,11 @@ function TemplateThumb({ template }: { template: Template; accent?: string }) {
       aria-hidden="true"
       loading="lazy"
       className="block w-full bg-white"
-      style={{ aspectRatio: "210 / 297", objectFit: "cover", objectPosition: "top" }}
+      style={{
+        aspectRatio: "210 / 297",
+        objectFit: "cover",
+        objectPosition: "top",
+      }}
     />
   );
 }

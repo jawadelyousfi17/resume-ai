@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
-import { Eyebrow, btnPrimary, panel } from "@/components/landing/ui";
+import { btnPrimary, panel } from "@/components/landing/ui";
 import { cn } from "@/lib/utils";
 import type { FaqEntry } from "@/lib/content/guides";
 
@@ -24,13 +24,16 @@ export function ContentPage({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-cream">
       <SiteNav />
-      <main className="px-5 pt-6 pb-16 sm:px-8">{children}</main>
+      {/* The padding matches SiteNav's, so a page's edges line up with the
+          floating bar above it. */}
+      <main className="px-3 pt-6 sm:px-4">{children}</main>
       <SiteFooter />
     </div>
   );
 }
 
-/** The reading column — narrower than the landing page's full-width sections. */
+/** The page column: the same width the nav, the footer and the landing page's
+ *  sections use, so every page spans the site rather than a strip of it. */
 export function Column({
   children,
   className,
@@ -39,56 +42,32 @@ export function Column({
   className?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-full max-w-[760px]", className)}>
+    <div className={cn("mx-auto w-full max-w-[1180px]", className)}>
       {children}
     </div>
   );
 }
 
-export function Breadcrumbs({
-  trail,
-}: {
-  trail: { label: string; href?: string }[];
-}) {
-  return (
-    <nav
-      aria-label="Breadcrumb"
-      className="flex flex-wrap items-center gap-1.5 text-[13px] font-semibold text-ink-faint"
-    >
-      {trail.map((crumb, i) => (
-        <span key={crumb.label} className="flex items-center gap-1.5">
-          {i > 0 && <span aria-hidden="true">/</span>}
-          {crumb.href ? (
-            <Link href={crumb.href} className="transition hover:text-ink">
-              {crumb.label}
-            </Link>
-          ) : (
-            <span className="text-ink-soft">{crumb.label}</span>
-          )}
-        </span>
-      ))}
-    </nav>
-  );
-}
+/** Running prose is held to a readable measure even where the page is wide. */
+export const measure = "max-w-[68ch]";
 
 export function PageHeader({
-  eyebrow,
   title,
   intro,
   updated,
 }: {
-  eyebrow: string;
   title: string;
   intro: string;
   updated?: string;
 }) {
   return (
     <header className="mt-6">
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <h1 className="mt-4 text-[34px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[42px]">
+      <h1 className="max-w-[20ch] text-[34px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[42px] lg:text-[48px]">
         {title}
       </h1>
-      <p className="mt-4 text-[17px] leading-relaxed text-ink-soft">{intro}</p>
+      <p className="mt-4 max-w-[62ch] text-[17px] leading-relaxed text-ink-soft">
+        {intro}
+      </p>
       {updated && (
         <p className="mt-4 text-[13px] font-semibold text-ink-faint">
           Updated{" "}
@@ -110,13 +89,16 @@ export function PageHeader({
 export function FaqList({
   entries,
   headingLevel = "h3",
+  className,
 }: {
   entries: FaqEntry[];
   headingLevel?: "h2" | "h3";
+  /** Override the two-column grid where the list sits somewhere narrow. */
+  className?: string;
 }) {
   const Heading = headingLevel;
   return (
-    <dl className="mt-5 space-y-3">
+    <dl className={cn("mt-5 grid gap-3 md:grid-cols-2", className)}>
       {entries.map((entry) => (
         <div key={entry.question} className={cn(panel, "px-6 py-5")}>
           <dt>
@@ -130,6 +112,44 @@ export function FaqList({
         </div>
       ))}
     </dl>
+  );
+}
+
+/**
+ * The same questions as an accordion — the landing page's presentation, for
+ * places where the answers are long enough that a wall of cards is worse than
+ * a list you open one row at a time.
+ *
+ * <details> means it needs no client JavaScript, and the browser's own
+ * find-in-page still opens the row it lands in.
+ */
+export function FaqAccordion({
+  entries,
+  className,
+}: {
+  entries: FaqEntry[];
+  className?: string;
+}) {
+  return (
+    <div className={cn("mt-8", className)}>
+      {entries.map((entry) => (
+        <details
+          key={entry.question}
+          className="group border-t-2 border-field-border last:border-b-2"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-[16px] font-bold text-ink transition hover:opacity-70 [&::-webkit-details-marker]:hidden">
+            {entry.question}
+            <span className="relative h-6 w-6 shrink-0">
+              <span className="absolute top-1/2 left-0 h-0.5 w-6 -translate-y-1/2 rounded-full bg-ink" />
+              <span className="absolute top-0 left-1/2 h-6 w-0.5 -translate-x-1/2 rounded-full bg-ink transition-transform duration-200 group-open:rotate-90" />
+            </span>
+          </summary>
+          <p className="-mt-1 pb-8 text-[15.5px] leading-relaxed text-ink-soft lg:pr-16">
+            {entry.answer}
+          </p>
+        </details>
+      ))}
+    </div>
   );
 }
 

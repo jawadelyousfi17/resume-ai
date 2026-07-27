@@ -2,19 +2,26 @@
 
 import { useResume } from "@/lib/store";
 import { Input } from "@/components/ui/fields";
-import { ChevronDownIcon, DragIcon, TrashIcon } from "@/components/ui/icons";
+import {
+  ChevronDownIcon,
+  DragIcon,
+  TrashIcon,
+} from "@/components/ui/svg-icons";
 import { useEntryDrag } from "./EntryCard";
+import { NudgeButtons } from "../NudgeButtons";
 import { isTagGroupSection, moveById } from "@/lib/defaults";
 import { skillLevels } from "@/lib/i18n";
 import type { SkillItem, SkillsSection, TagGroupType } from "@/lib/types";
 
 /** The shape is shared across tag-group sections; only the wording changes. */
-const LABELS: Record<TagGroupType, { placeholder: string; levelLabel: string }> =
-  {
-    skills: { placeholder: "e.g. Java", levelLabel: "Level" },
-    languages: { placeholder: "e.g. Arabic", levelLabel: "Fluency" },
-    interests: { placeholder: "e.g. Long-distance running", levelLabel: "" },
-  };
+const LABELS: Record<
+  TagGroupType,
+  { placeholder: string; levelLabel: string }
+> = {
+  skills: { placeholder: "e.g. Java", levelLabel: "Level" },
+  languages: { placeholder: "e.g. Arabic", levelLabel: "Fluency" },
+  interests: { placeholder: "e.g. Long-distance running", levelLabel: "" },
+};
 
 export function SkillsForm({ section }: { section: SkillsSection }) {
   const { data, update } = useResume();
@@ -66,10 +73,12 @@ export function SkillsForm({ section }: { section: SkillsSection }) {
                 if (e.key === "ArrowUp") drag.onNudge(-1);
                 if (e.key === "ArrowDown") drag.onNudge(1);
               }}
-              className="shrink-0 cursor-grab text-ink-faint transition hover:text-ink active:cursor-grabbing"
+              className="hidden shrink-0 cursor-grab text-ink-faint transition hover:text-ink active:cursor-grabbing md:block"
             >
               <DragIcon className="h-[18px] w-[18px]" />
             </button>
+
+            <NudgeButtons onNudge={drag.onNudge} label={item.name || "entry"} />
 
             <Input
               value={item.name}
@@ -81,7 +90,7 @@ export function SkillsForm({ section }: { section: SkillsSection }) {
                 }
               }}
               placeholder={labels.placeholder}
-              className="h-11 py-0"
+              className="h-11 min-w-0 py-0"
             />
 
             {levels.length > 0 && (
@@ -94,7 +103,7 @@ export function SkillsForm({ section }: { section: SkillsSection }) {
                       level: Number(e.target.value) || undefined,
                     })
                   }
-                  className="h-11 w-[136px] appearance-none rounded-xl bg-field px-3 pr-8 text-[14px] font-medium text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/80"
+                  className="h-11 w-[104px] appearance-none rounded-xl bg-field px-3 pr-7 text-[13px] font-medium text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/80 sm:w-[136px] sm:text-[14px]"
                 >
                   <option value={0}>No level</option>
                   {levels.map((name: string, li: number) => (

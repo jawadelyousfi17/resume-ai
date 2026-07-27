@@ -5,16 +5,16 @@
 // off by a footer that carries the section's own controls.
 
 import { useEffect, useRef, useState } from "react";
+import { CalendarIcon, CalendarOffIcon } from "@/components/ui/icons";
 import {
-  CalendarIcon,
-  CalendarOffIcon,
   ChevronDownIcon,
   DragIcon,
   PencilIcon,
   PlusIcon,
   TrashIcon,
-} from "@/components/ui/icons";
+} from "@/components/ui/svg-icons";
 import type { DragProps } from "./reorder";
+import { NudgeButtons } from "./NudgeButtons";
 
 export function SectionCard({
   icon: Icon,
@@ -90,10 +90,18 @@ export function SectionCard({
             }}
             aria-label={`Reorder ${title}`}
             title="Drag to reorder, or press ↑ / ↓"
-            className="-ml-2 inline-flex h-9 w-6 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing"
+            className="-ml-2 hidden h-9 w-6 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing md:inline-flex"
           >
             <DragIcon className="h-[18px] w-[18px]" />
           </span>
+        )}
+
+        {drag && (
+          <NudgeButtons
+            onNudge={drag.onNudge}
+            label={title}
+            className="-ml-1 mr-1"
+          />
         )}
 
         {Icon && <Icon className="h-6 w-6 shrink-0 text-ink" />}

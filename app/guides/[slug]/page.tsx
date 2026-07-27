@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
-  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -14,6 +13,13 @@ import {
 import { panel } from "@/components/landing/ui";
 import { GUIDES, getGuide } from "@/lib/content/guides";
 import { cn } from "@/lib/utils";
+
+/** Section headings double as anchors for the rail beside the article. */
+const anchor = (heading: string) =>
+  heading
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 /** Every guide is known at build time, so all of them prerender. */
 export function generateStaticParams() {
@@ -105,54 +111,99 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
       />
 
       <Column>
-        <Breadcrumbs
-          trail={[
-            { label: "Home", href: "/" },
-            { label: "Guides", href: "/guides" },
-            { label: guide.title },
-          ]}
-        />
-
         <PageHeader
-          eyebrow={guide.eyebrow}
           title={guide.title}
           intro={guide.intro}
           updated={guide.updated}
         />
 
-        <article className="mt-10 space-y-10">
-          {guide.sections.map((section) => (
-            <section key={section.heading}>
-              <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
-                {section.heading}
-              </h2>
-              {section.body.map((paragraph) => (
-                <p
-                  key={paragraph.slice(0, 40)}
-                  className="mt-4 text-[16px] leading-[1.75] text-ink-soft"
+        {/* The prose keeps a reading measure; the width the page gains goes to
+            the rail beside it rather than to longer lines. */}
+        <div className="mt-10 lg:flex lg:items-start lg:gap-14">
+          <article className="min-w-0 flex-1 space-y-10 lg:max-w-[72ch]">
+            {guide.sections.map((section) => (
+              <section key={section.heading}>
+                <h2
+                  id={anchor(section.heading)}
+                  className="scroll-mt-24 text-[24px] leading-tight font-extrabold tracking-tight text-ink"
                 >
-                  {paragraph}
-                </p>
-              ))}
-              {section.list && (
-                <ul className="mt-4 space-y-2">
-                  {section.list.map((item) => (
-                    <li
-                      key={item}
-                      className="flex gap-3 text-[16px] leading-[1.7] text-ink-soft"
+                  {section.heading}
+                </h2>
+                {section.body.map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 40)}
+                    className="mt-4 text-[16px] leading-[1.75] text-ink-soft"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+                {section.list && (
+                  <ul className="mt-4 space-y-2">
+                    {section.list.map((item) => (
+                      <li
+                        key={item}
+                        className="flex gap-3 text-[16px] leading-[1.7] text-ink-soft"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="mt-[0.65em] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            ))}
+          </article>
+
+          <aside className="mt-12 lg:sticky lg:top-24 lg:mt-1 lg:w-[280px] lg:shrink-0">
+            <nav aria-label="On this page" className={cn(panel, "px-5 py-4")}>
+              <p className="text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+                On this page
+              </p>
+              <ul className="mt-3 space-y-2">
+                {guide.sections.map((section) => (
+                  <li key={section.heading}>
+                    <a
+                      href={`#${anchor(section.heading)}`}
+                      className="block text-[14px] leading-snug font-bold text-ink-soft transition hover:text-brand"
                     >
-                      <span
-                        aria-hidden="true"
-                        className="mt-[0.65em] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
-                      />
-                      {item}
-                    </li>
+                      {section.heading}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {related.length > 0 && (
+              <section className="mt-4">
+                <p className="px-5 text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+                  Read next
+                </p>
+                <div className="mt-3 space-y-3">
+                  {related.map((item) => (
+                    <Link
+                      key={item.slug}
+                      href={`/guides/${item.slug}`}
+                      className={cn(
+                        panel,
+                        "block px-5 py-4 transition hover:ring-ink/15",
+                      )}
+                    >
+                      <span className="block text-[15px] font-extrabold text-ink">
+                        {item.title}
+                      </span>
+                      <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+                        {item.description}
+                      </span>
+                    </Link>
                   ))}
-                </ul>
-              )}
-            </section>
-          ))}
-        </article>
+                </div>
+              </section>
+            )}
+          </aside>
+        </div>
 
         <section className="mt-14">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
@@ -160,33 +211,6 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
           </h2>
           <FaqList entries={guide.faqs} />
         </section>
-
-        {related.length > 0 && (
-          <section className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
-              Read next
-            </h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {related.map((item) => (
-                <Link
-                  key={item.slug}
-                  href={`/guides/${item.slug}`}
-                  className={cn(
-                    panel,
-                    "px-5 py-4 transition hover:ring-ink/15",
-                  )}
-                >
-                  <span className="block text-[15.5px] font-extrabold text-ink">
-                    {item.title}
-                  </span>
-                  <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
-                    {item.description}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
 
         <ContentCta />
       </Column>

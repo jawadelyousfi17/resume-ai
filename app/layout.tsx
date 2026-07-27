@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
+import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import { DEFAULT_THEME, THEME_KEY } from "@/lib/themes";
 
 const siteUrl = configuredSiteUrl();
 
@@ -23,13 +25,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full font-sans", fontVariables)}>
+    <html
+      lang="en"
+      data-theme={DEFAULT_THEME}
+      className={cn("h-full font-sans", fontVariables)}
+    >
+      <head>
+        {/* Applies the saved theme before anything paints, so a visitor who
+            picked Sunset never sees a frame of Ocean first. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)});if(t)document.documentElement.dataset.theme=t}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full">
         {/* Caps the whole app at 7xl and centres it, so it doesn't sprawl on
             wide monitors. Children still own their own full-height layout. */}
         <AuthDialogProvider>
           <div className="mx-auto w-full max-w-[1600px]">{children}</div>
         </AuthDialogProvider>
+        <ThemeSwitcher />
         <Toaster />
       </body>
     </html>

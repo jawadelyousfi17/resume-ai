@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
 import { useResume } from "@/lib/store";
-import { downloadBlob, slugify } from "@/lib/export";
 import { Button } from "@/components/ui/button";
 import { Logo, LogoLockup } from "@/components/ui/logo";
 import {
+  AwardIcon,
   DownloadIcon,
-  FileTextIcon,
-  SparklesIcon,
-  WandIcon,
-} from "@/components/ui/icons";
+  DocumentIcon as FileTextIcon,
+  MagicIcon,
+  MagicIcon as SparklesIcon,
+  DesignIcon as WandIcon,
+} from "@/components/ui/svg-icons";
+import { useDownloadPdf } from "./use-download-pdf";
 
-export type EditorTab = "content" | "customize" | "ai";
+export type EditorTab = "content" | "customize" | "ai" | "review" | "tailor";
 
 const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
   {
@@ -32,6 +32,16 @@ const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
     label: "AI Tools",
     icon: <SparklesIcon className="h-[18px] w-[18px]" />,
   },
+  {
+    id: "review",
+    label: "Review",
+    icon: <AwardIcon className="h-[18px] w-[18px]" />,
+  },
+  {
+    id: "tailor",
+    label: "Tailor",
+    icon: <MagicIcon className="h-[18px] w-[18px]" />,
+  },
 ];
 
 export function TopBar({
@@ -41,34 +51,8 @@ export function TopBar({
   tab: EditorTab;
   onTab: (t: EditorTab) => void;
 }) {
-  const { name, data, format } = useResume();
-
-  const [busy, setBusy] = useState(false);
-  const handlePdf = async () => {
-    setBusy(true);
-    const toastId = toast.loading("Building your PDF…");
-    try {
-      const res = await fetch("/api/compile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data, format }),
-      });
-      if (!res.ok) {
-        const info = await res.json().catch(() => ({}) as { error?: string });
-        throw new Error(info.error || `Server error ${res.status}`);
-      }
-      downloadBlob(`${slugify(name)}.pdf`, await res.blob());
-      toast.success("Downloaded resume.pdf", { id: toastId });
-    } catch (err) {
-      toast.error("Couldn't build the PDF", {
-        id: toastId,
-        description:
-          err instanceof Error ? err.message.slice(0, 160) : undefined,
-      });
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { name } = useResume();
+  const { download, busy } = useDownloadPdf();
 
   return (
     <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-black/5 bg-panel px-3 py-2">
@@ -116,7 +100,7 @@ export function TopBar({
         {/* Right: the one primary action. */}
         <div className="flex shrink-0 items-center gap-2">
           <Button
-            onClick={handlePdf}
+            onClick={download}
             disabled={busy}
             className="h-auto gap-2 rounded-lg bg-navy px-3.5 py-2 text-[14px] font-bold text-white hover:bg-navy/90"
           >

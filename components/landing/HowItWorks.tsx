@@ -33,9 +33,7 @@ function MiniPage({
   return (
     <span
       className={`block aspect-[210/297] flex-1 rounded-lg bg-white p-2.5 transition ${
-        selected
-          ? "ring-2 ring-brand"
-          : "ring-1 ring-black/8"
+        selected ? "ring-2 ring-brand" : "ring-1 ring-black/8"
       }`}
     >
       <span
@@ -123,7 +121,8 @@ function Customize() {
               className="flex h-8 w-8 items-center justify-center rounded-full"
               style={{
                 backgroundColor: c,
-                boxShadow: i === 0 ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : undefined,
+                boxShadow:
+                  i === 0 ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : undefined,
               }}
             >
               {i === 0 && <CheckIcon className="h-3.5 w-3.5 text-white" />}

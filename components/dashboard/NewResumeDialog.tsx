@@ -1,7 +1,7 @@
 "use client";
 
 // The fork in the road when you add a resume: type it yourself, or hand over
-// one you already have and let Claude read it in.
+// one you already have and let the AI read it in.
 
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -43,7 +43,7 @@ export function NewResumeDialog({
   const handleFile = async (file: File) => {
     setReading(true);
     const toastId = toast.loading("Reading your resume…", {
-      description: "Claude is pulling out your details.",
+      description: "Our AI is pulling out your details.",
     });
 
     try {
@@ -64,13 +64,17 @@ export function NewResumeDialog({
 
       toast.success("Imported — check it over", {
         id: toastId,
-        description: "Anything Claude misread is yours to fix.",
+        description: "Anything the AI misread is yours to fix.",
       });
-      onImported({ name: payload.name ?? "Imported Resume", data: payload.data });
+      onImported({
+        name: payload.name ?? "Imported Resume",
+        data: payload.data,
+      });
     } catch (err) {
       toast.error("Couldn't import that file", {
         id: toastId,
-        description: err instanceof Error ? err.message.slice(0, 160) : undefined,
+        description:
+          err instanceof Error ? err.message.slice(0, 160) : undefined,
       });
     } finally {
       setReading(false);

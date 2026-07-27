@@ -14,10 +14,10 @@ import {
   showsDates,
 } from "@/lib/defaults";
 import type { Section, SectionType } from "@/lib/types";
-import { PlusIcon, UserIcon } from "@/components/ui/icons";
+import { PlusIcon } from "@/components/ui/svg-icons";
 import { SectionCard, SectionFooter, DoneButton } from "./SectionCard";
 import { useListDrag } from "./reorder";
-import { SECTION_ICONS } from "./section-icons";
+import { PersonalIcon, SECTION_ICONS } from "./section-icons";
 import { AddContentModal } from "./AddContentModal";
 import { PersonalDetailsForm } from "./forms/PersonalDetailsForm";
 import { SummaryForm } from "./forms/SummaryForm";
@@ -26,7 +26,9 @@ import { EducationForm } from "./forms/EducationForm";
 import { SkillsForm } from "./forms/SkillsForm";
 import { EntryEditProvider, type OpenEntry } from "./forms/EntryCard";
 
-function SectionBody({ section }: { section: Section }) {
+/** Whichever form the section's type calls for. Shared with the mobile setup
+ *  flow, which walks through the same forms one section at a time. */
+export function SectionBody({ section }: { section: Section }) {
   return (
     <>
       {section.type === "summary" && <SummaryForm section={section} />}
@@ -108,7 +110,7 @@ export function ContentPanel() {
     <EntryEditProvider value={{ openEntry, setOpenEntry }}>
       <div className="space-y-3">
         <SectionCard
-          icon={UserIcon}
+          icon={PersonalIcon}
           title="Personal details"
           open={openId === "personal"}
           onToggle={() => toggle("personal")}

@@ -5,30 +5,40 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Brand + surface tokens — Ocean Blue / Slate.
-     `cream` is the one page background for the whole app; `panel` is the
-     white card surface that sits on top of it. */
-  --color-cream: #f1f3f6;
-  --color-panel: #ffffff;
-  --color-ink: #0f172a;
-  --color-ink-soft: #64748b;
-  --color-ink-faint: #94a3b8;
-  --color-field: #f3f4f6;
-  --color-field-border: #e2e8f0;
-  --color-brand: #2563eb;
-  --color-brand-soft: #dbeafe;
+  /* Brand + surface tokens. `cream` is the one page background for the whole
+     app; `panel` is the card surface that sits on top of it.
+     
+     Each one points at a `--app-*` variable rather than a literal, and a theme
+     is nothing more than a different set of those — see the blocks under
+     `[data-theme]` below. */
+  --color-cream: var(--app-cream);
+  --color-panel: var(--app-panel);
+  --color-ink: var(--app-ink);
+  --color-ink-soft: var(--app-ink-soft);
+  --color-ink-faint: var(--app-ink-faint);
+  --color-field: var(--app-field);
+  --color-field-border: var(--app-field-border);
+  --color-brand: var(--app-brand);
+  --color-brand-soft: var(--app-brand-soft);
   --color-danger: #e11d48;
-  --color-accent-2: #06b6d4;
-  --color-navy: #0f172a;
-  --color-purple: #2563eb;
-  --color-purple-soft: #dbeafe;
+  /* Two more semantic hues, so a board with a column per stage can carry five
+     distinct colours and still follow the theme. */
+  --color-positive: var(--app-positive);
+  --color-caution: var(--app-caution);
+  --color-accent-2: var(--app-accent-2);
+  --color-navy: var(--app-navy);
+  /* Kept as an alias: the AI surfaces were written against `purple` before the
+     palette was named. */
+  --color-purple: var(--app-brand);
+  --color-purple-soft: var(--app-brand-soft);
   /* Neutral hover token consumed by shadcn components */
   --color-accent: var(--accent);
 
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-panel: 0 1px 2px rgba(32, 26, 46, 0.04), 0 8px 24px rgba(32, 26, 46, 0.06);
+  --shadow-panel:
+    0 1px 2px rgba(32, 26, 46, 0.04), 0 8px 24px rgba(32, 26, 46, 0.06);
   --shadow-paper: 0 4px 24px rgba(32, 26, 46, 0.12);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -140,11 +150,31 @@ body {
 
 .plan-shell {
   background:
-    radial-gradient(46% 34% at 15% 3%, rgba(103, 232, 249, 0.92), transparent 62%),
-    radial-gradient(58% 38% at 80% 17%, rgba(29, 78, 216, 0.92), transparent 70%),
-    radial-gradient(70% 50% at 79% 72%, rgba(37, 99, 235, 0.96), transparent 66%),
-    radial-gradient(58% 36% at 18% 96%, rgba(99, 102, 241, 0.94), transparent 69%),
-    radial-gradient(58% 45% at 49% 74%, rgba(22, 35, 167, 0.96), transparent 68%),
+    radial-gradient(
+      46% 34% at 15% 3%,
+      rgba(103, 232, 249, 0.92),
+      transparent 62%
+    ),
+    radial-gradient(
+      58% 38% at 80% 17%,
+      rgba(29, 78, 216, 0.92),
+      transparent 70%
+    ),
+    radial-gradient(
+      70% 50% at 79% 72%,
+      rgba(37, 99, 235, 0.96),
+      transparent 66%
+    ),
+    radial-gradient(
+      58% 36% at 18% 96%,
+      rgba(99, 102, 241, 0.94),
+      transparent 69%
+    ),
+    radial-gradient(
+      58% 45% at 49% 74%,
+      rgba(22, 35, 167, 0.96),
+      transparent 68%
+    ),
     linear-gradient(145deg, #0a2338 0%, #071244 34%, #141064 67%, #074e91 100%);
 }
 
@@ -152,8 +182,16 @@ body {
    so the paid plans carry the eye. */
 .plan-shell-quiet {
   background:
-    radial-gradient(50% 36% at 18% 4%, rgba(148, 163, 184, 0.55), transparent 64%),
-    radial-gradient(64% 44% at 82% 78%, rgba(71, 85, 105, 0.9), transparent 68%),
+    radial-gradient(
+      50% 36% at 18% 4%,
+      rgba(148, 163, 184, 0.55),
+      transparent 64%
+    ),
+    radial-gradient(
+      64% 44% at 82% 78%,
+      rgba(71, 85, 105, 0.9),
+      transparent 68%
+    ),
     linear-gradient(150deg, #3a4759 0%, #2b3448 46%, #1e2537 100%);
 }
 
@@ -202,7 +240,11 @@ body {
 
 /* The gradient CTA used across the editor */
 .btn-gradient {
-  background-image: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+  background-image: linear-gradient(
+    90deg,
+    var(--app-brand) 0%,
+    var(--app-accent-2) 100%
+  );
   color: #fff;
 }
 
@@ -223,25 +265,114 @@ body {
   font-family: var(--font-sans);
 }
 
+/* ---------------------------------------------------------------------------
+   Themes.
+
+   Five palettes, all light-surfaced: the page, the ink and the accent move;
+   paper stays paper. `data-theme` is set on <html> before first paint by the
+   inline script in app/layout.tsx, so switching never flashes.
+   --------------------------------------------------------------------------- */
+
+:root,
+[data-theme="ocean"] {
+  --app-cream: #f1f3f6;
+  --app-panel: #ffffff;
+  --app-ink: #0f172a;
+  --app-ink-soft: #64748b;
+  --app-ink-faint: #94a3b8;
+  --app-field: #f3f4f6;
+  --app-field-border: #e2e8f0;
+  --app-brand: #2563eb;
+  --app-brand-soft: #dbeafe;
+  --app-accent-2: #06b6d4;
+  --app-navy: #0f172a;
+  --app-positive: #0d9488;
+  --app-caution: #d97706;
+}
+
+[data-theme="violet"] {
+  --app-cream: #f4f2fa;
+  --app-panel: #ffffff;
+  --app-ink: #1e1b34;
+  --app-ink-soft: #6b6486;
+  --app-ink-faint: #9c95b5;
+  --app-field: #f4f2f9;
+  --app-field-border: #e6e2f2;
+  --app-brand: #7c3aed;
+  --app-brand-soft: #ede9fe;
+  --app-accent-2: #d946ef;
+  --app-navy: #241d45;
+  --app-positive: #0d9488;
+  --app-caution: #e0820b;
+}
+
+[data-theme="emerald"] {
+  --app-cream: #f0f5f2;
+  --app-panel: #ffffff;
+  --app-ink: #0d211c;
+  --app-ink-soft: #5b7168;
+  --app-ink-faint: #8fa79c;
+  --app-field: #f1f5f2;
+  --app-field-border: #dfe8e3;
+  --app-brand: #059669;
+  --app-brand-soft: #d1fae5;
+  --app-accent-2: #14b8a6;
+  --app-navy: #10302a;
+  --app-positive: #0f766e;
+  --app-caution: #ca8a04;
+}
+
+[data-theme="sunset"] {
+  --app-cream: #faf5ef;
+  --app-panel: #fffdfa;
+  --app-ink: #26170e;
+  --app-ink-soft: #7a6355;
+  --app-ink-faint: #ab9585;
+  --app-field: #f7f0e8;
+  --app-field-border: #ece0d3;
+  --app-brand: #ea580c;
+  --app-brand-soft: #ffedd5;
+  --app-accent-2: #f59e0b;
+  --app-navy: #2c1a10;
+  --app-positive: #15803d;
+  --app-caution: #ca8a04;
+}
+
+[data-theme="graphite"] {
+  --app-cream: #eceef2;
+  --app-panel: #ffffff;
+  --app-ink: #111827;
+  --app-ink-soft: #5c6674;
+  --app-ink-faint: #9099a6;
+  --app-field: #f2f4f7;
+  --app-field-border: #dfe3e9;
+  --app-brand: #334155;
+  --app-brand-soft: #e2e8f0;
+  --app-accent-2: #64748b;
+  --app-navy: #1c2431;
+  --app-positive: #047857;
+  --app-caution: #b45309;
+}
+
 :root {
-  --background: #f1f3f6;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2563eb;
+  --background: var(--app-cream);
+  --foreground: var(--app-ink);
+  --card: var(--app-panel);
+  --card-foreground: var(--app-ink);
+  --popover: var(--app-panel);
+  --popover-foreground: var(--app-ink);
+  --primary: var(--app-brand);
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
+  --secondary: var(--app-field);
+  --secondary-foreground: var(--app-ink);
+  --muted: var(--app-field);
+  --muted-foreground: var(--app-ink-soft);
+  --accent: var(--app-field);
+  --accent-foreground: var(--app-ink);
   --destructive: #e11d48;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #2563eb;
+  --border: var(--app-field-border);
+  --input: var(--app-field-border);
+  --ring: var(--app-brand);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -366,17 +497,20 @@ body {
 @keyframes ai-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 30%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in oklab, var(--color-purple) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 75%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in oklab, var(--color-purple) 75%, transparent);
   }
 }
 .ai-streaming {
   animation: ai-pulse 1.5s ease-in-out infinite;
 }
 .ai-review {
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-purple) 55%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in oklab, var(--color-purple) 55%, transparent);
 }
 
 /* The cursor trailing a streaming answer. Eased rather than stepped, so it
@@ -435,6 +569,26 @@ body {
   animation: ai-progress 1.4s ease-in-out infinite;
 }
 
+/* The review reading the page. Percentages on translateY are of the band's own
+   height, so -100% parks it fully above the page and 400% (four more of its
+   24% height) carries it fully past the bottom. */
+@keyframes scan-sweep {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(400%);
+  }
+}
+.scan-sweep {
+  animation: scan-sweep 2.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+.scan-line {
+  background: var(--color-brand);
+  box-shadow: 0 0 14px 2px
+    color-mix(in oklab, var(--color-brand) 55%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ai-swap .ProseMirror,
   .ai-streaming,
@@ -447,5 +601,10 @@ body {
     width: 100%;
     animation: none;
     opacity: 0.5;
+  }
+  /* Nothing sweeps; the tint alone says the page is being read. */
+  .scan-sweep {
+    animation: none;
+    opacity: 0;
   }
 }

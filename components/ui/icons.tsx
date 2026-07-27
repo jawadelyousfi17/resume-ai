@@ -34,6 +34,7 @@ import {
   Mortarboard02Icon,
   PencilEdit02Icon,
   Rocket01Icon,
+  Search01Icon,
   SparklesIcon as HugeSparklesIcon,
   Tag01Icon,
   TextAlignLeftIcon,
@@ -98,4 +99,5 @@ export const BulletListIcon = icon(LeftToRightListBulletIcon);
 export const NumberListIcon = icon(LeftToRightListNumberIcon);
 export const TranslateIcon = icon(HugeTranslateIcon);
 export const CopyIcon = icon(Copy01Icon);
+export const SearchIcon = icon(Search01Icon);
 export const LogoutIcon = icon(Logout02Icon);

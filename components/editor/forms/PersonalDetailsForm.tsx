@@ -3,13 +3,10 @@
 import { useRef, useState } from "react";
 import { useResume } from "@/lib/store";
 import { contactOrder } from "@/lib/defaults";
+import { NudgeButtons } from "../NudgeButtons";
 import { Field, Input, Label } from "@/components/ui/fields";
-import {
-  CameraIcon,
-  ChevronUpDownIcon,
-  PlusIcon,
-  XIcon,
-} from "@/components/ui/icons";
+import { CameraIcon, ChevronUpDownIcon } from "@/components/ui/icons";
+import { PlusIcon, CloseIcon as XIcon } from "@/components/ui/svg-icons";
 import type { ContactField, ContactLink } from "@/lib/types";
 
 const LINK_PRESETS = ["LinkedIn", "Website", "GitHub", "Twitter", "Portfolio"];
@@ -184,12 +181,18 @@ export function PersonalDetailsForm() {
                     nudge(field, e.key === "ArrowUp" ? -1 : 1);
                   }
                 }}
-                className="mb-1 inline-flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:bg-black/5 hover:text-ink active:cursor-grabbing"
+                className="mb-1 hidden h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:bg-black/5 hover:text-ink active:cursor-grabbing md:inline-flex"
                 aria-label={`Reorder ${row.label}`}
                 title="Drag to reorder, or press ↑ / ↓"
               >
                 <ChevronUpDownIcon className="h-[18px] w-[18px]" />
               </button>
+
+              <NudgeButtons
+                onNudge={(delta) => nudge(field, delta)}
+                label={row.label}
+                className="mb-1"
+              />
             </div>
           );
         })}
@@ -202,7 +205,9 @@ export function PersonalDetailsForm() {
               <div className="w-32 shrink-0">
                 <Input
                   value={link.label}
-                  onChange={(e) => updateLink(link.id, { label: e.target.value })}
+                  onChange={(e) =>
+                    updateLink(link.id, { label: e.target.value })
+                  }
                   placeholder="Label"
                 />
               </div>

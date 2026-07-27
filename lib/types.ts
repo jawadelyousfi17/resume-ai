@@ -211,3 +211,82 @@ export interface Resume {
   updatedAt: number;
   data: ResumeData;
 }
+
+/* ---------------------------------------------------------------------------
+   Cover letters.
+
+   A letter is a much smaller thing than a resume: a header, who it's to, a
+   greeting, some paragraphs, a sign-off. There are no sections to reorder and
+   no templates to switch between, so the shape below is flat on purpose rather
+   than a second copy of the resume model.
+   --------------------------------------------------------------------------- */
+
+/** How the sender's details sit at the top of the page. */
+export type LetterHeaderStyle = "stacked" | "banner" | "minimal";
+
+export interface LetterSender {
+  fullName: string;
+  title: string;
+  email: string;
+  phone: string;
+  location: string;
+}
+
+export interface LetterRecipient {
+  /** The person, when it's known — "Dear Hiring Manager" is the fallback. */
+  name: string;
+  role: string;
+  company: string;
+  /** Free-form, one line per line. */
+  address: string;
+}
+
+export interface CoverLetterSettings {
+  language?: LanguageCode;
+  accent: string;
+  fontFamily: FontFamily;
+  /** Base body font size in points. */
+  fontSize: number;
+  lineHeight: number;
+  /** Left/right page margin in millimetres. */
+  marginX: number;
+  /** Top/bottom page margin in millimetres. */
+  marginY: number;
+  headerStyle: LetterHeaderStyle;
+  /** Whether the date line is printed. */
+  showDate: boolean;
+}
+
+export interface CoverLetterData {
+  sender: LetterSender;
+  recipient: LetterRecipient;
+  /** The job being applied for — printed as the subject line when set. */
+  role: string;
+  /** The posting it was drafted against, kept so a redraft doesn't need it
+   *  pasted again. Capped by `parseCoverLetterData`. */
+  jobDescription: string;
+  /** Written out at print time from the letter's language; blank means today. */
+  date: string;
+  greeting: string;
+  /** Markdown, in the subset `lib/markdown` defines. The letter itself. */
+  body: string;
+  closing: string;
+  /** The name under the sign-off — usually, but not always, the sender's. */
+  signature: string;
+  /** A drawn or uploaded signature, as a PNG data URL, printed above the name.
+   *  Absent on letters saved before signatures existed. */
+  signatureImage?: string;
+  settings: CoverLetterSettings;
+}
+
+export interface CoverLetter {
+  id: string;
+  name: string;
+  format: PageFormat;
+  /** The resume it was drafted from, if it came from one. A soft link: the
+   *  letter carries its own copy of everything it prints. */
+  resumeId: string | null;
+  createdAt: number;
+  updatedAt: number;
+  data: CoverLetterData;
+}

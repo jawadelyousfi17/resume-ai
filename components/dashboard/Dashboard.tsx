@@ -11,27 +11,15 @@ import {
   importResumeAction,
   renameResumeAction,
 } from "@/app/actions/resumes";
-import { signOutAction } from "@/app/auth/actions";
-import {
-  BriefcaseIcon,
-  CapIcon,
-  FileTextIcon,
-  LogoutIcon,
-  MailIcon,
-  PlusIcon,
-  TagIcon,
-  UserIcon,
-} from "@/components/ui/icons";
-import { LogoLockup } from "@/components/ui/logo";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { PlusIcon } from "@/components/ui/icons";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { ResumeCard } from "@/components/dashboard/ResumeCard";
 import { GuestImport } from "@/components/dashboard/GuestImport";
 import { NewResumeDialog } from "@/components/dashboard/NewResumeDialog";
+import {
+  ConfirmDeleteDialog,
+  RenameDialog,
+} from "@/components/ui/prompt-dialogs";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
 import {
   createGuestResume,
@@ -44,16 +32,6 @@ import {
   renameGuestResume,
   replaceGuestResume,
 } from "@/lib/guest";
-
-const NAV = [
-  { label: "Resume", icon: FileTextIcon },
-  { label: "Cover Letter", icon: MailIcon },
-  { label: "Job Tracker", icon: BriefcaseIcon },
-];
-const NAV_FOOTER = [
-  { label: "Plans & Pricing", icon: TagIcon },
-  { label: "Student Benefits", icon: CapIcon },
-];
 
 export function Dashboard({
   resumes,
@@ -71,6 +49,9 @@ export function Dashboard({
   // Set while a card's own action is in flight, so only that card dims.
   const [busyId, setBusyId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  // The resume each dialog is asking about, or null when it's closed.
+  const [renaming, setRenaming] = useState<Resume | null>(null);
+  const [deleting, setDeleting] = useState<Resume | null>(null);
 
   const guest = account === null;
 
@@ -112,13 +93,15 @@ export function Dashboard({
     setAdding(true);
   };
 
-  /** "Start from scratch" — a blank document, opened straight away. */
+  /** "Start from scratch" — a blank document, opened straight away. The
+   *  `setup` parameter is what the phone editor reads to start its guided
+   *  build; the desktop editor ignores it. */
   const startFromScratch = () => {
     setAdding(false);
 
     if (guest) {
       createGuestResume();
-      router.push(`/resume/${GUEST_RESUME_ID}`);
+      router.push(`/resume/${GUEST_RESUME_ID}?setup=new`);
       return;
     }
 
@@ -129,18 +112,18 @@ export function Dashboard({
         toast.error(result.error);
         return;
       }
-      router.push(`/resume/${result.id}`);
+      router.push(`/resume/${result.id}?setup=new`);
     });
   };
 
-  /** A resume Claude just read out of an uploaded file. Guests never get
+  /** A resume the AI just read out of an uploaded file. Guests never get
    *  here — importing needs an account. */
   const openImported = (imported: { name: string; data: ResumeData }) => {
     setAdding(false);
 
     if (guest) {
       replaceGuestResume(imported);
-      router.push(`/resume/${GUEST_RESUME_ID}`);
+      router.push(`/resume/${GUEST_RESUME_ID}?setup=import`);
       return;
     }
 
@@ -154,18 +137,17 @@ export function Dashboard({
         toast.error(result.error);
         return;
       }
-      router.push(`/resume/${result.id}`);
+      router.push(`/resume/${result.id}?setup=import`);
     });
   };
 
-  const handleRename = (resume: Resume) => {
-    const name = window.prompt("Rename resume", resume.name);
-    if (!name?.trim()) return;
+  const confirmRename = (resume: Resume, name: string) => {
+    setRenaming(null);
     if (guest) {
-      renameGuestResume(name.trim());
+      renameGuestResume(name);
       return;
     }
-    run(resume.id, () => renameResumeAction(resume.id, name.trim()));
+    run(resume.id, () => renameResumeAction(resume.id, name));
   };
 
   const handleDuplicate = (resume: Resume) => {
@@ -176,10 +158,8 @@ export function Dashboard({
     run(resume.id, () => duplicateResumeAction(resume.id));
   };
 
-  const handleDelete = (resume: Resume) => {
-    if (!window.confirm(`Delete "${resume.name}"? This can't be undone.`)) {
-      return;
-    }
+  const confirmDelete = (resume: Resume) => {
+    setDeleting(null);
     if (guest) {
       deleteGuestResume();
       return;
@@ -188,167 +168,94 @@ export function Dashboard({
   };
 
   return (
-    <div className="flex min-h-dvh">
-      {/* Sidebar */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-black/5 px-4 py-6 md:flex">
-        <div className="mb-8 flex items-center px-2">
-          <LogoLockup className="h-9" />
-        </div>
+    <DashboardShell active="resumes" account={account}>
+      <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+        My Resumes
+      </h1>
+      <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
+        {guest
+          ? "Building as a guest — this resume is saved in this browser only. Sign in to keep it and build more."
+          : "Build as many as you like — they save automatically to your account."}
+      </p>
+      {!guest && <GuestImport />}
 
-        <nav className="space-y-1">
-          {NAV.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.label}
-                type="button"
-                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[15px] font-bold transition ${
-                  i === 0
-                    ? "bg-white text-ink shadow-sm"
-                    : "text-ink-soft hover:text-ink"
-                }`}
-              >
-                <Icon className="h-[18px] w-[18px]" />
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
+      <NewResumeDialog
+        open={adding}
+        onOpenChange={setAdding}
+        onScratch={startFromScratch}
+        onImported={openImported}
+        canImport={!guest}
+        onImportBlocked={() => {
+          setAdding(false);
+          auth.open("signup");
+        }}
+      />
 
-        <div className="mt-auto space-y-1 pt-6">
-          {NAV_FOOTER.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.label}
-                type="button"
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[14px] font-semibold text-ink-soft transition hover:text-ink"
-              >
-                <Icon className="h-[18px] w-[18px]" />
-                {item.label}
-              </button>
-            );
-          })}
+      {/* A page-shaped placeholder is a lot of a phone screen to spend on
+            one button, so there it collapses to a single row. */}
+      <button
+        type="button"
+        onClick={handleNew}
+        disabled={pending}
+        className={`mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink-faint/40 text-[15px] font-bold text-ink-soft transition disabled:opacity-60 md:hidden ${
+          atGuestLimit ? "opacity-60" : "active:border-purple/50"
+        }`}
+      >
+        <PlusIcon className="h-5 w-5" />
+        {atGuestLimit ? "Sign in for more" : "New resume"}
+      </button>
 
-          {account ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-black/[0.03]"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-ink-soft">
-                    <UserIcon className="h-4 w-4" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-[14px] font-semibold text-ink">
-                      {account.name ?? "My account"}
-                    </span>
-                    <span className="block truncate text-[12px] text-ink-soft">
-                      {account.email}
-                    </span>
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                {/* Called straight from the row — the action redirects, so
-                      there's nothing here to wrap in a form. */}
-                <DropdownMenuItem
-                  onSelect={() => startTransition(() => signOutAction())}
-                >
-                  <LogoutIcon />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="mt-2 rounded-xl bg-white p-3 shadow-sm">
-              <p className="text-[12.5px] leading-relaxed text-ink-soft">
-                You&rsquo;re working as a guest. Sign in to keep this resume and
-                build more.
-              </p>
-              <button
-                type="button"
-                onClick={() => auth.open("signin")}
-                className="mt-2.5 flex w-full items-center justify-center rounded-lg bg-navy px-3 py-2 text-[14px] font-bold text-white transition hover:bg-navy/90"
-              >
-                Log in
-              </button>
-              <button
-                type="button"
-                onClick={() => auth.open("signup")}
-                className="mt-1.5 flex w-full items-center justify-center rounded-lg px-3 py-2 text-[14px] font-bold text-ink-soft transition hover:text-ink"
-              >
-                Sign up
-              </button>
-            </div>
-          )}
-        </div>
-      </aside>
+      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:mt-8 md:grid-cols-[repeat(auto-fill,minmax(190px,1fr))] md:gap-x-6 md:gap-y-8">
+        <button
+          type="button"
+          onClick={handleNew}
+          disabled={pending}
+          title={
+            atGuestLimit
+              ? "Guests get one resume — sign in to build more."
+              : undefined
+          }
+          className={`group hidden aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink-faint/40 text-ink-soft transition disabled:opacity-60 md:flex ${
+            atGuestLimit
+              ? "opacity-60"
+              : "hover:border-purple/50 hover:text-purple"
+          }`}
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white transition group-hover:scale-105">
+            <PlusIcon className="h-6 w-6" />
+          </span>
+          <span className="text-[15px] font-bold">
+            {atGuestLimit ? "Sign in for more" : "New resume"}
+          </span>
+        </button>
 
-      {/* Main */}
-      <main className="flex-1 px-6 py-8 sm:px-10 lg:px-14">
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
-          My Resumes
-        </h1>
-        <p className="mt-1.5 text-[15px] text-ink-soft">
-          {guest
-            ? "Building as a guest — this resume is saved in this browser only. Sign in to keep it and build more."
-            : "Build as many as you like — they save automatically to your account."}
-        </p>
-        {!guest && <GuestImport />}
-
-        <NewResumeDialog
-          open={adding}
-          onOpenChange={setAdding}
-          onScratch={startFromScratch}
-          onImported={openImported}
-          canImport={!guest}
-          onImportBlocked={() => {
-            setAdding(false);
-            auth.open("signup");
-          }}
-        />
-
-        <div className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-x-6 gap-y-8">
-          <button
-            type="button"
-            onClick={handleNew}
-            disabled={pending}
-            title={
-              atGuestLimit
-                ? "Guests get one resume — sign in to build more."
-                : undefined
-            }
-            className={`group flex aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink-faint/40 text-ink-soft transition disabled:opacity-60 ${
-              atGuestLimit
-                ? "opacity-60"
-                : "hover:border-purple/50 hover:text-purple"
-            }`}
+        {list.map((resume) => (
+          <div
+            key={resume.id}
+            className={busyId === resume.id ? "opacity-50" : undefined}
           >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm transition group-hover:scale-105">
-              <PlusIcon className="h-6 w-6" />
-            </span>
-            <span className="text-[15px] font-bold">
-              {atGuestLimit ? "Sign in for more" : "New resume"}
-            </span>
-          </button>
+            <ResumeCard
+              resume={resume}
+              onRename={() => setRenaming(resume)}
+              onDuplicate={() => handleDuplicate(resume)}
+              onDelete={() => setDeleting(resume)}
+            />
+          </div>
+        ))}
+      </div>
 
-          {list.map((resume) => (
-            <div
-              key={resume.id}
-              className={busyId === resume.id ? "opacity-50" : undefined}
-            >
-              <ResumeCard
-                resume={resume}
-                onRename={() => handleRename(resume)}
-                onDuplicate={() => handleDuplicate(resume)}
-                onDelete={() => handleDelete(resume)}
-              />
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
+      <RenameDialog
+        title="Rename resume"
+        name={renaming?.name ?? null}
+        onClose={() => setRenaming(null)}
+        onRename={(name) => renaming && confirmRename(renaming, name)}
+      />
+      <ConfirmDeleteDialog
+        title="Delete this resume?"
+        name={deleting?.name ?? null}
+        onClose={() => setDeleting(null)}
+        onDelete={() => deleting && confirmDelete(deleting)}
+      />
+    </DashboardShell>
   );
 }

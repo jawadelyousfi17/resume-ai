@@ -1,11 +1,15 @@
-import { AwardIcon, DownloadIcon, EyeOffIcon } from "@/components/ui/icons";
+import { DownloadDuotoneIcon, PrivateEyeIcon, TrophyIcon } from "./duotone";
 
 import { sectionGap, shell } from "./ui";
 
 const ITEMS = [
-  { Icon: AwardIcon, line1: "1st resume,", line2: "free forever" },
-  { Icon: EyeOffIcon, line1: "Privacy-first,", line2: "your data stays yours" },
-  { Icon: DownloadIcon, line1: "Unlimited", line2: "PDF downloads" },
+  { Icon: TrophyIcon, line1: "1st resume,", line2: "free forever" },
+  {
+    Icon: PrivateEyeIcon,
+    line1: "Privacy-first,",
+    line2: "your data stays yours",
+  },
+  { Icon: DownloadDuotoneIcon, line1: "Unlimited", line2: "PDF downloads" },
 ];
 
 /** The three-up reassurance row directly under the hero. */
@@ -18,7 +22,7 @@ export function Highlights() {
             key={line1}
             className="flex items-center gap-5 sm:flex-col sm:gap-4 sm:text-center"
           >
-            <Icon className="h-10 w-10 shrink-0 text-navy lg:h-12 lg:w-12" />
+            <Icon className="h-14 w-14 shrink-0 text-navy sm:h-16 sm:w-16 lg:h-20 lg:w-20" />
             <p className="text-xl leading-tight font-bold tracking-tight text-ink sm:text-lg md:text-xl lg:text-2xl lg:leading-snug">
               {line1}
               <br className="hidden sm:block" />

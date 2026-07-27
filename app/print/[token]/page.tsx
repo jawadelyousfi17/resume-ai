@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 
 import { ResumePreview } from "@/components/preview/ResumePreview";
+import { CoverLetterPreview } from "@/components/cover-letter/CoverLetterPreview";
 import { PAGE_SIZES } from "@/lib/defaults";
 import { claimPrintJob } from "@/lib/print-store";
 
-// The page the headless browser prints. Nothing here but the resume itself, at
-// exactly one page width, so the PDF is the preview rather than a second
+// The page the headless browser prints. Nothing here but the document itself,
+// at exactly one page width, so the PDF is the preview rather than a second
 // rendering of it.
 //
 // Reached only with a single-use token from the export route, which expires in
@@ -37,7 +38,11 @@ export default async function PrintPage(props: PageProps<"/print/[token]">) {
         style={{ width, background: "#fff" }}
         className="resume-page"
       >
-        <ResumePreview data={job.data} format={job.format} />
+        {job.kind === "letter" ? (
+          <CoverLetterPreview data={job.data} format={job.format} />
+        ) : (
+          <ResumePreview data={job.data} format={job.format} />
+        )}
       </div>
     </>
   );

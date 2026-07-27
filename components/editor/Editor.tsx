@@ -10,10 +10,21 @@ import { TopBar, type EditorTab } from "./TopBar";
 import { ContentPanel } from "./ContentPanel";
 import { CustomizePanel } from "./CustomizePanel";
 import { AIPanel } from "./ai/AIPanel";
+import { ReviewPanel } from "./ReviewPanel";
+import { ReviewProvider, ScanOverlay } from "./ReviewSession";
+import { TailorPanel } from "./TailorPanel";
+import { TailorProvider } from "./TailorSession";
+import { MobileEditor } from "./mobile/MobileEditor";
+import { useIsMobile } from "./mobile/use-mobile";
 
-function EditorShell() {
+function EditorShell({ initialMobile }: { initialMobile: boolean }) {
   const { data, format } = useResume();
   const [tab, setTab] = useState<EditorTab>("content");
+  const mobile = useIsMobile(initialMobile);
+
+  // A phone gets its own editor rather than a squeezed version of this one:
+  // one thing on screen at a time, and the resume itself is one of them.
+  if (mobile) return <MobileEditor />;
 
   return (
     <div className="flex h-dvh flex-col">
@@ -25,14 +36,21 @@ function EditorShell() {
           {tab === "content" && <ContentPanel />}
           {tab === "customize" && <CustomizePanel />}
           {tab === "ai" && <AIPanel />}
+          {tab === "review" && <ReviewPanel />}
+          {tab === "tailor" && <TailorPanel />}
         </div>
 
-        {/* Right: live preview */}
+        {/* Right: live preview. The scan shows whichever tab you're on — a
+            review carries on running after you leave it. */}
         <div className="scroll-slim hidden flex-1 overflow-y-auto px-8 py-8 lg:block">
-          <div className="mx-auto w-full" style={{ maxWidth: PAGE_SIZES[format].width }}>
+          <div
+            className="relative mx-auto w-full"
+            style={{ maxWidth: PAGE_SIZES[format].width }}
+          >
             <PreviewCanvas format={format}>
               <ResumePreview data={data} format={format} />
             </PreviewCanvas>
+            <ScanOverlay />
           </div>
         </div>
       </div>
@@ -43,14 +61,24 @@ function EditorShell() {
 export function Editor({
   resume,
   guest = false,
+  mobile = false,
 }: {
   resume: Resume;
   /** The resume lives in this browser rather than the database. */
   guest?: boolean;
+  /** What the server made of the User-Agent — a starting point the client
+   *  corrects against the real viewport. */
+  mobile?: boolean;
 }) {
   return (
     <ResumeProvider resume={resume} guest={guest}>
-      <EditorShell />
+      {/* Outside the shell, so the report survives a tab change — and covers
+          the phone editor, which renders the same Review panel. */}
+      <ReviewProvider>
+        <TailorProvider>
+          <EditorShell initialMobile={mobile} />
+        </TailorProvider>
+      </ReviewProvider>
     </ResumeProvider>
   );
 }

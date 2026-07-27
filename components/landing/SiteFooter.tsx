@@ -54,7 +54,9 @@ function PhoneIcon({ className }: { className?: string }) {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 md:mt-24 lg:mt-32">
+    // The closing CTA carries the whole gap between a page and the footer, so
+    // pages don't add bottom padding of their own on top of it.
+    <footer className="mt-14 md:mt-16 lg:mt-20">
       {/* Closing CTA, on cream, above the dark footer slab. */}
       <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 text-center sm:px-8 lg:pb-28">
         <h2 className="mx-auto max-w-[18ch] text-[30px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[38px] lg:text-[44px]">

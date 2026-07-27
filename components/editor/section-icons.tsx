@@ -1,31 +1,41 @@
-// One glyph per section type, shared by the Add-content modal and the
-// section cards so a section is recognisable by the same mark everywhere.
+// One glyph per section type, shared by the Add-content modal, the section
+// cards and the mobile setup flow, so a section is recognisable by the same
+// mark everywhere.
+//
+// These come from the app's own set in public/svgs rather than the general
+// icon library — a section is the thing you look for while scanning the
+// editor, and these are drawn for it.
 
 import {
-  AlignIcon,
+  ArticleIcon,
   AwardIcon,
+  BrainIcon,
   BriefcaseIcon,
-  BulbIcon,
   CapIcon,
-  FileTextIcon,
-  RocketIcon,
-  StackIcon,
-  TagIcon,
-  UserIcon,
-} from "@/components/ui/icons";
+  CertificateIcon,
+  CommunityIcon,
+  GlobeIcon,
+  GuitarIcon,
+  PuzzleIcon,
+} from "@/components/ui/svg-icons";
 import type { SectionType } from "@/lib/types";
 
-type IconComponent = (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
+type IconComponent = (
+  props: React.SVGProps<SVGSVGElement>,
+) => React.ReactElement;
 
 export const SECTION_ICONS: Record<SectionType, IconComponent> = {
-  summary: FileTextIcon,
+  summary: ArticleIcon,
   experience: BriefcaseIcon,
-  projects: RocketIcon,
-  volunteering: UserIcon,
+  projects: PuzzleIcon,
+  volunteering: CommunityIcon,
   education: CapIcon,
-  certifications: TagIcon,
+  certifications: CertificateIcon,
   awards: AwardIcon,
-  skills: StackIcon,
-  languages: AlignIcon,
-  interests: BulbIcon,
+  skills: BrainIcon,
+  languages: GlobeIcon,
+  interests: GuitarIcon,
 };
+
+/** Not a section, but it heads the same list. */
+export { IdCardIcon as PersonalIcon } from "@/components/ui/svg-icons";

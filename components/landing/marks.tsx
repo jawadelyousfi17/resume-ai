@@ -67,10 +67,7 @@ export function Avatar({
       alt=""
       loading="lazy"
       decoding="async"
-      className={cn(
-        "shrink-0 rounded-full bg-field object-cover",
-        className,
-      )}
+      className={cn("shrink-0 rounded-full bg-field object-cover", className)}
       aria-hidden="true"
     />
   );

@@ -12,18 +12,17 @@ import "server-only";
 // print page claims it, and it's gone. Tokens are random, expire in a minute,
 // and can only be redeemed once.
 
-import type { PageFormat, ResumeData } from "./types";
+import type { CoverLetterData, PageFormat, ResumeData } from "./types";
 
-export interface PrintJob {
-  data: ResumeData;
-  format: PageFormat;
-}
+/** Two kinds of document print through the same pipeline. The tag is what the
+ *  print page reads to know which renderer to reach for. */
+export type PrintJob =
+  | { kind: "resume"; data: ResumeData; format: PageFormat }
+  | { kind: "letter"; data: CoverLetterData; format: PageFormat };
 
 const TTL_MS = 60_000;
 
-interface Entry extends PrintJob {
-  expires: number;
-}
+type Entry = PrintJob & { expires: number };
 
 /** Module state, which Next preserves across requests in one server process.
  *  Held on globalThis so a dev-mode module reload doesn't strand a job that a
@@ -52,5 +51,9 @@ export function claimPrintJob(token: string): PrintJob | null {
   const entry = jobs.get(token);
   if (!entry) return null;
   jobs.delete(token);
-  return { data: entry.data, format: entry.format };
+
+  // The expiry is bookkeeping for the sweep, not part of the job.
+  const { expires, ...job } = entry;
+  void expires;
+  return job;
 }

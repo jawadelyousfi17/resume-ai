@@ -1,0 +1,169 @@
+"use client";
+
+// The gallery on /resume-templates: a filter row, a search box and the grid.
+// Filtering happens in the browser over a list that is known at build time —
+// seventeen templates is nothing to hold in memory, and it keeps the page
+// static and instant.
+
+import Link from "next/link";
+import { useMemo, useState } from "react";
+
+import { SearchIcon } from "@/components/ui/icons";
+import {
+  TEMPLATES,
+  TEMPLATE_CATEGORIES,
+  type TemplateCategory,
+  inCategory,
+} from "@/lib/templates";
+import { cn } from "@/lib/utils";
+
+export function TemplateGallery() {
+  const [category, setCategory] = useState<TemplateCategory | "all">("all");
+  const [query, setQuery] = useState("");
+
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return TEMPLATES.filter(
+      (t) =>
+        (category === "all" || inCategory(t, category)) &&
+        (!q ||
+          t.name.toLowerCase().includes(q) ||
+          t.short.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q)),
+    );
+  }, [category, query]);
+
+  const counts = useMemo(
+    () =>
+      Object.fromEntries(
+        TEMPLATE_CATEGORIES.map((c) => [
+          c.id,
+          TEMPLATES.filter((t) => inCategory(t, c.id)).length,
+        ]),
+      ) as Record<TemplateCategory, number>,
+    [],
+  );
+
+  return (
+    <>
+      <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-wrap gap-2.5">
+          <FilterButton
+            active={category === "all"}
+            count={TEMPLATES.length}
+            onClick={() => setCategory("all")}
+          >
+            All
+          </FilterButton>
+          {TEMPLATE_CATEGORIES.map((c) => (
+            <FilterButton
+              key={c.id}
+              active={category === c.id}
+              count={counts[c.id]}
+              onClick={() => setCategory(c.id)}
+            >
+              {c.label}
+            </FilterButton>
+          ))}
+        </div>
+
+        <label className="relative block w-full lg:w-[280px] lg:shrink-0">
+          <span className="sr-only">Search templates</span>
+          <SearchIcon className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-ink-faint" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search templates"
+            className="h-12 w-full rounded-xl border-2 border-black/10 bg-panel pr-4 pl-11 text-[15px] font-bold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:border-brand/50"
+          />
+        </label>
+      </div>
+
+      {/* Screenshots of the real render, captured off each template's own
+          page by scripts/shoot-templates.mjs. */}
+      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {shown.map((template) => (
+          <Link
+            key={template.id}
+            href={`/resume-templates/${template.id}`}
+            className="group block"
+          >
+            <span className="block overflow-hidden rounded-xl bg-white shadow-[var(--shadow-panel)] ring-1 ring-black/5 transition group-hover:-translate-y-0.5 group-hover:shadow-[var(--shadow-paper)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/templates/${template.id}.png`}
+                alt={`${template.name} resume template`}
+                loading="lazy"
+                className="block w-full"
+                style={{
+                  aspectRatio: "210 / 297",
+                  objectFit: "cover",
+                  objectPosition: "top",
+                }}
+              />
+            </span>
+            <span className="mt-3 block text-[16px] font-extrabold text-ink">
+              {template.name}
+            </span>
+            <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
+              {template.short}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      {shown.length === 0 && (
+        <p className="mt-8 text-[15px] font-bold text-ink-soft">
+          No template matches “{query.trim()}”.{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setCategory("all");
+            }}
+            className="text-brand underline underline-offset-4"
+          >
+            Show all templates
+          </button>
+        </p>
+      )}
+    </>
+  );
+}
+
+function FilterButton({
+  active,
+  count,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  count: number;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "inline-flex h-12 items-center gap-2 rounded-xl border-2 px-5 text-[15px] font-bold transition",
+        active
+          ? "border-transparent bg-navy text-white"
+          : "border-black/10 bg-panel text-ink hover:border-ink/30",
+      )}
+    >
+      {children}
+      <span
+        className={cn(
+          "text-[13px] font-bold",
+          active ? "text-white/55" : "text-ink-faint",
+        )}
+      >
+        {count}
+      </span>
+    </button>
+  );
+}

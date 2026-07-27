@@ -90,7 +90,12 @@ export function EducationForm({ section }: { section: EducationSection }) {
           meta={[
             item.school,
             showsDates(section)
-              ? formatRange(item.startDate, item.endDate, false, data.settings.language)
+              ? formatRange(
+                  item.startDate,
+                  item.endDate,
+                  false,
+                  data.settings.language,
+                )
               : "",
           ]
             .filter(Boolean)
@@ -117,7 +122,7 @@ export function EducationForm({ section }: { section: EducationSection }) {
                 placeholder={labels.titlePlaceholder}
               />
             </Field>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={labels.issuer}>
                 <Input
                   value={item.school}
@@ -137,7 +142,7 @@ export function EducationForm({ section }: { section: EducationSection }) {
                 />
               </Field>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Start">
                 <Input
                   type="month"
@@ -177,7 +182,6 @@ export function EducationForm({ section }: { section: EducationSection }) {
           </div>
         </EntryCard>
       ))}
-
     </div>
   );
 }

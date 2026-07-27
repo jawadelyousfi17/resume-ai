@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
-  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
   FaqList,
   JsonLd,
   PageHeader,
+  measure,
 } from "@/components/content/ContentShell";
+import { TemplateGallery } from "@/components/content/TemplateGallery";
 import { TEMPLATES } from "@/lib/templates";
 
 export const metadata: Metadata = {
@@ -71,50 +72,21 @@ export default function ResumeTemplatesPage() {
         }}
       />
 
-      <Column className="max-w-[900px]">
-        <Breadcrumbs
-          trail={[{ label: "Home", href: "/" }, { label: "Templates" }]}
-        />
+      <Column>
         <PageHeader
-          eyebrow="Templates"
           title="Resume templates"
           intro="Every one is a render of the same document, so you can compare them like for like. Pick one now and change your mind later — switching template re-renders what you've written rather than starting it over."
         />
 
-        {/* Screenshots of the real render, captured off each template's own
-            page by scripts/shoot-templates.mjs. */}
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
-          {TEMPLATES.map((template) => (
-            <Link
-              key={template.id}
-              href={`/resume-templates/${template.id}`}
-              className="group block"
-            >
-              <span className="block overflow-hidden rounded-xl bg-white shadow-[var(--shadow-panel)] ring-1 ring-black/5 transition group-hover:-translate-y-0.5 group-hover:shadow-[var(--shadow-paper)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/templates/${template.id}.png`}
-                  alt={`${template.name} resume template`}
-                  loading="lazy"
-                  className="block w-full"
-                  style={{ aspectRatio: "210 / 297", objectFit: "cover", objectPosition: "top" }}
-                />
-              </span>
-              <span className="mt-3 block text-[16px] font-extrabold text-ink">
-                {template.name}
-              </span>
-              <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
-                {template.description}
-              </span>
-            </Link>
-          ))}
-        </div>
+        <TemplateGallery />
 
         <section className="mt-12">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
             Choosing between them
           </h2>
-          <p className="mt-4 text-[16px] leading-[1.75] text-ink-soft">
+          <p
+            className={`mt-4 text-[16px] leading-[1.75] text-ink-soft ${measure}`}
+          >
             Template choice is the smallest decision on this page. No layout
             rescues weak bullet points, and no recruiter has ever hired someone
             for their margins. If you are undecided, take Ledger and spend the
@@ -127,7 +99,9 @@ export default function ResumeTemplatesPage() {
             </Link>
             .
           </p>
-          <p className="mt-4 text-[16px] leading-[1.75] text-ink-soft">
+          <p
+            className={`mt-4 text-[16px] leading-[1.75] text-ink-soft ${measure}`}
+          >
             The one layout decision with real consequences is column count. A
             sidebar can confuse an applicant tracking system if the text
             extracts out of order — the{" "}

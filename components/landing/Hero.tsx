@@ -15,10 +15,15 @@ const FACES = [
 export function Hero() {
   return (
     <section className={`${shell} pt-8 lg:pt-14`}>
-      <div className="grid grid-cols-1 items-start gap-y-16 md:grid-cols-[55%_45%] lg:grid-cols-[57%_43%]">
-        {/* The paper leads on mobile and sits to the right on desktop. */}
-        <div className="flex justify-center md:order-2">
-          <HeroDemo />
+      <div className="grid grid-cols-1 items-start gap-y-16 md:grid-cols-[46%_54%] lg:grid-cols-[44%_56%]">
+        {/* A real page being edited, not a screenshot of one — and a desktop
+            thing only. On a phone it would be a postage stamp of a resume with
+            three panels stacked over it, so the hero there is the words and
+            the button, and the product is one tap away. */}
+        <div className="hidden justify-center md:order-2 md:flex">
+          <div className="w-full max-w-[760px]">
+            <HeroDemo />
+          </div>
         </div>
 
         {/* Copy */}
