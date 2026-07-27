@@ -74,9 +74,9 @@ export function ThemeSwitcher() {
   return (
     <div
       ref={panelRef}
-      // Above the phone tab bars in the editor and the dashboard, and out of
-      // the way of everything else.
-      className="fixed right-4 bottom-20 z-50 print:hidden md:right-6 md:bottom-6"
+      // Desktop only: a phone screen has no corner to spare, and the tab bars
+      // in the editor and the tracker already live down there.
+      className="fixed right-6 bottom-6 z-50 hidden print:hidden md:block"
     >
       {open && (
         <div

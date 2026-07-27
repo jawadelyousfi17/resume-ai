@@ -273,7 +273,6 @@ body {
    inline script in app/layout.tsx, so switching never flashes.
    --------------------------------------------------------------------------- */
 
-:root,
 [data-theme="ocean"] {
   --app-cream: #f1f3f6;
   --app-panel: #ffffff;
@@ -306,6 +305,7 @@ body {
   --app-caution: #e0820b;
 }
 
+:root,
 [data-theme="emerald"] {
   --app-cream: #f0f5f2;
   --app-panel: #ffffff;
