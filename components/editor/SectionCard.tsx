@@ -254,8 +254,28 @@ function FooterIcon({
   );
 }
 
-/** Sits in its own panel beneath the open card, as its own step. */
-export function DoneButton({ onClick }: { onClick: () => void }) {
+/** Sits in its own panel beneath the open card, as its own step — except on a
+ *  phone, where the screen is already one white sheet and a panel would only
+ *  draw a box on it. */
+export function DoneButton({
+  onClick,
+  flat = false,
+}: {
+  onClick: () => void;
+  flat?: boolean;
+}) {
+  if (flat) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="btn-gradient flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold shadow-sm transition active:scale-[0.995]"
+      >
+        ✓ Done
+      </button>
+    );
+  }
+
   return (
     <div className="rounded-2xl bg-panel p-3 shadow-[var(--shadow-panel)]">
       <button

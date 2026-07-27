@@ -43,7 +43,9 @@ export function CoverLetterPreview({
         style={{ minHeight }}
         className="flex h-full flex-col items-center justify-center px-16 text-center"
       >
-        <p className="text-lg font-semibold text-ink-faint">Your cover letter</p>
+        <p className="text-lg font-semibold text-ink-faint">
+          Your cover letter
+        </p>
         <p className="mt-2 max-w-xs text-sm text-ink-faint">
           Fill it in on the left — or let the assistant draft it from your
           resume and the job posting.
@@ -91,7 +93,10 @@ export function CoverLetterPreview({
     <div style={page} className="flex h-full flex-col">
       {header}
 
-      <div style={{ padding: bodyPad }} className="flex min-h-0 flex-1 flex-col">
+      <div
+        style={{ padding: bodyPad }}
+        className="flex min-h-0 flex-1 flex-col"
+      >
         {s.showDate && (
           <p style={{ color: MUTED, fontSize: "0.94em" }}>
             {letterDate(data.date, s.language, now)}
@@ -219,9 +224,7 @@ function Header({
             {name}
           </p>
         )}
-        {title && (
-          <p style={{ marginTop: "0.15em", opacity: 0.88 }}>{title}</p>
-        )}
+        {title && <p style={{ marginTop: "0.15em", opacity: 0.88 }}>{title}</p>}
         {contact.length > 0 && (
           <p style={{ marginTop: "0.5em", fontSize: "0.9em", opacity: 0.85 }}>
             {contactLine}

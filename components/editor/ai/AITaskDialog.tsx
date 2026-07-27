@@ -167,7 +167,7 @@ function TaskDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && !busy && close()}>
-      <DialogContent className="max-w-[520px] p-7 sm:max-w-[520px]">
+      <DialogContent fullScreen className="max-w-[520px] p-7 sm:max-w-[520px]">
         <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink">
           {awaitingChoice && needs === "language"
             ? "Translate into"

@@ -11,6 +11,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import type { ResumeData } from "@/lib/types";
 
 /** What the browser will offer in its file picker. Word documents are absent
@@ -20,6 +21,7 @@ const ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.txt,.md";
 export function NewResumeDialog({
   open,
   onOpenChange,
+  creating = false,
   onScratch,
   onImported,
   canImport = true,
@@ -29,6 +31,8 @@ export function NewResumeDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** True while the resume is being written and its editor opened. */
+  creating?: boolean;
   onScratch: () => void;
   onImported: (resume: { name: string; data: ResumeData }) => void;
   /** False for guests — reading a file costs a model call, so it needs an
@@ -82,8 +86,11 @@ export function NewResumeDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(next) => !reading && onOpenChange(next)}>
-      <DialogContent className="max-w-[520px] p-7 sm:max-w-[520px]">
+    <Dialog
+      open={open}
+      onOpenChange={(next) => !reading && !creating && onOpenChange(next)}
+    >
+      <DialogContent fullScreen className="max-w-[520px] p-7 sm:max-w-[520px]">
         <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink">
           Add a resume
         </DialogTitle>
@@ -95,11 +102,20 @@ export function NewResumeDialog({
           <button
             type="button"
             onClick={onScratch}
-            disabled={reading}
+            disabled={reading || creating}
             className="flex w-full items-center gap-4 rounded-xl border border-field-border px-6 py-5 text-left text-[17px] font-bold text-ink transition hover:border-ink/30 disabled:opacity-50"
           >
-            <span className="text-[24px] leading-none">📝</span>
-            Start from scratch
+            {creating ? (
+              <>
+                <Spinner className="h-6 w-6 text-ink-soft" />
+                Creating your resume…
+              </>
+            ) : (
+              <>
+                <span className="text-[24px] leading-none">📝</span>
+                Start from scratch
+              </>
+            )}
           </button>
 
           {/* The filled row: importing is the faster path, so it reads as the
@@ -109,7 +125,7 @@ export function NewResumeDialog({
             onClick={() =>
               canImport ? fileInput.current?.click() : onImportBlocked?.()
             }
-            disabled={reading}
+            disabled={reading || creating}
             className="flex w-full items-center gap-4 rounded-xl bg-navy px-6 py-5 text-left text-[17px] font-bold text-white transition hover:bg-navy/90 disabled:opacity-60"
           >
             <span

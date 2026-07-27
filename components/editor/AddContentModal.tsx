@@ -27,7 +27,10 @@ export function AddContentModal({
         if (!next) onClose();
       }}
     >
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-5xl gap-6 rounded-3xl p-7">
+      <DialogContent
+        fullScreen
+        className="max-h-[85vh] overflow-y-auto sm:max-w-5xl gap-6 rounded-3xl p-7"
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-extrabold text-ink">
             Add content

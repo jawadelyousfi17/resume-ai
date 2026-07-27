@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input, Label, Textarea } from "@/components/ui/fields";
+import { Spinner } from "@/components/ui/spinner";
 import {
   DEFAULT_TONE,
   LETTER_TONES,
@@ -35,12 +36,15 @@ export function NewLetterDialog({
   open,
   onOpenChange,
   resumes,
+  creating = false,
   onCreate,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** The resumes a letter can be drafted from. */
   resumes: Resume[];
+  /** True while the letter is being written and its editor opened. */
+  creating?: boolean;
   onCreate: (letter: NewLetter) => void;
 }) {
   const [drafting, setDrafting] = useState(false);
@@ -50,7 +54,7 @@ export function NewLetterDialog({
       open={open}
       onOpenChange={(next) => !drafting && onOpenChange(next)}
     >
-      <DialogContent className="max-w-[560px] p-7 sm:max-w-[560px]">
+      <DialogContent fullScreen className="max-w-[560px] p-7 sm:max-w-[560px]">
         {/* Keyed on `open` so every visit starts at step one with empty
             fields, rather than wherever the last one was abandoned. */}
         <Body
@@ -58,6 +62,7 @@ export function NewLetterDialog({
           resumes={resumes}
           drafting={drafting}
           setDrafting={setDrafting}
+          creating={creating}
           onCreate={onCreate}
         />
       </DialogContent>
@@ -69,11 +74,14 @@ function Body({
   resumes,
   drafting,
   setDrafting,
+  creating,
   onCreate,
 }: {
   resumes: Resume[];
   drafting: boolean;
   setDrafting: (busy: boolean) => void;
+  /** True while the letter is being written and its editor opened. */
+  creating?: boolean;
   onCreate: (letter: NewLetter) => void;
 }) {
   const [step, setStep] = useState<"pick" | "draft">("pick");
@@ -103,8 +111,7 @@ function Body({
         }),
       });
       const payload = (await res.json().catch(() => ({}))) as
-        | (DraftedLetter & { error?: string })
-        | { error?: string };
+        (DraftedLetter & { error?: string }) | { error?: string };
       if (!res.ok || !("body" in payload)) {
         throw new Error(payload.error || `Server error ${res.status}`);
       }
@@ -119,7 +126,9 @@ function Body({
         data: letter,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't write the letter");
+      setError(
+        err instanceof Error ? err.message : "Couldn't write the letter",
+      );
     } finally {
       setDrafting(false);
     }
@@ -142,7 +151,9 @@ function Body({
             onClick={() => setStep("draft")}
             disabled={!canDraft}
             title={
-              canDraft ? undefined : "Build a resume first — the letter is written from it."
+              canDraft
+                ? undefined
+                : "Build a resume first — the letter is written from it."
             }
             className="flex w-full items-center gap-4 rounded-xl bg-navy px-6 py-5 text-left text-[17px] font-bold text-white transition hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
           >
@@ -162,10 +173,20 @@ function Body({
                 resumeId: resumes[0]?.id ?? null,
               })
             }
-            className="flex w-full items-center gap-4 rounded-xl border border-field-border px-6 py-5 text-left text-[17px] font-bold text-ink transition hover:border-ink/30"
+            disabled={creating}
+            className="flex w-full items-center gap-4 rounded-xl border border-field-border px-6 py-5 text-left text-[17px] font-bold text-ink transition hover:border-ink/30 disabled:opacity-60"
           >
-            <span className="text-[24px] leading-none">📝</span>
-            Start from scratch
+            {creating ? (
+              <>
+                <Spinner className="h-6 w-6 text-ink-soft" />
+                Creating your letter…
+              </>
+            ) : (
+              <>
+                <span className="text-[24px] leading-none">📝</span>
+                Start from scratch
+              </>
+            )}
           </button>
         </div>
       </>

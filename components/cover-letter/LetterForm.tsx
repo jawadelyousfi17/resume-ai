@@ -190,7 +190,6 @@ export function LetterContent() {
               minHeight={280}
             />
           </div>
-
         </div>
       </Group>
 
@@ -223,7 +222,6 @@ export function LetterContent() {
           />
         </div>
       </Group>
-
     </div>
   );
 }
@@ -383,7 +381,9 @@ export function LetterCustomize() {
         </Panel>
 
         <Panel id="lc-colors" title="Colors">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">Accent color</p>
+          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
+            Accent color
+          </p>
           <div className="flex flex-wrap items-center gap-2.5">
             {ACCENTS.map((color) => {
               const selected = s.accent.toLowerCase() === color.toLowerCase();

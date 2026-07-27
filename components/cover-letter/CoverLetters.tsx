@@ -39,6 +39,7 @@ export function CoverLetters({
   const [pending, startTransition] = useTransition();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<CoverLetter | null>(null);
   const [deleting, setDeleting] = useState<CoverLetter | null>(null);
 
@@ -61,10 +62,13 @@ export function CoverLetters({
   };
 
   const create = (letter: NewLetter) => {
-    setAdding(false);
+    // The dialog stays open, saying what it's doing, until the letter exists
+    // and its editor is on screen.
+    setCreating(true);
     startTransition(async () => {
       const result = await createCoverLetterAction(letter);
       if (!result.ok) {
+        setCreating(false);
         toast.error(result.error);
         return;
       }
@@ -90,6 +94,7 @@ export function CoverLetters({
         open={adding}
         onOpenChange={setAdding}
         resumes={resumes}
+        creating={creating}
         onCreate={create}
       />
 

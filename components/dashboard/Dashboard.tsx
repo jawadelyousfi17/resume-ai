@@ -49,6 +49,8 @@ export function Dashboard({
   // Set while a card's own action is in flight, so only that card dims.
   const [busyId, setBusyId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  // True from the press until the new resume opens.
+  const [creating, setCreating] = useState(false);
   // The resume each dialog is asking about, or null when it's closed.
   const [renaming, setRenaming] = useState<Resume | null>(null);
   const [deleting, setDeleting] = useState<Resume | null>(null);
@@ -97,18 +99,22 @@ export function Dashboard({
    *  `setup` parameter is what the phone editor reads to start its guided
    *  build; the desktop editor ignores it. */
   const startFromScratch = () => {
-    setAdding(false);
-
     if (guest) {
+      setAdding(false);
       createGuestResume();
       router.push(`/resume/${GUEST_RESUME_ID}?setup=new`);
       return;
     }
 
+    // The dialog stays open until the resume exists — a row that says
+    // "Creating…" is the only sign anything is happening while the server
+    // writes it and the editor loads.
+    setCreating(true);
     setBusyId(null);
     startTransition(async () => {
       const result = await createResumeAction();
       if (!result.ok) {
+        setCreating(false);
         toast.error(result.error);
         return;
       }
@@ -119,7 +125,7 @@ export function Dashboard({
   /** A resume the AI just read out of an uploaded file. Guests never get
    *  here — importing needs an account. */
   const openImported = (imported: { name: string; data: ResumeData }) => {
-    setAdding(false);
+    setCreating(true);
 
     if (guest) {
       replaceGuestResume(imported);
@@ -134,6 +140,7 @@ export function Dashboard({
         data: imported.data,
       });
       if (!result.ok) {
+        setCreating(false);
         toast.error(result.error);
         return;
       }
@@ -186,6 +193,7 @@ export function Dashboard({
       <NewResumeDialog
         open={adding}
         onOpenChange={setAdding}
+        creating={creating}
         onScratch={startFromScratch}
         onImported={openImported}
         canImport={!guest}

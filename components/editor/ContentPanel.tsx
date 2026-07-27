@@ -39,7 +39,13 @@ export function SectionBody({ section }: { section: Section }) {
   );
 }
 
-export function ContentPanel() {
+export function ContentPanel({
+  /** On a phone the editing column is the whole screen, so an open entry is
+   *  the page rather than a card on it: one white surface, no panel. */
+  flat = false,
+}: {
+  flat?: boolean;
+}) {
   const { data, update } = useResume();
   const [openId, setOpenId] = useState<string | null>("personal");
   const [openEntry, setOpenEntry] = useState<OpenEntry>(null);
@@ -97,10 +103,18 @@ export function ContentPanel() {
 
   if (editingSection) {
     return (
-      <EntryEditProvider value={{ openEntry, setOpenEntry }}>
-        <div className="space-y-3">
+      <EntryEditProvider value={{ openEntry, setOpenEntry, flat }}>
+        {/* Flat: the panel's own padding is undone so the white runs to the
+            edges of the screen, and the form supplies the padding it needs. */}
+        <div
+          className={
+            flat ? "-mx-3 -my-4 min-h-dvh bg-panel pt-4 pb-8" : "space-y-3"
+          }
+        >
           <SectionBody section={editingSection} />
-          <DoneButton onClick={() => setOpenEntry(null)} />
+          <div className={flat ? "mt-4 px-5" : undefined}>
+            <DoneButton flat={flat} onClick={() => setOpenEntry(null)} />
+          </div>
         </div>
       </EntryEditProvider>
     );

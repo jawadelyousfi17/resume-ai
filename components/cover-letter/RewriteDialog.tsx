@@ -36,7 +36,7 @@ export function RewriteDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !busy && onOpenChange(next)}>
-      <DialogContent className="max-w-[560px] p-7 sm:max-w-[560px]">
+      <DialogContent fullScreen className="max-w-[560px] p-7 sm:max-w-[560px]">
         {/* Keyed on `open` so each visit starts fresh rather than showing the
             last attempt's error. */}
         <Body
@@ -88,8 +88,7 @@ function Body({
         }),
       });
       const payload = (await res.json().catch(() => ({}))) as
-        | (DraftedLetter & { error?: string })
-        | { error?: string };
+        (DraftedLetter & { error?: string }) | { error?: string };
       if (!res.ok || !("body" in payload)) {
         throw new Error(payload.error || `Server error ${res.status}`);
       }
@@ -97,7 +96,9 @@ function Body({
       replace({ ...applyDraft(data, payload), jobDescription: posting.trim() });
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't rewrite the letter");
+      setError(
+        err instanceof Error ? err.message : "Couldn't rewrite the letter",
+      );
     } finally {
       setBusy(false);
     }

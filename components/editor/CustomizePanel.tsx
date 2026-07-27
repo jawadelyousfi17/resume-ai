@@ -425,6 +425,7 @@ function TemplatePicker({
           thumbnail small enough to fit a narrow dialog shows layout but not
           typography. `scroll-slim` keeps the scrolling and drops the bar. */}
       <DialogContent
+        fullScreen
         aria-describedby={undefined}
         className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 sm:max-w-5xl"
       >
