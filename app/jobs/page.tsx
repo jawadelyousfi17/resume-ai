@@ -19,7 +19,7 @@ export default async function JobsPage() {
   return (
     <DashboardShell
       active="jobs"
-      account={user ? { email: user.email, name: user.name } : null}
+      account={user ? { email: user.email, name: user.name, avatarUrl: user.avatarUrl } : null}
     >
       <JobBoard />
     </DashboardShell>

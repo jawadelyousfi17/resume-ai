@@ -4,6 +4,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { prisma } from "./prisma";
+import { randomAccountAvatarUrl } from "./avatar";
 import { createClient } from "./supabase/server";
 import type { User } from "@/generated/prisma/client";
 
@@ -35,7 +36,17 @@ export const requireUser = cache(async (): Promise<User> => {
   if (!authUser) redirect("/login");
 
   const existing = await prisma.user.findUnique({ where: { id: authUser.id } });
-  if (existing) return existing;
+  if (existing) {
+    // Accounts created before avatars existed have nothing to show. Mint one
+    // now — a single write, and then never again for that row.
+    if (!existing.avatarUrl) {
+      return prisma.user.update({
+        where: { id: existing.id },
+        data: { avatarUrl: randomAccountAvatarUrl() },
+      });
+    }
+    return existing;
+  }
 
   // First request after a sign-in that skipped syncUser — mirror the row now
   // rather than failing a foreign key later.
@@ -62,7 +73,15 @@ export async function syncUser(authUser: SupabaseUser): Promise<User> {
 
   return prisma.user.upsert({
     where: { id: authUser.id },
-    create: { id: authUser.id, email, name, avatarUrl },
+    create: {
+      id: authUser.id,
+      email,
+      name,
+      // The provider's photo when there is one — email and password sign-ups
+      // arrive without. Otherwise a random `adventurer-neutral` portrait,
+      // minted here and only here, so it stays theirs from then on.
+      avatarUrl: avatarUrl ?? randomAccountAvatarUrl(),
+    },
     // Only overwrite a provider-supplied field when the provider supplied one.
     update: {
       email,

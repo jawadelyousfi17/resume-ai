@@ -51,3 +51,43 @@ export function avatarUrl(seed: string): string {
 
   return `https://api.dicebear.com/9.x/${style}/svg?${params}`;
 }
+
+/* ---------------------------------------------------------------------------
+   Account avatars.
+
+   Different job from the one above. That picks a portrait for whoever a resume
+   is about, from their name, on every render. This one is minted once, when the
+   account is created, and stored on the user row — so it is theirs, it does not
+   move when they change their name, and it survives a change to the code that
+   generated it.
+   --------------------------------------------------------------------------- */
+
+/** One style for every account, so the sidebar reads as one product rather
+ *  than a sampler. Neutral: no expression to misread as a mood. */
+const ACCOUNT_STYLE = "adventurer-neutral";
+
+/** A DiceBear `adventurer-neutral` portrait for the given seed. */
+export function accountAvatarUrl(seed: string): string {
+  const params = new URLSearchParams({
+    seed: seed.trim() || "maniacv",
+    backgroundColor: "e9edf2,dfe5ec,eef1f5",
+    radius: "50",
+  });
+
+  return `https://api.dicebear.com/9.x/${ACCOUNT_STYLE}/svg?${params}`;
+}
+
+/** A fresh portrait, picked at random.
+ *
+ *  Random rather than derived from the email: two people who sign up minutes
+ *  apart should not be able to guess each other's avatar from an address, and
+ *  the value is stored anyway, so there is nothing to recompute. */
+export function randomAccountAvatarUrl(): string {
+  return accountAvatarUrl(crypto.randomUUID());
+}
+
+/** Whether a stored avatar is one we generated. Lets a provider photo take
+ *  precedence without a second column to record where the URL came from. */
+export function isGeneratedAvatar(url: string | null): boolean {
+  return Boolean(url?.startsWith("https://api.dicebear.com/"));
+}

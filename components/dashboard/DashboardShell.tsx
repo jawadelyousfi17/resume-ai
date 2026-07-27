@@ -19,7 +19,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogoutIcon, UserIcon } from "@/components/ui/icons";
+import { AccountAvatar } from "@/components/ui/account-avatar";
+import { LogoutIcon } from "@/components/ui/icons";
 import { LogoLockup } from "@/components/ui/logo";
 
 import {
@@ -29,7 +30,12 @@ import {
   type DashboardSection,
 } from "./nav";
 
-export type Account = { email: string; name: string | null } | null;
+export type Account = {
+  email: string;
+  name: string | null;
+  /** A provider photo, or the portrait minted when the account was created. */
+  avatarUrl: string | null;
+} | null;
 
 export function DashboardShell({
   account,
@@ -76,9 +82,11 @@ export function DashboardShell({
                   type="button"
                   className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-black/[0.03]"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-ink-soft">
-                    <UserIcon className="h-4 w-4" />
-                  </span>
+                  <AccountAvatar
+                    src={account.avatarUrl}
+                    name={account.name ?? account.email}
+                    className="h-8 w-8"
+                  />
                   <span className="min-w-0">
                     <span className="block truncate text-[14px] font-semibold text-ink">
                       {account.name ?? "My account"}
@@ -180,9 +188,13 @@ function MobileAccount({
         <button
           type="button"
           aria-label="Account"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink-soft shadow-sm"
+          className="shrink-0 rounded-full"
         >
-          <UserIcon className="h-5 w-5" />
+          <AccountAvatar
+            src={account.avatarUrl}
+            name={account.name ?? account.email}
+            className="h-10 w-10"
+          />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

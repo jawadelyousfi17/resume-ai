@@ -509,3 +509,45 @@ export const SignatureIcon = svgIcon(
     <path d="M32 480c0-8.8 7.2-16 16-16H464c8.8 0 16 7.2 16 16s-7.2 16-16 16H48c-8.8 0-16-7.2-16-16z" />
   </>,
 );
+
+/* ---------------------------------------------------------------------------
+   Hand-drawn, not generated.
+
+   The editor's tab bar needs a glyph per tab, and AI Tools and Tailor were
+   both wearing MagicIcon — the same drawing twice, which reads as one tab
+   rendered in two places. These two are drawn to the same weights as the set
+   above so they sit with it rather than beside it.
+   --------------------------------------------------------------------------- */
+
+/** AI Tools. A processor rather than another spark — the app already leans on
+ *  sparkles everywhere, so the tab needs a shape that isn't one. */
+export const ChipIcon = svgIcon(
+  "0 0 24 24",
+  true,
+  <>
+    <g
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    >
+      <rect x="6" y="6" width="12" height="12" rx="2.6" />
+      <rect x="9.6" y="9.6" width="4.8" height="4.8" rx="1.2" />
+      <path d="M9.5 6V3M14.5 6V3M9.5 21v-3M14.5 21v-3M6 9.5H3M6 14.5H3M21 9.5h-3M21 14.5h-3" />
+    </g>
+  </>,
+);
+
+/** Tailor. Aiming a resume at one job is what the tab does, so it says so. */
+export const TargetIcon = svgIcon(
+  "0 0 24 24",
+  true,
+  <>
+    <g stroke="currentColor" strokeWidth="1.6" fill="none">
+      <circle cx="12" cy="12" r="8.7" />
+      <circle cx="12" cy="12" r="4.6" />
+    </g>
+    <circle cx="12" cy="12" r="1.9" />
+  </>,
+);

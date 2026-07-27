@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   return (
     <Dashboard
       resumes={await listResumes(user.id)}
-      account={{ email: user.email, name: user.name }}
+      account={{ email: user.email, name: user.name, avatarUrl: user.avatarUrl }}
     />
   );
 }

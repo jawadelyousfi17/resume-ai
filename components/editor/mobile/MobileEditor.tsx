@@ -19,8 +19,8 @@ import {
   DocumentIcon as FileTextIcon,
   EyeIcon,
   PencilIcon,
-  MagicIcon,
-  MagicIcon as SparklesIcon,
+  ChipIcon,
+  TargetIcon,
   DesignIcon as WandIcon,
 } from "@/components/ui/svg-icons";
 import { Logo } from "@/components/ui/logo";
@@ -44,9 +44,9 @@ const TABS: {
 }[] = [
   { id: "content", label: "Edit", icon: FileTextIcon },
   { id: "customize", label: "Design", icon: WandIcon },
-  { id: "ai", label: "AI", icon: SparklesIcon },
+  { id: "ai", label: "AI", icon: ChipIcon },
   { id: "review", label: "Review", icon: AwardIcon },
-  { id: "tailor", label: "Tailor", icon: MagicIcon },
+  { id: "tailor", label: "Tailor", icon: TargetIcon },
 ];
 
 export function MobileEditor() {

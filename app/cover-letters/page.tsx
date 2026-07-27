@@ -19,7 +19,7 @@ export default async function CoverLettersPage() {
     <CoverLetters
       letters={letters}
       resumes={resumes}
-      account={{ email: user.email, name: user.name }}
+      account={{ email: user.email, name: user.name, avatarUrl: user.avatarUrl }}
     />
   );
 }

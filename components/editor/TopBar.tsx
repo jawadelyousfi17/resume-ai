@@ -8,8 +8,8 @@ import {
   AwardIcon,
   DownloadIcon,
   DocumentIcon as FileTextIcon,
-  MagicIcon,
-  MagicIcon as SparklesIcon,
+  ChipIcon,
+  TargetIcon,
   DesignIcon as WandIcon,
 } from "@/components/ui/svg-icons";
 import { useDownloadPdf } from "./use-download-pdf";
@@ -30,7 +30,7 @@ const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
   {
     id: "ai",
     label: "AI Tools",
-    icon: <SparklesIcon className="h-[18px] w-[18px]" />,
+    icon: <ChipIcon className="h-[18px] w-[18px]" />,
   },
   {
     id: "review",
@@ -40,7 +40,7 @@ const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
   {
     id: "tailor",
     label: "Tailor",
-    icon: <MagicIcon className="h-[18px] w-[18px]" />,
+    icon: <TargetIcon className="h-[18px] w-[18px]" />,
   },
 ];
 
