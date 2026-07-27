@@ -138,7 +138,7 @@ function Body({
     const canDraft = resumes.length > 0;
     return (
       <>
-        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
           New cover letter
         </DialogTitle>
         <DialogDescription className="sr-only">
@@ -195,7 +195,7 @@ function Body({
 
   return (
     <>
-      <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink">
+      <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
         What are you applying for?
       </DialogTitle>
       <DialogDescription className="sr-only">

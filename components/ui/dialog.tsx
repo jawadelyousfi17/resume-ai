@@ -31,6 +31,24 @@ function DialogClose({
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
+/** The way out of a full-screen dialog on a phone. */
+function DialogBack({ className }: { className?: string }) {
+  return (
+    <DialogPrimitive.Close data-slot="dialog-close" asChild>
+      <button
+        type="button"
+        className={cn(
+          "inline-flex h-10 items-center gap-1.5 rounded-full bg-field px-3.5 text-[14px] font-bold text-ink",
+          className,
+        )}
+      >
+        <ChevronLeftIcon className="h-[18px] w-[18px]" />
+        Back
+      </button>
+    </DialogPrimitive.Close>
+  );
+}
+
 function DialogOverlay({
   className,
   ...props
@@ -60,10 +78,13 @@ function DialogContent({
   // whole screen there and a back button to leave by, and changes nothing
   // from `sm` up.
   fullScreen = false,
+  // Off for a dialog that puts the button in a header of its own.
+  showBack = true,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
   fullScreen?: boolean;
+  showBack?: boolean;
 }) {
   return (
     <DialogPortal>
@@ -81,21 +102,12 @@ function DialogContent({
         )}
         {...props}
       >
-        {fullScreen && (
-          // A zero-height sticky strip: the button rides at the top of the
-          // scroller whatever the content does, without `fixed` — which a
-          // dialog's own transform would turn back into `absolute`.
-          <div className="sticky top-0 z-20 -mb-4 h-0 sm:hidden">
-            <DialogPrimitive.Close data-slot="dialog-close" asChild>
-              <button
-                type="button"
-                className="absolute top-3 left-0 inline-flex h-10 items-center gap-1.5 rounded-full bg-field px-3.5 text-[14px] font-bold text-ink"
-              >
-                <ChevronLeftIcon className="h-[18px] w-[18px]" />
-                Back
-              </button>
-            </DialogPrimitive.Close>
-          </div>
+        {fullScreen && showBack && (
+          // Out of the flow, in the corner of the screen — a dialog whose
+          // content is centred would otherwise have the button land on top of
+          // its own title. A dialog that scrolls renders <DialogBack /> inside
+          // its own sticky header instead, and passes showBack={false}.
+          <DialogBack className="absolute top-3 left-5 sm:hidden" />
         )}
         {children}
         {showCloseButton && (
@@ -186,6 +198,7 @@ function DialogDescription({
 
 export {
   Dialog,
+  DialogBack,
   DialogClose,
   DialogContent,
   DialogDescription,

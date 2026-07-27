@@ -91,7 +91,7 @@ export function NewResumeDialog({
       onOpenChange={(next) => !reading && !creating && onOpenChange(next)}
     >
       <DialogContent fullScreen className="max-w-[520px] p-7 sm:max-w-[520px]">
-        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
           Add a resume
         </DialogTitle>
         <DialogDescription className="sr-only">

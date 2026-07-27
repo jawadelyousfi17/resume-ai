@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
+  DialogBack,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -426,6 +427,7 @@ function TemplatePicker({
           typography. `scroll-slim` keeps the scrolling and drops the bar. */}
       <DialogContent
         fullScreen
+        showBack={false}
         aria-describedby={undefined}
         className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 max-sm:content-start max-sm:px-4 max-sm:pt-0 sm:max-w-5xl"
       >
@@ -435,7 +437,9 @@ function TemplatePicker({
             puts it back where it was. */}
         {/* Back and the filters ride together at the top; only the grid
             underneath them moves. */}
-        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:px-4 max-sm:pt-16">
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:px-4 max-sm:pt-3">
+          <DialogBack className="mb-3 sm:hidden" />
+
           <DialogHeader>
             {/* The Back button says what this is on a phone. */}
             <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">

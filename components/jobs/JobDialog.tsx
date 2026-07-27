@@ -72,7 +72,7 @@ export function JobDialog({
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent fullScreen className="max-w-[520px] p-7 sm:max-w-[520px]">
-        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
           {job ? "Edit application" : "Add a job"}
         </DialogTitle>
         <DialogDescription className="text-[14px] text-ink-soft">
