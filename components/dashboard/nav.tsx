@@ -48,7 +48,7 @@ export function SidebarNav({ active }: { active: DashboardSection }) {
   return (
     <>
       <div className="mb-8 flex items-center px-2">
-        <LogoLockup className="h-9" />
+        <LogoLockup className="h-14" />
       </div>
 
       <nav className="space-y-1.5">

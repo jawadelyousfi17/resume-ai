@@ -31,7 +31,7 @@ export function Logo({ className }: { className?: string }) {
       // The artwork sits inside its own margin — about three quarters of the
       // file's height — so the box runs a size larger than the badge it
       // replaced to land at the same optical weight.
-      className={cn("h-9 w-9 object-contain", className)}
+      className={cn("h-14 w-14 object-contain", className)}
     />
   );
 }
@@ -45,7 +45,7 @@ export function LogoLockup({ className }: { className?: string }) {
       width={800}
       height={200}
       priority
-      className={cn("h-8 w-auto object-contain", className)}
+      className={cn("h-12 w-auto object-contain", className)}
     />
   );
 }

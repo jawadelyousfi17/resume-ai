@@ -27,11 +27,11 @@ export function Wordmark({
   className?: string;
   tone?: "dark" | "light";
 }) {
-  if (tone === "dark") return <LogoLockup className={cn("h-8", className)} />;
+  if (tone === "dark") return <LogoLockup className={cn("h-12", className)} />;
 
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <Logo className="h-8 w-8" />
+      <Logo className="h-12 w-12" />
       <span className="text-[20px] font-light tracking-tight text-white">
         mania<span className="font-black">cv</span>
       </span>

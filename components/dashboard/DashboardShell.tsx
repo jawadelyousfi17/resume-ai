@@ -127,7 +127,7 @@ export function DashboardShell({
         {/* The sidebar carries the wordmark on desktop; on a phone it rides
             above the page with the account beside it. */}
         <div className="mb-5 flex items-center justify-between md:hidden">
-          <LogoLockup className="h-7" />
+          <LogoLockup className="h-11" />
           <MobileAccount
             account={account}
             onSignOut={signOut}

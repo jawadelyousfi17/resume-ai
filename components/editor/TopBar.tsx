@@ -64,8 +64,8 @@ export function TopBar({
         >
           {/* The bar is crowded on a narrow screen, so the wordmark drops and
               the mark carries the link on its own. */}
-          <Logo className="h-7 w-7 sm:hidden" />
-          <LogoLockup className="hidden h-7 sm:block" />
+          <Logo className="h-11 w-11 sm:hidden" />
+          <LogoLockup className="hidden h-11 sm:block" />
         </Link>
 
         <span className="hidden h-5 w-px shrink-0 bg-black/10 sm:block" />

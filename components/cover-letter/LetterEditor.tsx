@@ -178,8 +178,8 @@ function TopBar({
           className="flex shrink-0 items-center gap-1.5 px-1"
           aria-label="Back to my cover letters"
         >
-          <Logo className="h-7 w-7 sm:hidden" />
-          <LogoLockup className="hidden h-7 sm:block" />
+          <Logo className="h-11 w-11 sm:hidden" />
+          <LogoLockup className="hidden h-11 sm:block" />
         </Link>
 
         <span className="hidden h-5 w-px shrink-0 bg-black/10 sm:block" />

@@ -30,7 +30,7 @@ export default function Loading() {
       {/* Phone */}
       <div className="flex h-dvh flex-col bg-cream md:hidden">
         <header className="flex shrink-0 items-center gap-2 border-b border-black/5 bg-panel px-3 py-2.5">
-          <Logo className="h-7 w-7" />
+          <Logo className="h-11 w-11" />
           <span className="h-4 w-28 animate-pulse rounded bg-field" />
           <span className="ml-auto h-10 w-20 animate-pulse rounded-lg bg-field" />
         </header>
@@ -69,7 +69,7 @@ export default function Loading() {
               href="/dashboard"
               className="flex shrink-0 items-center gap-1.5 px-1"
             >
-              <LogoLockup className="h-7" />
+              <LogoLockup className="h-11" />
             </Link>
 
             <span className="h-5 w-px shrink-0 bg-black/10" />

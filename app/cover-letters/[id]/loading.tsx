@@ -18,7 +18,7 @@ export default function Loading() {
       {/* Phone */}
       <div className="flex h-dvh flex-col bg-cream lg:hidden">
         <header className="z-20 mx-3 mt-3 flex shrink-0 items-center gap-2 rounded-xl border border-black/5 bg-panel px-3 py-2">
-          <Logo className="h-7 w-7" />
+          <Logo className="h-11 w-11" />
           <span className="h-4 w-28 animate-pulse rounded bg-field" />
           <span className="ml-auto h-9 w-24 animate-pulse rounded-lg bg-field" />
         </header>
@@ -68,7 +68,7 @@ export default function Loading() {
               className="flex shrink-0 items-center gap-1.5 px-1"
               aria-label="Back to my cover letters"
             >
-              <LogoLockup className="h-7" />
+              <LogoLockup className="h-11" />
             </Link>
 
             <span className="h-5 w-px shrink-0 bg-black/10" />

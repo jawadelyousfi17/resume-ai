@@ -39,7 +39,10 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
         open={mode !== null}
         onOpenChange={(next) => !next && setMode(null)}
       >
-        <DialogContent className="max-w-[480px] p-8 sm:max-w-[480px]">
+        <DialogContent
+          fullScreen
+          className="max-w-[480px] p-8 sm:max-w-[480px]"
+        >
           {/* The card carries its own heading; this one names the dialog for
               screen readers without being drawn twice. */}
           <DialogTitle className="sr-only">Sign in to maniacv</DialogTitle>

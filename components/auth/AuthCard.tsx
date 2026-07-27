@@ -59,7 +59,9 @@ export function AuthCard({
   };
 
   return (
-    <div className="w-full max-w-[380px]">
+    // Centred rather than flush left: on /login a flex parent does that, but in
+    // the full-screen dialog the card is the only thing in a full-width box.
+    <div className="mx-auto w-full max-w-[380px]">
       <h1 className="text-center text-2xl font-extrabold tracking-tight text-ink">
         {copy.heading}
       </h1>
