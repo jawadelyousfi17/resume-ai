@@ -23,9 +23,10 @@
  *  100KB instead of two megabytes. */
 const MAX_EDGE = 512;
 
-/** Guests have no account to file an upload under, so their photo stays in the
- *  document and has to fit in localStorage alongside it. */
-const GUEST_MAX_EDGE = 256;
+/** The size a photo falls back to when it has to stay inside the document —
+ *  no storage configured, say. It has to fit in localStorage alongside the
+ *  rest of the resume. */
+const INLINE_MAX_EDGE = 256;
 
 const QUALITY = 0.82;
 
@@ -36,12 +37,11 @@ export class UploadError extends Error {}
 
 /**
  * Shrinks the file and stores it, returning the URL to put in `personal.photo`.
- * A guest gets a small data URL back instead — there is nowhere to file it.
+ *
+ * Signed in or not — a guest's photo is stored too, under a folder of its own.
+ * Only if the server says it can't store one does the photo stay inline.
  */
-export async function uploadPhoto(
-  file: File,
-  { guest = false }: { guest?: boolean } = {},
-): Promise<string> {
+export async function uploadPhoto(file: File): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new UploadError("That file isn't an image.");
   }
@@ -49,16 +49,14 @@ export async function uploadPhoto(
     throw new UploadError("That image is too large — try one under 20MB.");
   }
 
-  if (guest) return toDataUrl(await shrink(file, GUEST_MAX_EDGE));
-
   const body = new FormData();
   body.append("file", await shrink(file, MAX_EDGE), "photo.jpg");
 
   const res = await fetch("/api/upload", { method: "POST", body });
   if (!res.ok) {
-    // A session can lapse between opening the editor and picking a photo.
-    // Keeping the photo inline beats losing it.
-    if (res.status === 401) return toDataUrl(await shrink(file, GUEST_MAX_EDGE));
+    // Nowhere to store it — no secret key configured, most likely. Keeping
+    // the photo inside the document beats losing it.
+    if (res.status === 401) return toDataUrl(await shrink(file, INLINE_MAX_EDGE));
     const { error } = (await res.json().catch(() => ({}))) as {
       error?: string;
     };
@@ -85,7 +83,8 @@ export async function migrateInlinePhoto(photo: string): Promise<string | null> 
     const url = await uploadPhoto(
       new File([blob], "photo", { type: blob.type }),
     );
-    // A lapsed session gets a data URL back, which is what we started with.
+    // With nowhere to store it we get a data URL back, which is what we
+    // started with.
     return url.startsWith("data:") ? null : url;
   } catch {
     return null;

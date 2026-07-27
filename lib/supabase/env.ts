@@ -21,6 +21,21 @@ export function supabaseAnonKey(): string {
   );
 }
 
+/**
+ * The server-side key, if one is configured. Unlike the two above this must
+ * never reach the browser: it bypasses row-level security entirely.
+ *
+ * Optional — without it the app simply can't store a signed-out visitor's
+ * photo, which is the only thing that needs to write with no session.
+ */
+export function supabaseSecretKey(): string | undefined {
+  // Newer projects issue an `sb_secret_…` key; older ones a service-role JWT.
+  const value = (
+    process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY
+  )?.trim();
+  return value || undefined;
+}
+
 function required(name: string, value: string | undefined): string {
   if (!value) {
     throw new Error(

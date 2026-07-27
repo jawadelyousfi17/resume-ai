@@ -5,7 +5,7 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
 /** API routes a signed-out visitor may call. Everything else under /api is
  *  turned away here; the pages are all public, because the app works as a
  *  guest and the marketing and guide pages have to be crawlable. */
-const PUBLIC_API_PATHS = ["/api/compile"];
+const PUBLIC_API_PATHS = ["/api/compile", "/api/upload"];
 
 /** Exact matches only. A prefix match would have let `/api/compile/cover-letter`
  *  in behind `/api/compile`, and a route nested under a public one is not

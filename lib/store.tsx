@@ -179,12 +179,12 @@ export function ResumeProvider({
   const movedPhoto = useRef(false);
   useEffect(() => {
     const photo = data.personal.photo;
-    if (guest || movedPhoto.current || !photo?.startsWith("data:")) return;
+    if (movedPhoto.current || !photo?.startsWith("data:")) return;
     movedPhoto.current = true;
     void migrateInlinePhoto(photo).then((url) => {
       if (url) update((d) => void (d.personal.photo = url));
     });
-  }, [guest, data.personal.photo, update]);
+  }, [data.personal.photo, update]);
 
   // Closing the tab can't be awaited, so ask before it takes an edit with it.
   useEffect(() => {
