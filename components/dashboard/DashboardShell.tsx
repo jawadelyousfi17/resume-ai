@@ -148,6 +148,7 @@ export function DashboardShell({
             <Link
               key={item.label}
               href={item.href}
+              prefetch
               aria-current={on ? "page" : undefined}
               className={className}
             >

@@ -66,6 +66,7 @@ export function SidebarNav({ active }: { active: DashboardSection }) {
             <Link
               key={item.label}
               href={item.href}
+              prefetch
               aria-current={on ? "page" : undefined}
               className={className}
             >

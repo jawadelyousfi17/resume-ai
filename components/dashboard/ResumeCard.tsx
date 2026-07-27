@@ -41,6 +41,10 @@ export function ResumeCard({
         <Link
           href={`/resume/${resume.id}`}
           aria-label={`Open ${resume.name}`}
+          // The editor is a dynamic route, so the default prefetch would only
+          // fetch its loading shell. `true` fetches the document with it —
+          // opening a resume you can see on screen is then instant.
+          prefetch
           className="absolute inset-0"
         >
           {/* Opening a resume is a server render — a second or two on a cold
@@ -165,7 +169,7 @@ function CardAction({
 
   if (href) {
     return (
-      <Link href={href} className={className}>
+      <Link href={href} prefetch className={className}>
         {inner}
         {/* Edit is the row people press; it needs the same "heard you" the
             card itself has. */}
