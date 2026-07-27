@@ -23,7 +23,7 @@ const CONTACT_ROWS: Record<
 };
 
 export function PersonalDetailsForm() {
-  const { data, update } = useResume();
+  const { data, update, guest } = useResume();
   const { personal } = data;
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +62,7 @@ export function PersonalDetailsForm() {
     setPhotoBusy(true);
     const previous = personal.photo;
     try {
-      set("photo", await uploadPhoto(file));
+      set("photo", await uploadPhoto(file, { guest }));
       // Only once the new one is in place, so a failed upload leaves the old
       // photo on the resume rather than nothing.
       void removePhoto(previous);

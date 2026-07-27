@@ -1,6 +1,6 @@
 "use client";
 
-// Photos go to Supabase Storage, not into the document.
+// Photos go to storage, not into the document.
 //
 // A profile photo used to be inlined as a data URL, which put a two-megabyte
 // phone picture inside the resume JSON: every autosave shipped it again, a
@@ -9,12 +9,14 @@
 // will accept. Storing a URL instead keeps the document small and lets the
 // browser cache the image.
 //
+// The shrinking happens here, in the browser, so what crosses the network is
+// a hundred kilobytes rather than the original. The upload itself goes through
+// /api/upload, because the Supabase session lives in cookies this side never
+// reads — and routing it through the server lets the bucket stay closed to
+// anonymous writes.
+//
 // Whatever ends up in `personal.photo` is still just a string, so the preview
 // and the templates never had to learn about any of this.
-
-import { createClient } from "@/lib/supabase/client";
-
-const BUCKET = "images";
 
 /** Longest edge we keep. A resume prints the photo at about 120px, so 512
  *  survives a retina screen and a PDF with room to spare — and lands around
@@ -34,9 +36,12 @@ export class UploadError extends Error {}
 
 /**
  * Shrinks the file and stores it, returning the URL to put in `personal.photo`.
- * A signed-out user gets a data URL back instead — there is nowhere to file it.
+ * A guest gets a small data URL back instead — there is nowhere to file it.
  */
-export async function uploadPhoto(file: File): Promise<string> {
+export async function uploadPhoto(
+  file: File,
+  { guest = false }: { guest?: boolean } = {},
+): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new UploadError("That file isn't an image.");
   }
@@ -44,35 +49,25 @@ export async function uploadPhoto(file: File): Promise<string> {
     throw new UploadError("That image is too large — try one under 20MB.");
   }
 
-  const supabase = createClient();
-  // getSession reads the cookie the server client wrote, so this doesn't cost
-  // a round trip on every upload.
-  const { data } = await supabase.auth.getSession();
-  const userId = data.session?.user.id;
+  if (guest) return toDataUrl(await shrink(file, GUEST_MAX_EDGE));
 
-  if (!userId) {
-    return toDataUrl(await shrink(file, GUEST_MAX_EDGE));
+  const body = new FormData();
+  body.append("file", await shrink(file, MAX_EDGE), "photo.jpg");
+
+  const res = await fetch("/api/upload", { method: "POST", body });
+  if (!res.ok) {
+    // A session can lapse between opening the editor and picking a photo.
+    // Keeping the photo inline beats losing it.
+    if (res.status === 401) return toDataUrl(await shrink(file, GUEST_MAX_EDGE));
+    const { error } = (await res.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new UploadError(error || "Couldn't upload that photo.");
   }
 
-  const blob = await shrink(file, MAX_EDGE);
-
-  // The user's own id is the first path segment, which is what the storage
-  // policy checks — nobody can write into anyone else's folder.
-  const path = `${userId}/${crypto.randomUUID()}.jpg`;
-
-  const { error } = await supabase.storage.from(BUCKET).upload(path, blob, {
-    contentType: "image/jpeg",
-    // The name is unique, so the file never changes under a URL.
-    cacheControl: "31536000",
-  });
-
-  if (error) {
-    throw new UploadError(
-      `Couldn't upload that photo${error.message ? ` — ${error.message}` : "."}`,
-    );
-  }
-
-  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  const { url } = (await res.json()) as { url?: string };
+  if (!url) throw new UploadError("Couldn't upload that photo.");
+  return url;
 }
 
 /**
@@ -90,7 +85,7 @@ export async function migrateInlinePhoto(photo: string): Promise<string | null> 
     const url = await uploadPhoto(
       new File([blob], "photo", { type: blob.type }),
     );
-    // A signed-out visitor gets a data URL back, which is what we started with.
+    // A lapsed session gets a data URL back, which is what we started with.
     return url.startsWith("data:") ? null : url;
   } catch {
     return null;
@@ -102,25 +97,13 @@ export async function migrateInlinePhoto(photo: string): Promise<string | null> 
  * not something to interrupt an edit for, so this never throws.
  */
 export async function removePhoto(url: string | undefined): Promise<void> {
-  const path = storagePath(url);
-  if (!path) return;
+  if (!url?.startsWith("http")) return;
   try {
-    await createClient().storage.from(BUCKET).remove([path]);
+    await fetch(`/api/upload?url=${encodeURIComponent(url)}`, {
+      method: "DELETE",
+    });
   } catch {
     // An orphaned file is cheap; a failed edit is not.
-  }
-}
-
-/** The object path inside our bucket, or null if this URL isn't one of ours. */
-function storagePath(url: string | undefined): string | null {
-  if (!url || !url.startsWith("http")) return null;
-  try {
-    const { pathname } = new URL(url);
-    const marker = `/storage/v1/object/public/${BUCKET}/`;
-    const at = pathname.indexOf(marker);
-    return at === -1 ? null : decodeURIComponent(pathname.slice(at + marker.length));
-  } catch {
-    return null;
   }
 }
 

@@ -120,6 +120,14 @@ export async function renderViaService(
   }
 
   if (!res.ok) {
+    // 413 has one cause here: the whole document travels inside the URL, and
+    // an image stored in the document rather than in the bucket is the only
+    // thing big enough to burst it.
+    if (res.status === 413) {
+      throw new PdfError(
+        "This resume is too large to export — reopen it and re-add the photo.",
+      );
+    }
     const info = (await res.json().catch(() => ({}))) as { error?: string };
     throw new PdfError(info.error || `The PDF service answered ${res.status}.`);
   }
