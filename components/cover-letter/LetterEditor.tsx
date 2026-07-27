@@ -68,9 +68,11 @@ function Shell({ resume }: { resume: Resume | null }) {
     setPreviewing(false);
   };
 
+  const openRewrite = () => setRewriting(true);
+
   return (
     <div className="flex min-h-dvh flex-col pb-16 lg:h-dvh lg:pb-0">
-      <TopBar tab={tab} onTab={setTab} onRewrite={() => setRewriting(true)} />
+      <TopBar tab={tab} onTab={setTab} onRewrite={openRewrite} />
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <div
@@ -115,16 +117,14 @@ function Shell({ resume }: { resume: Resume | null }) {
       </button>
 
       {/* The tabs, where a thumb can reach them. */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-2 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden">
         {TABS.map((t) => {
           const on = t.id === tab && !previewing;
           return (
             <button
               key={t.id}
               type="button"
-              onClick={() => {
-                onTabPress(t.id);
-              }}
+              onClick={() => onTabPress(t.id)}
               aria-current={on ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-bold transition",
@@ -136,6 +136,17 @@ function Shell({ resume }: { resume: Resume | null }) {
             </button>
           );
         })}
+
+        {/* Rewriting the letter is the third thing you do here, so on a phone
+            it sits beside the other two rather than in the crowded top bar. */}
+        <button
+          type="button"
+          onClick={openRewrite}
+          className="flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-bold text-ink-faint transition"
+        >
+          <SparklesIcon className="h-[18px] w-[18px]" />
+          Rewrite
+        </button>
       </nav>
 
       <RewriteDialog
@@ -215,11 +226,11 @@ function TopBar({
                 : ""}
         </span>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           <button
             type="button"
             onClick={onRewrite}
-            className="inline-flex h-auto items-center gap-2 rounded-lg bg-brand-soft px-3.5 py-2 text-[14px] font-bold text-brand transition hover:opacity-85"
+            className="hidden h-auto items-center gap-2 rounded-lg bg-brand-soft px-3.5 py-2 text-[14px] font-bold text-brand transition hover:opacity-85 lg:inline-flex"
           >
             <SparklesIcon className="h-[18px] w-[18px]" />
             <span className="hidden md:inline">Rewrite</span>
