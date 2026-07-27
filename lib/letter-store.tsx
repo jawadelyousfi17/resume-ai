@@ -13,7 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import type { CoverLetter, CoverLetterData, PageFormat } from "./types";
 import {
   renameCoverLetterAction,

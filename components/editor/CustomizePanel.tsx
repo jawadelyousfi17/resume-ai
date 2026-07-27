@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useResume } from "@/lib/store";
 import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
@@ -35,7 +35,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StepperSlider } from "@/components/ui/stepper-slider";
-import { CheckIcon } from "@/components/ui/icons";
+import { CheckIcon, SearchIcon } from "@/components/ui/icons";
 import { ChevronDownIcon } from "@/components/ui/svg-icons";
 import { removePhoto, uploadPhoto } from "@/lib/upload-image";
 import { ColorWheel } from "@/components/ui/color-picker";
@@ -737,30 +737,47 @@ export function TemplatePicker({
   accent: string;
   onPick: (template: Template) => void;
 }) {
-  // Null is "All". Nothing is typed here — the filter is a row of buttons.
+  // Null is "All".
   const [category, setCategory] = useState<TemplateCategory | null>(null);
+  const [query, setQuery] = useState("");
 
-  const shown = category
-    ? TEMPLATES.filter((t) => inCategory(t, category))
-    : TEMPLATES;
+  // Search reads the description too: people arrive looking for "two column"
+  // or "photo" rather than for Onyx, and the words that describe a template
+  // are the ones they'd type.
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return TEMPLATES.filter(
+      (t) =>
+        (!category || inCategory(t, category)) &&
+        (!q ||
+          t.name.toLowerCase().includes(q) ||
+          t.short.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q)),
+    );
+  }, [category, query]);
 
   return (
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        // Reopening should start from the whole set, not the last filter.
-        if (!next) setCategory(null);
+        // Reopening should start from the whole set, not the last search.
+        if (!next) {
+          setCategory(null);
+          setQuery("");
+        }
         onOpenChange(next);
       }}
     >
-      {/* Wide on purpose: a template is judged by how the page looks, and a
-          thumbnail small enough to fit a narrow dialog shows layout but not
-          typography. `scroll-slim` keeps the scrolling and drops the bar. */}
+      {/* The whole window on a desktop. A template is judged by how the page
+          looks, and the more of them that fit side by side at a size worth
+          reading, the less this is a list and the more it is a shelf. The
+          phone keeps the sheet it already had. `scroll-slim` keeps the
+          scrolling and drops the bar. */}
       <DialogContent
         fullScreen
         showBack={false}
         aria-describedby={undefined}
-        className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 max-sm:content-start max-sm:px-4 max-sm:pt-0 sm:max-w-5xl"
+        className="scroll-slim gap-6 overflow-y-auto p-7 pt-0 max-sm:content-start max-sm:px-4 max-sm:pt-0 sm:top-0 sm:left-0 sm:h-dvh sm:max-h-none sm:w-screen sm:max-w-none sm:translate-x-0 sm:translate-y-0 sm:rounded-none"
       >
         {/* Title and filters ride along at the top while the grid scrolls
             under them. The negative margins take the block out to the
@@ -768,14 +785,34 @@ export function TemplatePicker({
             puts it back where it was. */}
         {/* Back and the filters ride together at the top; only the grid
             underneath them moves. */}
-        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:px-4 max-sm:pt-3">
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl border-b border-black/5 bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:border-0 max-sm:px-4 max-sm:pt-3 sm:rounded-none">
           <DialogBack className="mb-3 sm:hidden" />
 
-          <DialogHeader>
-            {/* The Back button says what this is on a phone. */}
-            <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">
-              Choose a template
-            </DialogTitle>
+          <div className="flex items-center gap-4 max-sm:hidden">
+            <DialogHeader>
+              {/* The Back button says what this is on a phone. */}
+              <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">
+                Choose a template
+              </DialogTitle>
+            </DialogHeader>
+
+            {/* Beside the title rather than over the grid: the filters below
+                are the coarse cut, and this is for when you know the word. */}
+            <label className="relative ml-auto block w-[300px] shrink-0">
+              <span className="sr-only">Search templates</span>
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-3.5 h-4.5 w-4.5 -translate-y-1/2 text-ink-faint" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search — serif, two column, photo…"
+                className="h-11 w-full rounded-xl bg-field pr-4 pl-10 text-[14.5px] font-semibold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:ring-2 focus:ring-ink/80"
+              />
+            </label>
+          </div>
+
+          <DialogHeader className="sm:hidden">
+            <DialogTitle className="sr-only">Choose a template</DialogTitle>
           </DialogHeader>
 
           {/* Scrolls on a phone rather than stacking — the grid of templates
@@ -800,11 +837,23 @@ export function TemplatePicker({
         </div>
 
         {shown.length === 0 ? (
-          <p className="py-10 text-center text-[14.5px] font-medium text-ink-soft">
-            Nothing in that group yet.
-          </p>
+          <div className="py-16 text-center">
+            <p className="text-[15px] font-bold text-ink">
+              Nothing matches that.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setCategory(null);
+              }}
+              className="mt-3 text-[14px] font-bold text-brand transition hover:opacity-80"
+            >
+              Show all {TEMPLATES.length}
+            </button>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {shown.map((t) => {
               const selected = t.id === selectedId;
               return (

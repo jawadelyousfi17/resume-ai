@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useSyncExternalStore, useTransition } from "react";
+import { useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import type { Resume, ResumeData } from "@/lib/types";
 import {
+  createResumeAction,
   deleteResumeAction,
   duplicateResumeAction,
   importResumeAction,
@@ -23,7 +24,7 @@ import {
   RenameDialog,
 } from "@/components/ui/prompt-dialogs";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
-import { draftWithTemplate, setPendingResume } from "@/lib/pending-resume";
+import { setPendingTemplate } from "@/lib/pending-resume";
 import type { Template } from "@/lib/templates";
 import {
   createGuestResume,
@@ -34,7 +35,6 @@ import {
   guestServerSnapshot,
   onGuestResumeChange,
   renameGuestResume,
-  saveGuestResumeData,
   replaceGuestResume,
 } from "@/lib/guest";
 
@@ -101,31 +101,83 @@ export function Dashboard({
   };
 
   /**
+   * The resume being written while its template is still being chosen.
+   *
+   * Picking a template used to start a round trip: write the row, wait, then
+   * open it. The two don't depend on each other, so the write starts the
+   * moment the gallery does and is long finished by the time anything is
+   * picked — opening it is a page load and nothing else.
+   *
+   * Held as a promise rather than an id: whoever needs it awaits, and on the
+   * one occasion that costs anything — picking a template within a few hundred
+   * milliseconds of opening the gallery — it costs exactly what the old flow
+   * cost every single time.
+   */
+  const starting = useRef<ReturnType<typeof createResumeAction> | null>(null);
+
+  /** The gallery is open, so a resume is on its way. */
+  const beginScratch = () => {
+    if (guest || starting.current) return;
+    starting.current = createResumeAction();
+  };
+
+  /**
+   * Backing out of the gallery. The row exists by now, and a resume nobody
+   * asked for on the dashboard is worse than the work of removing it.
+   */
+  const abandonScratch = () => {
+    const pending = starting.current;
+    starting.current = null;
+    if (!pending) return;
+    void (async () => {
+      const result = await pending;
+      if (result.ok) {
+        await deleteResumeAction(result.id);
+        router.refresh();
+      }
+    })();
+  };
+
+  /**
    * "Start from scratch", once a template has been chosen.
    *
-   * Nothing is written here. A blank document wearing that template is built
-   * in the browser and handed to the editor, which opens on it immediately and
-   * stores it while you're already typing — see lib/pending-resume. Waiting on
-   * an insert to show an empty page was time spent for nothing.
+   * The template can't travel with the row — it wasn't chosen when the row was
+   * written — so it goes in the browser and the editor applies it as it opens.
+   * See lib/pending-resume.
    *
    * The `setup` parameter is what the phone editor reads to start its guided
    * build; the desktop editor opens on the content, since the one question it
    * would have asked has just been answered.
    */
   const startFromScratch = (template: Template) => {
-    const draft = draftWithTemplate(template);
+    setPendingTemplate(template.id);
 
     if (guest) {
       setAdding(false);
       const resume = createGuestResume();
-      saveGuestResumeData(draft.data);
       router.push(`/resume/${resume.id}?setup=new`);
       return;
     }
 
+    const pending = starting.current;
+    starting.current = null;
+    setCreating(true);
     setBusyId(null);
-    setPendingResume(draft);
-    router.push("/resume/new");
+
+    // Outside startTransition on purpose. React keeps the current screen up
+    // for the length of a transition and suppresses Suspense fallbacks inside
+    // it, so a router.push() made in one skips the target route's loading.tsx
+    // entirely. Run plainly, the skeleton shows if there is anything to wait
+    // for at all.
+    void (async () => {
+      const result = await (pending ?? createResumeAction());
+      if (!result.ok) {
+        setCreating(false);
+        toast.error(result.error);
+        return;
+      }
+      router.push(`/resume/${result.id}?setup=new`);
+    })();
   };
 
   /** A resume the AI just read out of an uploaded file. Guests never get
@@ -203,6 +255,8 @@ export function Dashboard({
         onOpenChange={setAdding}
         creating={creating}
         onScratch={startFromScratch}
+        onScratchOpen={beginScratch}
+        onScratchCancel={abandonScratch}
         onImported={openImported}
         canImport={!guest}
         onImportBlocked={() => {

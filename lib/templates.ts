@@ -663,6 +663,9 @@ export const TEMPLATES: Template[] = [
   },
 ];
 
+export const isTemplateId = (value: string): value is TemplateId =>
+  TEMPLATES.some((t) => t.id === value);
+
 export const getTemplate = (id: TemplateId | undefined): Template =>
   TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0];
 

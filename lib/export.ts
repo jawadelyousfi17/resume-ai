@@ -1,6 +1,6 @@
 // Client-side download helpers for the generated resume artifacts.
 
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 import type { PageFormat, ResumeData } from "@/lib/types";
 
@@ -29,6 +29,36 @@ export function slugify(name: string): string {
 }
 
 /**
+ * What a failed compile means, in words.
+ *
+ * 429 is the renderer saying you've asked for too many too quickly — it is a
+ * wait, not a fault, and telling someone their PDF "couldn't be built" when it
+ * can be built in a minute sends them off to fix a document that isn't broken.
+ * `Retry-After` is a count of seconds when the limiter sends one.
+ */
+export async function compileError(res: Response): Promise<{
+  message: string;
+  detail?: string;
+}> {
+  if (res.status === 429) {
+    const seconds = Number(res.headers.get("Retry-After"));
+    return {
+      message: "Too many downloads just now",
+      detail:
+        seconds > 0
+          ? `Try again in ${seconds < 60 ? `${seconds} seconds` : "a minute or two"}.`
+          : "Give it a minute and try again — nothing has been lost.",
+    };
+  }
+
+  const info = (await res.json().catch(() => ({}))) as { error?: string };
+  return {
+    message: "Couldn't build the PDF",
+    detail: info.error?.slice(0, 160) || `Server error ${res.status}`,
+  };
+}
+
+/**
  * Build a resume's PDF on the server and hand it to the browser, reporting
  * both outcomes as it goes.
  *
@@ -49,14 +79,16 @@ export async function downloadResumePdf(resume: {
       body: JSON.stringify({ data: resume.data, format: resume.format }),
     });
     if (!res.ok) {
-      const info = await res.json().catch(() => ({}) as { error?: string });
-      throw new Error(info.error || `Server error ${res.status}`);
+      const { message, detail } = await compileError(res);
+      toast.error(message, { id: toastId, description: detail });
+      return;
     }
 
     const filename = `${slugify(resume.name)}.pdf`;
     downloadBlob(filename, await res.blob());
     toast.success(`Downloaded ${filename}`, { id: toastId });
   } catch (err) {
+    // Never reached the renderer at all — offline, or the request was cut.
     toast.error("Couldn't build the PDF", {
       id: toastId,
       description: err instanceof Error ? err.message.slice(0, 160) : undefined,

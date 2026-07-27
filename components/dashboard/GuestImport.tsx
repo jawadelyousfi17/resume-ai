@@ -10,7 +10,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { deleteGuestResume, readGuestResume } from "@/lib/guest";
 import { importResumeAction } from "@/app/actions/resumes";
 

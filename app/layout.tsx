@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { fontVariables } from "./fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toast";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";

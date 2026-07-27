@@ -4,7 +4,7 @@
 // one you already have and let the AI read it in.
 
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,8 @@ export function NewResumeDialog({
   onOpenChange,
   creating = false,
   onScratch,
+  onScratchOpen,
+  onScratchCancel,
   onImported,
   canImport = true,
   onImportBlocked,
@@ -37,9 +39,13 @@ export function NewResumeDialog({
   onOpenChange: (open: boolean) => void;
   /** True while the resume is being written and its editor opened. */
   creating?: boolean;
-  /** Called with the template that was chosen for it. Nothing is written
-   *  until then — see lib/pending-resume. */
+  /** Called with the template that was chosen for it. */
   onScratch: (template: Template) => void;
+  /** The gallery has opened — the resume can start being written now. */
+  onScratchOpen?: () => void;
+  /** The gallery was dismissed without a choice; whatever was started for it
+   *  should be undone. */
+  onScratchCancel?: () => void;
   onImported: (resume: { name: string; data: ResumeData }) => void;
   /** False for guests — reading a file costs a model call, so it needs an
    *  account. The card then offers to sign in rather than failing a request. */
@@ -145,7 +151,14 @@ export function NewResumeDialog({
   return (
     <Dialog
       open={open}
-      onOpenChange={(next) => !reading && !creating && onOpenChange(next)}
+      onOpenChange={(next) => {
+        if (reading || creating) return;
+        if (!next && choosing) {
+          setChoosing(false);
+          onScratchCancel?.();
+        }
+        onOpenChange(next);
+      }}
     >
       <DialogContent
         fullScreen
@@ -200,7 +213,10 @@ export function NewResumeDialog({
           <div className="mt-6 space-y-2.5">
             <button
               type="button"
-              onClick={() => setChoosing(true)}
+              onClick={() => {
+                setChoosing(true);
+                onScratchOpen?.();
+              }}
               disabled={creating}
               className="flex w-full items-center gap-4 rounded-xl border border-field-border px-6 py-5 text-left text-[17px] font-bold text-ink transition hover:border-ink/30 disabled:opacity-50"
             >
@@ -265,7 +281,10 @@ export function NewResumeDialog({
           gallery leaves you back at the fork, not out of the flow. */}
       <TemplatePicker
         open={choosing}
-        onOpenChange={setChoosing}
+        onOpenChange={(next) => {
+          setChoosing(next);
+          if (!next) onScratchCancel?.();
+        }}
         selectedId={DEFAULT_SETTINGS.template}
         accent={DEFAULT_SETTINGS.accent}
         onPick={(template) => {

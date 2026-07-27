@@ -9,7 +9,7 @@
 // tells you what is wrong, and this one hands you the corrected field.
 
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 import { useAuthDialog } from "@/components/auth/AuthDialog";
 import { CheckIcon } from "@/components/ui/icons";

@@ -4,9 +4,9 @@
 // `use-download-pdf` pointed at the letter route.
 
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
-import { downloadBlob, slugify } from "@/lib/export";
+import { compileError, downloadBlob, slugify } from "@/lib/export";
 import { useLetter } from "@/lib/letter-store";
 
 export function useDownloadLetter() {
@@ -23,8 +23,9 @@ export function useDownloadLetter() {
         body: JSON.stringify({ data, format }),
       });
       if (!res.ok) {
-        const info = await res.json().catch(() => ({}) as { error?: string });
-        throw new Error(info.error || `Server error ${res.status}`);
+        const { message, detail } = await compileError(res);
+        toast.error(message, { id: toastId, description: detail });
+        return;
       }
       downloadBlob(`${slugify(name)}.pdf`, await res.blob());
       toast.success("Downloaded your cover letter", { id: toastId });

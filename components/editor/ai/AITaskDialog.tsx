@@ -5,7 +5,7 @@
 // wall of cards.
 
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import {
   Dialog,
   DialogContent,

@@ -65,7 +65,6 @@ export function Editor({
   resume,
   guest = false,
   mobile = false,
-  savingTo,
 }: {
   resume: Resume;
   /** The resume lives in this browser rather than the database. */
@@ -73,11 +72,9 @@ export function Editor({
   /** What the server made of the User-Agent — a starting point the client
    *  corrects against the real viewport. */
   mobile?: boolean;
-  /** Where saves go when that isn't `resume.id` yet — see <NewResume>. */
-  savingTo?: string | null;
 }) {
   return (
-    <ResumeProvider resume={resume} guest={guest} savingTo={savingTo}>
+    <ResumeProvider resume={resume} guest={guest}>
       {/* Outside the shell, so the report survives a tab change — and covers
           the phone editor, which renders the same Review panel. */}
       <ReviewProvider>

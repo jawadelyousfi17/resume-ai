@@ -1,55 +1,38 @@
 "use client";
 
-// The hand-off between "choose a template" and the editor.
+// The template chosen on the way into the editor.
 //
-// Picking a template used to mean waiting: a row was written, then the editor
-// loaded it. Nothing about that wait is useful — the document is a blank page
-// the browser can build itself — so it builds it, parks it here, and the
-// editor opens on it straight away. The insert happens once you're already
-// typing; see /resume/new.
+// The resume itself is written while the gallery is still open — by the time
+// anything is picked the row exists, so opening it is a page load and nothing
+// more. What can't be written that early is the choice itself, so it travels
+// here and the editor applies it as it opens. One save, no waiting, and no
+// round trip between picking and typing.
 //
 // sessionStorage rather than localStorage: this is one navigation's worth of
 // state. It shouldn't outlive the tab, and two tabs starting a resume at the
 // same time shouldn't fight over one slot.
 
-import { createEmptyResume } from "./defaults";
-import { applyTemplate, type Template } from "./templates";
-import type { PageFormat, ResumeData } from "./types";
+import { isTemplateId } from "./templates";
+import type { TemplateId } from "./types";
 
-const KEY = "resumeai:pending";
+const KEY = "resumeai:pending-template";
 
-export interface PendingResume {
-  format: PageFormat;
-  data: ResumeData;
-}
-
-/** A blank document wearing the chosen template. */
-export function draftWithTemplate(template: Template): PendingResume {
-  const draft = createEmptyResume();
-  applyTemplate(draft.data.settings, template);
-  return { format: draft.format, data: draft.data };
-}
-
-export function setPendingResume(pending: PendingResume) {
+export function setPendingTemplate(id: TemplateId) {
   try {
-    window.sessionStorage.setItem(KEY, JSON.stringify(pending));
+    window.sessionStorage.setItem(KEY, id);
   } catch {
-    // Private mode, or a full store. The editor falls back to a blank page.
+    // Private mode, or a full store. The resume keeps the default template,
+    // which the Customize panel can still change.
   }
 }
 
-/** Reads it and clears it: opening the editor consumes the hand-off, so a
- *  refresh doesn't start a second resume from the same draft. */
-export function takePendingResume(): PendingResume | null {
+/** Reads it and clears it: the editor consumes the choice as it opens, so a
+ *  refresh doesn't re-apply a template that has since been changed. */
+export function takePendingTemplate(): TemplateId | null {
   try {
     const raw = window.sessionStorage.getItem(KEY);
     window.sessionStorage.removeItem(KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PendingResume;
-    if (!parsed?.data?.personal || !Array.isArray(parsed.data.sections)) {
-      return null;
-    }
-    return parsed;
+    return raw && isTemplateId(raw) ? raw : null;
   } catch {
     return null;
   }
