@@ -73,21 +73,29 @@ function DialogContent({
         className={cn(
           "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           fullScreen &&
-            "max-sm:inset-0 max-sm:top-0 max-sm:left-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:overflow-y-auto max-sm:rounded-none max-sm:pt-14 max-sm:ring-0",
+            // Vertically centred on a phone, so a short dialog sits with its
+            // title next to its buttons rather than stranded at the top. A
+            // long one still scrolls from the top.
+            "max-sm:inset-0 max-sm:top-0 max-sm:left-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:transform-none max-sm:content-center max-sm:overflow-y-auto max-sm:rounded-none max-sm:px-5 max-sm:pt-16 max-sm:pb-8 max-sm:ring-0",
           className,
         )}
         {...props}
       >
         {fullScreen && (
-          <DialogPrimitive.Close data-slot="dialog-close" asChild>
-            <button
-              type="button"
-              className="fixed top-3 left-3 z-10 inline-flex h-10 items-center gap-1.5 rounded-full bg-field px-3.5 text-[14px] font-bold text-ink sm:hidden"
-            >
-              <ChevronLeftIcon className="h-[18px] w-[18px]" />
-              Back
-            </button>
-          </DialogPrimitive.Close>
+          // A zero-height sticky strip: the button rides at the top of the
+          // scroller whatever the content does, without `fixed` — which a
+          // dialog's own transform would turn back into `absolute`.
+          <div className="sticky top-0 z-20 -mb-4 h-0 sm:hidden">
+            <DialogPrimitive.Close data-slot="dialog-close" asChild>
+              <button
+                type="button"
+                className="absolute top-3 left-0 inline-flex h-10 items-center gap-1.5 rounded-full bg-field px-3.5 text-[14px] font-bold text-ink"
+              >
+                <ChevronLeftIcon className="h-[18px] w-[18px]" />
+                Back
+              </button>
+            </DialogPrimitive.Close>
+          </div>
         )}
         {children}
         {showCloseButton && (

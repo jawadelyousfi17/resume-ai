@@ -427,22 +427,25 @@ function TemplatePicker({
       <DialogContent
         fullScreen
         aria-describedby={undefined}
-        className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 sm:max-w-5xl"
+        className="scroll-slim max-h-[88vh] gap-6 overflow-y-auto rounded-3xl p-7 pt-0 max-sm:content-start max-sm:px-4 max-sm:pt-0 sm:max-w-5xl"
       >
         {/* Title and filters ride along at the top while the grid scrolls
             under them. The negative margins take the block out to the
             dialog's edges so nothing shows through beside it, and the padding
             puts it back where it was. */}
-        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl bg-popover px-7 pt-7 pb-4">
+        {/* Back and the filters ride together at the top; only the grid
+            underneath them moves. */}
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:px-4 max-sm:pt-16">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-extrabold text-ink">
+            {/* The Back button says what this is on a phone. */}
+            <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">
               Choose a template
             </DialogTitle>
           </DialogHeader>
 
           {/* Scrolls on a phone rather than stacking — the grid of templates
               is what the dialog is for. */}
-          <div className="scroll-slim -mx-7 mt-5 flex min-w-0 gap-2.5 overflow-x-auto px-7 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+          <div className="scroll-slim -mx-7 mt-5 flex min-w-0 gap-2.5 overflow-x-auto px-7 pb-1 max-sm:-mx-4 max-sm:mt-0 max-sm:px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
             <FilterChip
               label="All"
               count={TEMPLATES.length}
