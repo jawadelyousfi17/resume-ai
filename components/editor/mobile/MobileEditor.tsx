@@ -35,15 +35,13 @@ import { useDownloadPdf } from "../use-download-pdf";
 import { TailorPanel } from "../TailorPanel";
 import { SetupFlow } from "./SetupFlow";
 
-type MobileTab =
-  "preview" | "content" | "customize" | "ai" | "review" | "tailor";
+type MobileTab = "content" | "customize" | "ai" | "review" | "tailor";
 
 const TABS: {
   id: MobileTab;
   label: string;
   icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
 }[] = [
-  { id: "preview", label: "Resume", icon: EyeIcon },
   { id: "content", label: "Edit", icon: FileTextIcon },
   { id: "customize", label: "Design", icon: WandIcon },
   { id: "ai", label: "AI", icon: SparklesIcon },
@@ -61,7 +59,10 @@ export function MobileEditor() {
     const value = params.get("setup");
     return value === "new" || value === "import" ? value : null;
   });
-  const [tab, setTab] = useState<MobileTab>("preview");
+  const [tab, setTab] = useState<MobileTab>("content");
+  // The page itself isn't one of the tabs — it's the floating eye, so looking
+  // at the resume never costs you the panel you were working in.
+  const [previewing, setPreviewing] = useState(true);
 
   if (setup) {
     return (
@@ -69,7 +70,8 @@ export function MobileEditor() {
         mode={setup}
         onDone={() => {
           setSetup(null);
-          setTab("preview");
+          // Finishing the walk-through lands on the finished page.
+          setPreviewing(true);
           // Drop the parameter so a refresh lands in the editor, not back at
           // step one.
           router.replace(window.location.pathname);
@@ -83,43 +85,62 @@ export function MobileEditor() {
       <MobileTopBar />
 
       <div className="scroll-slim min-h-0 flex-1 overflow-y-auto">
-        {tab === "preview" && <PreviewTab onEdit={() => setTab("content")} />}
-        {tab === "content" && (
+        {previewing && <PreviewTab />}
+        {!previewing && tab === "content" && (
           <div className="px-3 py-4">
             <ContentPanel />
           </div>
         )}
-        {tab === "customize" && (
+        {!previewing && tab === "customize" && (
           <div className="px-3 py-4">
             <CustomizePanel />
           </div>
         )}
-        {tab === "ai" && (
+        {!previewing && tab === "ai" && (
           <div className="px-3 py-4">
             <AIPanel />
           </div>
         )}
-        {tab === "review" && (
+        {!previewing && tab === "review" && (
           <div className="px-3 py-4">
             <ReviewPanel />
           </div>
         )}
-        {tab === "tailor" && (
+        {!previewing && tab === "tailor" && (
           <div className="px-3 py-4">
             <TailorPanel />
           </div>
         )}
       </div>
 
-      <nav className="grid shrink-0 grid-cols-6 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)]">
+      {/* Look at the page, or go back to what you were editing. It floats
+          clear of the tab bar so it's reachable from anywhere. */}
+      <button
+        type="button"
+        onClick={() => setPreviewing((v) => !v)}
+        aria-pressed={previewing}
+        aria-label={previewing ? "Back to editing" : "Preview the resume"}
+        className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-navy text-white shadow-[0_10px_28px_rgba(15,23,42,0.3)] transition active:scale-95"
+      >
+        {previewing ? (
+          <PencilIcon className="h-6 w-6" />
+        ) : (
+          <EyeIcon className="h-6 w-6" />
+        )}
+      </button>
+
+      <nav className="grid shrink-0 grid-cols-5 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)]">
         {TABS.map((t) => {
           const Icon = t.icon;
-          const on = t.id === tab;
+          const on = t.id === tab && !previewing;
           return (
             <button
               key={t.id}
               type="button"
-              onClick={() => setTab(t.id)}
+              onClick={() => {
+                setTab(t.id);
+                setPreviewing(false);
+              }}
               aria-current={on ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center gap-1 py-2.5 text-[10.5px] font-bold transition",
@@ -167,26 +188,15 @@ function MobileTopBar() {
   );
 }
 
-/** The page itself, with the way back into it. */
-function PreviewTab({ onEdit }: { onEdit: () => void }) {
+/** The page itself. The floating control is the way back out. */
+function PreviewTab() {
   const { data, format } = useResume();
 
   return (
-    <div className="relative px-3 py-4">
+    <div className="relative px-3 pt-4 pb-24">
       <PreviewCanvas format={format}>
         <ResumePreview data={data} format={format} />
       </PreviewCanvas>
-
-      {/* Floats over the page, thumb-height, so editing is one tap from
-          wherever you've scrolled to. */}
-      <button
-        type="button"
-        onClick={onEdit}
-        className="btn-gradient sticky bottom-4 float-right mt-4 inline-flex h-12 items-center gap-2 rounded-full px-5 text-[15px] font-bold shadow-lg"
-      >
-        <PencilIcon className="h-[18px] w-[18px]" />
-        Edit
-      </button>
     </div>
   );
 }

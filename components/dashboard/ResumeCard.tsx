@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import type { Resume } from "@/lib/types";
 import { formatRelative } from "@/lib/relative-time";
 import {
@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Spinner } from "@/components/ui/spinner";
 import { ResumeThumb } from "./ResumeThumb";
 
 export function ResumeCard({
@@ -41,7 +42,12 @@ export function ResumeCard({
           href={`/resume/${resume.id}`}
           aria-label={`Open ${resume.name}`}
           className="absolute inset-0"
-        />
+        >
+          {/* Opening a resume is a server render — a second or two on a cold
+              route. This says the press landed, before the editor's own
+              skeleton takes over. */}
+          <Opening />
+        </Link>
 
         {/* Hover only, so it never sits over the page on a touch screen where
             there's nothing to hover with — the ⋯ button below is that path.
@@ -112,6 +118,25 @@ const actionClass =
 /** A row of the hover menu. Given an `href` it renders as a link — "Edit"
  *  navigates, so it should behave like one (middle click, open in new tab);
  *  the rest are buttons. */
+/** Swaps in beside an action's label while its route loads. */
+function ActionSpinner() {
+  const { pending } = useLinkStatus();
+  return pending ? <Spinner className="ml-auto h-3.5 w-3.5" /> : null;
+}
+
+/** The scrim over a card whose resume is being opened. */
+function Opening() {
+  const { pending } = useLinkStatus();
+  if (!pending) return null;
+
+  return (
+    <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 rounded-2xl bg-white/75 text-[13.5px] font-bold text-ink">
+      <Spinner className="text-brand" />
+      Opening…
+    </span>
+  );
+}
+
 function CardAction({
   href,
   icon: Icon,
@@ -142,6 +167,9 @@ function CardAction({
     return (
       <Link href={href} className={className}>
         {inner}
+        {/* Edit is the row people press; it needs the same "heard you" the
+            card itself has. */}
+        <ActionSpinner />
       </Link>
     );
   }

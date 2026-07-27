@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   signInAction,
   signInWithProviderAction,
@@ -9,6 +10,7 @@ import {
 } from "@/app/auth/actions";
 import { OAUTH_PROVIDERS } from "@/lib/auth-providers";
 import { Input, Label } from "@/components/ui/fields";
+import { Spinner } from "@/components/ui/spinner";
 import { GoogleMark, LinkedInMark } from "./ProviderIcons";
 
 type Mode = "signin" | "signup";
@@ -71,13 +73,7 @@ export function AuthCard({
             <form key={provider.id} action={signInWithProviderAction}>
               <input type="hidden" name="provider" value={provider.id} />
               <input type="hidden" name="next" value={next} />
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white px-4 py-3 text-[15px] font-bold text-ink transition hover:bg-black/[0.03]"
-              >
-                <Mark className="h-[18px] w-[18px]" />
-                Continue with {provider.label}
-              </button>
+              <ProviderButton label={provider.label} mark={Mark} />
             </form>
           );
         })}
@@ -110,6 +106,43 @@ export function AuthCard({
   );
 }
 
+/**
+ * The provider button, and what it does while the round trip is in flight.
+ *
+ * Handing off to Google is a full page load — a second or two of nothing on a
+ * slow connection — so the button says where it's going and stops taking
+ * presses rather than looking ignored.
+ */
+function ProviderButton({
+  label,
+  mark: Mark,
+}: {
+  label: string;
+  mark: (props: { className?: string }) => React.ReactElement;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white px-4 py-3 text-[15px] font-bold text-ink transition hover:bg-black/[0.03] disabled:cursor-wait disabled:opacity-70"
+    >
+      {pending ? (
+        <>
+          <Spinner className="text-ink-soft" />
+          Taking you to {label}…
+        </>
+      ) : (
+        <>
+          <Mark className="h-[18px] w-[18px]" />
+          Continue with {label}
+        </>
+      )}
+    </button>
+  );
+}
+
 function CredentialsForm({ mode, next }: { mode: Mode; next: string }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(
     mode === "signin" ? signInAction : signUpAction,
@@ -138,9 +171,7 @@ function CredentialsForm({ mode, next }: { mode: Mode; next: string }) {
         <Input
           name="password"
           type="password"
-          autoComplete={
-            mode === "signin" ? "current-password" : "new-password"
-          }
+          autoComplete={mode === "signin" ? "current-password" : "new-password"}
           placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"}
           required
         />
@@ -154,7 +185,14 @@ function CredentialsForm({ mode, next }: { mode: Mode; next: string }) {
         disabled={pending}
         className="w-full rounded-xl bg-navy px-4 py-3 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
       >
-        {pending ? "One moment…" : COPY[mode].submit}
+        {pending ? (
+          <span className="inline-flex items-center gap-2">
+            <Spinner className="text-white/70" />
+            One moment…
+          </span>
+        ) : (
+          COPY[mode].submit
+        )}
       </button>
     </form>
   );
