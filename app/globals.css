@@ -273,6 +273,27 @@ body {
    inline script in app/layout.tsx, so switching never flashes.
    --------------------------------------------------------------------------- */
 
+/* The default. `:root` rides with it so a page rendered without `data-theme`
+   still paints in the same colours the app actually ships in; every other
+   palette below overrides it by matching the attribute. Keep this block first,
+   or an equal-specificity `:root` further down would beat them all. */
+:root,
+[data-theme="graphite"] {
+  --app-cream: #eceef2;
+  --app-panel: #ffffff;
+  --app-ink: #111827;
+  --app-ink-soft: #5c6674;
+  --app-ink-faint: #9099a6;
+  --app-field: #f2f4f7;
+  --app-field-border: #dfe3e9;
+  --app-brand: #334155;
+  --app-brand-soft: #e2e8f0;
+  --app-accent-2: #64748b;
+  --app-navy: #1c2431;
+  --app-positive: #047857;
+  --app-caution: #b45309;
+}
+
 [data-theme="ocean"] {
   --app-cream: #f1f3f6;
   --app-panel: #ffffff;
@@ -305,7 +326,6 @@ body {
   --app-caution: #e0820b;
 }
 
-:root,
 [data-theme="emerald"] {
   --app-cream: #f0f5f2;
   --app-panel: #ffffff;
@@ -336,22 +356,6 @@ body {
   --app-navy: #2c1a10;
   --app-positive: #15803d;
   --app-caution: #ca8a04;
-}
-
-[data-theme="graphite"] {
-  --app-cream: #eceef2;
-  --app-panel: #ffffff;
-  --app-ink: #111827;
-  --app-ink-soft: #5c6674;
-  --app-ink-faint: #9099a6;
-  --app-field: #f2f4f7;
-  --app-field-border: #dfe3e9;
-  --app-brand: #334155;
-  --app-brand-soft: #e2e8f0;
-  --app-accent-2: #64748b;
-  --app-navy: #1c2431;
-  --app-positive: #047857;
-  --app-caution: #b45309;
 }
 
 :root {

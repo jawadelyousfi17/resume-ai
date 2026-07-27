@@ -41,7 +41,7 @@ export const THEMES = [
 
 export type ThemeId = (typeof THEMES)[number]["id"];
 
-export const DEFAULT_THEME: ThemeId = "emerald";
+export const DEFAULT_THEME: ThemeId = "graphite";
 
 /** Where the choice is kept. Read by the inline script in the layout too, so
  *  the page paints in the right colours rather than flashing the default. */
