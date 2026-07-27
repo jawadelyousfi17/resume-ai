@@ -12,7 +12,10 @@ import {
   renameResumeAction,
 } from "@/app/actions/resumes";
 import { PlusIcon } from "@/components/ui/icons";
-import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import {
+  DashboardShell,
+  type Account,
+} from "@/components/dashboard/DashboardShell";
 import { ResumeCard } from "@/components/dashboard/ResumeCard";
 import { GuestImport } from "@/components/dashboard/GuestImport";
 import { NewResumeDialog } from "@/components/dashboard/NewResumeDialog";
@@ -41,7 +44,7 @@ export function Dashboard({
   resumes: Resume[];
   /** Null for a guest, who gets an invitation to sign in where the account
    *  row would be. */
-  account: { email: string; name: string | null } | null;
+  account: Account;
 }) {
   const router = useRouter();
   const auth = useAuthDialog();
