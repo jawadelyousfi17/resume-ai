@@ -606,4 +606,3 @@ function JobCard({
     </article>
   );
 }
-

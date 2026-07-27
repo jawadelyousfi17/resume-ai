@@ -21,9 +21,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogoutIcon, UserIcon } from "@/components/ui/icons";
 import { LogoLockup } from "@/components/ui/logo";
-import { cn } from "@/lib/utils";
 
-import { NAV, NAV_FOOTER, SidebarNav, type DashboardSection } from "./nav";
+import {
+  BottomNav,
+  NAV_FOOTER,
+  SidebarNav,
+  type DashboardSection,
+} from "./nav";
 
 export type Account = { email: string; name: string | null } | null;
 
@@ -134,35 +138,7 @@ export function DashboardShell({
         {children}
       </main>
 
-      {/* The sidebar's places, where a thumb can reach them. */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] md:hidden">
-        {NAV.map((item) => {
-          const Icon = item.icon;
-          const on = item.id === active;
-          const className = cn(
-            "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-bold transition",
-            on ? "text-brand" : "text-ink-faint",
-          );
-
-          return item.href ? (
-            <Link
-              key={item.label}
-              href={item.href}
-              prefetch
-              aria-current={on ? "page" : undefined}
-              className={className}
-            >
-              <Icon className="h-[22px] w-[22px]" />
-              {item.label}
-            </Link>
-          ) : (
-            <button key={item.label} type="button" className={className}>
-              <Icon className="h-[22px] w-[22px]" />
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
+      <BottomNav active={active} />
     </div>
   );
 }

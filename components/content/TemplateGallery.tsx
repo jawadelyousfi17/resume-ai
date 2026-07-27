@@ -47,7 +47,9 @@ export function TemplateGallery() {
   return (
     <>
       <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex flex-wrap gap-2.5">
+        {/* A row of eight filters wraps into three lines on a phone and pushes
+            the templates off the screen — so there it scrolls instead. */}
+        <div className="scroll-slim -mx-3 flex min-w-0 gap-2.5 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
           <FilterButton
             active={category === "all"}
             count={TEMPLATES.length}
@@ -149,7 +151,7 @@ function FilterButton({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex h-12 items-center gap-2 rounded-xl border-2 px-5 text-[15px] font-bold transition",
+        "inline-flex h-12 shrink-0 items-center gap-2 rounded-xl border-2 px-5 text-[15px] font-bold transition",
         active
           ? "border-transparent bg-navy text-white"
           : "border-black/10 bg-panel text-ink hover:border-ink/30",

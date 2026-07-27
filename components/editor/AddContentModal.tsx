@@ -39,7 +39,7 @@ export function AddContentModal({
 
         {/* Name and mark only — by the time someone opens this they know what
             an Education section is. */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {SECTION_META.map((meta) => {
             const disabled = !meta.multiple && existingTypes.has(meta.type);
             const Icon = SECTION_ICONS[meta.type];

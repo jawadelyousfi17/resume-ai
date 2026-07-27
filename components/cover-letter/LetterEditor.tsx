@@ -17,6 +17,8 @@ import {
   DownloadIcon,
   MagicIcon as SparklesIcon,
 } from "@/components/ui/svg-icons";
+import { EyeIcon, PencilIcon } from "@/components/ui/svg-icons";
+import { cn } from "@/lib/utils";
 import { CoverLetterPreview } from "./CoverLetterPreview";
 import { LetterContent, LetterCustomize } from "./LetterForm";
 import { RewriteDialog } from "./RewriteDialog";
@@ -57,17 +59,35 @@ function Shell({ resume }: { resume: Resume | null }) {
   const { data, format } = useLetter();
   const [rewriting, setRewriting] = useState(false);
   const [tab, setTab] = useState<LetterTab>("content");
+  // A phone shows one thing at a time — the same arrangement the resume editor
+  // uses: tabs along the bottom, and the page behind a floating eye.
+  const [previewing, setPreviewing] = useState(false);
+
+  const onTabPress = (id: LetterTab) => {
+    setTab(id);
+    setPreviewing(false);
+  };
 
   return (
-    <div className="flex min-h-dvh flex-col lg:h-dvh">
+    <div className="flex min-h-dvh flex-col pb-16 lg:h-dvh lg:pb-0">
       <TopBar tab={tab} onTab={setTab} onRewrite={() => setRewriting(true)} />
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="scroll-slim w-full shrink-0 overflow-y-auto px-4 py-5 lg:max-w-[640px] lg:min-w-[420px] lg:w-[46%]">
+        <div
+          className={cn(
+            "scroll-slim w-full shrink-0 overflow-y-auto px-4 py-5 lg:block lg:w-[46%] lg:max-w-[640px] lg:min-w-[420px]",
+            previewing && "hidden",
+          )}
+        >
           {tab === "content" ? <LetterContent /> : <LetterCustomize />}
         </div>
 
-        <div className="scroll-slim hidden flex-1 overflow-y-auto px-8 py-8 lg:block">
+        <div
+          className={cn(
+            "scroll-slim flex-1 overflow-y-auto px-4 pt-4 pb-24 lg:block lg:px-8 lg:py-8",
+            previewing ? "block" : "hidden",
+          )}
+        >
           <div
             className="mx-auto w-full"
             style={{ maxWidth: PAGE_SIZES[format].width }}
@@ -78,6 +98,45 @@ function Shell({ resume }: { resume: Resume | null }) {
           </div>
         </div>
       </div>
+
+      {/* Look at the letter, or go back to writing it. */}
+      <button
+        type="button"
+        onClick={() => setPreviewing((v) => !v)}
+        aria-pressed={previewing}
+        aria-label={previewing ? "Back to editing" : "Preview the letter"}
+        className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-navy text-white shadow-[0_10px_28px_rgba(15,23,42,0.3)] transition active:scale-95 lg:hidden"
+      >
+        {previewing ? (
+          <PencilIcon className="h-6 w-6" />
+        ) : (
+          <EyeIcon className="h-6 w-6" />
+        )}
+      </button>
+
+      {/* The tabs, where a thumb can reach them. */}
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-2 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden">
+        {TABS.map((t) => {
+          const on = t.id === tab && !previewing;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => {
+                onTabPress(t.id);
+              }}
+              aria-current={on ? "page" : undefined}
+              className={cn(
+                "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-bold transition",
+                on ? "text-brand" : "text-ink-faint",
+              )}
+            >
+              {t.icon}
+              {t.label === "Content" ? "Write" : "Design"}
+            </button>
+          );
+        })}
+      </nav>
 
       <RewriteDialog
         open={rewriting}
@@ -124,7 +183,7 @@ function TopBar({
         />
 
         {/* Centre: tabs. Only the active one carries a fill. */}
-        <nav className="mx-auto flex shrink-0 items-center gap-0.5">
+        <nav className="mx-auto hidden shrink-0 items-center gap-0.5 lg:flex">
           {TABS.map((t) => {
             const active = t.id === tab;
             return (

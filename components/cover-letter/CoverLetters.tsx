@@ -74,13 +74,17 @@ export function CoverLetters({
 
   return (
     <DashboardShell account={account} active="letters">
-      <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-        Cover Letters
-      </h1>
-      <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
-        One letter per job. Paste the posting and it&rsquo;s written from what
-        your resume already says.
-      </p>
+      {/* The bottom bar names the section on a phone, so this takes no room
+          there — but a page still has to have an <h1>. */}
+      <div className="max-sm:sr-only">
+        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+          Cover Letters
+        </h1>
+        <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
+          One letter per job. Paste the posting and it&rsquo;s written from what
+          your resume already says.
+        </p>
+      </div>
 
       <NewLetterDialog
         open={adding}
@@ -138,7 +142,8 @@ export function CoverLetters({
         onRename={(name) => {
           const letter = renaming;
           setRenaming(null);
-          if (letter) run(letter.id, () => renameCoverLetterAction(letter.id, name));
+          if (letter)
+            run(letter.id, () => renameCoverLetterAction(letter.id, name));
         }}
       />
       <ConfirmDeleteDialog

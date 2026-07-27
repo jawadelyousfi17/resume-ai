@@ -432,14 +432,16 @@ function TemplatePicker({
             under them. The negative margins take the block out to the
             dialog's edges so nothing shows through beside it, and the padding
             puts it back where it was. */}
-        <div className="sticky top-0 z-10 -mx-7 rounded-t-3xl bg-popover px-7 pt-7 pb-4">
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl bg-popover px-7 pt-7 pb-4">
           <DialogHeader>
             <DialogTitle className="text-2xl font-extrabold text-ink">
               Choose a template
             </DialogTitle>
           </DialogHeader>
 
-          <div className="mt-5 flex flex-wrap gap-2.5">
+          {/* Scrolls on a phone rather than stacking — the grid of templates
+              is what the dialog is for. */}
+          <div className="scroll-slim -mx-7 mt-5 flex min-w-0 gap-2.5 overflow-x-auto px-7 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
             <FilterChip
               label="All"
               count={TEMPLATES.length}
@@ -521,7 +523,7 @@ function FilterChip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full px-5 py-3 text-[15.5px] font-bold transition ${
+      className={`shrink-0 rounded-full px-5 py-3 text-[15.5px] font-bold whitespace-nowrap transition ${
         active
           ? "bg-navy text-white"
           : "bg-field text-ink-soft hover:bg-black/[0.06] hover:text-ink"

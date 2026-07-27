@@ -169,14 +169,18 @@ export function Dashboard({
 
   return (
     <DashboardShell active="resumes" account={account}>
-      <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-        My Resumes
-      </h1>
-      <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
-        {guest
-          ? "Building as a guest — this resume is saved in this browser only. Sign in to keep it and build more."
-          : "Build as many as you like — they save automatically to your account."}
-      </p>
+      {/* The bar along the bottom already says Resume, so on a phone this
+          takes no room — but a page still has to have an <h1>. */}
+      <div className="max-sm:sr-only">
+        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+          My Resumes
+        </h1>
+        <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
+          {guest
+            ? "Building as a guest — this resume is saved in this browser only. Sign in to keep it and build more."
+            : "Build as many as you like — they save automatically to your account."}
+        </p>
+      </div>
       {!guest && <GuestImport />}
 
       <NewResumeDialog

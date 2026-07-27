@@ -84,3 +84,38 @@ export function SidebarNav({ active }: { active: DashboardSection }) {
     </>
   );
 }
+
+/** The same places along the bottom of a phone. Rendered by the shell and by
+ *  the loading fallbacks — the bar isn't loading, so it shouldn't vanish. */
+export function BottomNav({ active }: { active: DashboardSection }) {
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] md:hidden">
+      {NAV.map((item) => {
+        const Icon = item.icon;
+        const on = item.id === active;
+        const className = cn(
+          "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-bold transition",
+          on ? "text-brand" : "text-ink-faint",
+        );
+
+        return item.href ? (
+          <Link
+            key={item.label}
+            href={item.href}
+            prefetch
+            aria-current={on ? "page" : undefined}
+            className={className}
+          >
+            <Icon className="h-[22px] w-[22px]" />
+            {item.label}
+          </Link>
+        ) : (
+          <button key={item.label} type="button" className={className}>
+            <Icon className="h-[22px] w-[22px]" />
+            {item.label}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}

@@ -1,7 +1,7 @@
 // The tracker while the page loads. Sidebar and heading are real; the columns
 // are the only thing waiting on anything.
 
-import { SidebarNav } from "@/components/dashboard/nav";
+import { BottomNav, SidebarNav } from "@/components/dashboard/nav";
 
 export default function Loading() {
   return (
@@ -23,6 +23,8 @@ export default function Loading() {
           ))}
         </div>
       </main>
+
+      <BottomNav active="jobs" />
     </div>
   );
 }
