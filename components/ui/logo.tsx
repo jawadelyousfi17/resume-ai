@@ -15,7 +15,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /** The product's name, wherever it has to be text rather than artwork. */
-export const BRAND = "maniacv";
+export const BRAND = "meniacv";
 
 /** The mark on its own. `className` sets the box it fits into. */
 export function Logo({ className }: { className?: string }) {

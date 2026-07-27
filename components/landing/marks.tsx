@@ -33,7 +33,7 @@ export function Wordmark({
     <span className={cn("inline-flex items-center gap-2", className)}>
       <Logo className="h-12 w-12" />
       <span className="text-[20px] font-light tracking-tight text-white">
-        mania<span className="font-black">cv</span>
+        menia<span className="font-black">cv</span>
       </span>
     </span>
   );

@@ -39,7 +39,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "ai-resume-builder",
     title: "How an AI resume builder actually helps",
-    metaTitle: "AI Resume Builder — What It Can and Can't Do | maniacv",
+    metaTitle: "AI Resume Builder — What It Can and Can't Do | meniacv",
     description:
       "What AI is genuinely good at when writing a resume, what it should never be trusted with, and how to use it without ending up with a generic document.",
     eyebrow: "AI writing",
@@ -106,7 +106,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "how-to-write-a-resume",
     title: "How to write a resume, step by step",
-    metaTitle: "How to Write a Resume in 2026 — Step-by-Step Guide | maniacv",
+    metaTitle: "How to Write a Resume in 2026 — Step-by-Step Guide | meniacv",
     description:
       "A practical order of operations for writing a resume from nothing: what goes on the page, what to cut, and how to make each line earn its space.",
     eyebrow: "Guide",
@@ -180,7 +180,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "ats-friendly-resume",
     title: "Writing an ATS-friendly resume",
-    metaTitle: "ATS-Friendly Resume — What Actually Matters | maniacv",
+    metaTitle: "ATS-Friendly Resume — What Actually Matters | meniacv",
     description:
       "What applicant tracking systems really do with your resume, which formatting choices break parsing, and how to stay readable to both software and people.",
     eyebrow: "Formatting",
@@ -254,7 +254,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "resume-summary-examples",
     title: "Resume summary examples that aren't filler",
-    metaTitle: "Resume Summary Examples & How to Write One | maniacv",
+    metaTitle: "Resume Summary Examples & How to Write One | meniacv",
     description:
       "What a professional summary is for, a formula that works, and worked examples across engineering, design, marketing and career changes.",
     eyebrow: "Writing",
@@ -315,7 +315,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "resume-bullet-points",
     title: "Writing resume bullet points that land",
-    metaTitle: "Resume Bullet Points — Action Verbs, Metrics, Examples | maniacv",
+    metaTitle: "Resume Bullet Points — Action Verbs, Metrics, Examples | meniacv",
     description:
       "How to turn a list of responsibilities into evidence: the verb-scope-outcome pattern, finding numbers you didn't think you had, and before-and-after rewrites.",
     eyebrow: "Writing",
@@ -388,7 +388,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "resume-format",
     title: "Choosing a resume format",
-    metaTitle: "Resume Format — Chronological, Functional or Hybrid | maniacv",
+    metaTitle: "Resume Format — Chronological, Functional or Hybrid | meniacv",
     description:
       "The three standard resume formats, which one suits your situation, and the layout decisions that follow — length, order, dates and section naming.",
     eyebrow: "Formatting",
@@ -448,7 +448,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "resume-mistakes",
     title: "Resume mistakes worth fixing first",
-    metaTitle: "Common Resume Mistakes and How to Fix Them | maniacv",
+    metaTitle: "Common Resume Mistakes and How to Fix Them | meniacv",
     description:
       "The errors that actually cost interviews, ordered by how much damage they do — and what to do about each one.",
     eyebrow: "Review",
@@ -521,7 +521,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "translate-your-resume",
     title: "Translating your resume for another country",
-    metaTitle: "How to Translate a Resume for International Jobs | maniacv",
+    metaTitle: "How to Translate a Resume for International Jobs | meniacv",
     description:
       "What changes when you apply abroad — beyond the words. Conventions on photos, personal details, length and qualifications, country by country.",
     eyebrow: "International",
@@ -587,7 +587,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "career-change-resume",
     title: "Writing a resume for a career change",
-    metaTitle: "Career Change Resume — How to Write One | maniacv",
+    metaTitle: "Career Change Resume — How to Write One | meniacv",
     description:
       "How to make experience from one field read as relevant to another: what to lead with, what to translate, and what to leave out.",
     eyebrow: "Situations",

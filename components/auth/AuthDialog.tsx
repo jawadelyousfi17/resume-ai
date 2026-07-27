@@ -45,7 +45,7 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
         >
           {/* The card carries its own heading; this one names the dialog for
               screen readers without being drawn twice. */}
-          <DialogTitle className="sr-only">Sign in to maniacv</DialogTitle>
+          <DialogTitle className="sr-only">Sign in to meniacv</DialogTitle>
           <AuthCard
             // Land back where they were. A guest signing in from the editor
             // returns to the editor, and their resume follows them.

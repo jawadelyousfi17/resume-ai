@@ -76,8 +76,8 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               description: guide.description,
               datePublished: guide.updated,
               dateModified: guide.updated,
-              author: { "@type": "Organization", name: "maniacv" },
-              publisher: { "@type": "Organization", name: "maniacv" },
+              author: { "@type": "Organization", name: "meniacv" },
+              publisher: { "@type": "Organization", name: "meniacv" },
               mainEntityOfPage: `/guides/${guide.slug}`,
             },
             {

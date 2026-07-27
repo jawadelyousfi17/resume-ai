@@ -83,17 +83,17 @@ export function SiteFooter() {
             <div className="w-full lg:w-[45%] lg:pr-10">
               <Wordmark tone="light" />
               <p className="mt-6 max-w-md text-[15px] leading-[1.7] text-white/60 md:text-base">
-                maniacv is a small, independent project. The goal is simple:
+                meniacv is a small, independent project. The goal is simple:
                 make the hour before an application deadline a lot less
                 miserable, and give you a page you&apos;re happy to send.
               </p>
               <div className="mt-6 space-y-3 text-[13.5px] text-white/55">
                 <a
-                  href="mailto:hello@maniacv.com"
+                  href="mailto:hello@meniacv.com"
                   className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
                   <MailIcon className="h-4 w-4" />
-                  hello@maniacv.com
+                  hello@meniacv.com
                 </a>
                 <a
                   href="tel:+14155550134"
@@ -131,7 +131,7 @@ export function SiteFooter() {
           {/* Legal */}
           <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-6 sm:flex-row">
             <p className="text-[12.5px] text-white/40">
-              © 2026 maniacv. All rights reserved.
+              © 2026 meniacv. All rights reserved.
             </p>
             <div className="flex items-center gap-5">
               {SOCIALS.map((s) => (

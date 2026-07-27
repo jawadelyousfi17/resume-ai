@@ -61,7 +61,7 @@ export function SiteNav() {
       }`}
     >
       <div className="flex h-[76px] items-center gap-8 px-5 sm:px-8 lg:h-[96px] lg:gap-10 lg:px-10">
-        <Link href="/" aria-label="maniacv home" className="shrink-0">
+        <Link href="/" aria-label="meniacv home" className="shrink-0">
           <Wordmark className="h-10 lg:h-12" />
         </Link>
 

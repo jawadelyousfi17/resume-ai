@@ -353,7 +353,7 @@ function ExtrasStep({
   if (offered.length === 0) {
     return (
       <p className="px-5 text-[15px] leading-relaxed text-ink-soft">
-        Your resume already has every section maniacv offers. Continue to see
+        Your resume already has every section meniacv offers. Continue to see
         it.
       </p>
     );

@@ -9,7 +9,7 @@ import { PlanGrid } from "@/components/landing/Pricing";
 import { btnPrimary } from "@/components/landing/ui";
 
 export const metadata: Metadata = {
-  title: "Pricing — maniacv",
+  title: "Pricing — meniacv",
   description:
     "One resume free forever, with unlimited watermark-free PDFs. Basic from $3/month for AI writing and three resumes; Ultimate from $5/month for unlimited resumes, cover letters and translation.",
   alternates: { canonical: "/pricing" },
@@ -47,7 +47,7 @@ export default function PricingPage() {
   return (
     // The site's cream page, not a scene of its own: the plan cards bring all
     // the colour this page needs, and everything around them is the same white
-    // panel the rest of maniacv uses.
+    // panel the rest of meniacv uses.
     //
     // Composed directly rather than through <ContentPage> because the written
     // pages sit in a 760px reading column and three plan cards need the full

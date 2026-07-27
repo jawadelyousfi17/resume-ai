@@ -45,7 +45,11 @@ export const DEFAULT_THEME: ThemeId = "graphite";
 
 /** Where the choice is kept. Read by the inline script in the layout too, so
  *  the page paints in the right colours rather than flashing the default. */
-export const THEME_KEY = "maniacv:theme";
+export const THEME_KEY = "meniacv:theme";
+
+/** What it was called before the name was spelled right. The layout's inline
+ *  script falls back to it, so a theme chosen under the old name survives. */
+export const LEGACY_THEME_KEY = "maniacv:theme";
 
 export const isThemeId = (value: unknown): value is ThemeId =>
   THEMES.some((t) => t.id === value);

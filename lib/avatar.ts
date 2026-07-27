@@ -69,7 +69,7 @@ const ACCOUNT_STYLE = "adventurer-neutral";
 /** A DiceBear `adventurer-neutral` portrait for the given seed. */
 export function accountAvatarUrl(seed: string): string {
   const params = new URLSearchParams({
-    seed: seed.trim() || "maniacv",
+    seed: seed.trim() || "meniacv",
     backgroundColor: "e9edf2,dfe5ec,eef1f5",
     radius: "50",
   });

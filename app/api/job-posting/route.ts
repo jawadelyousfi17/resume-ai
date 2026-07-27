@@ -81,7 +81,7 @@ async function read(start: URL): Promise<string> {
       headers: {
         // Some boards serve an empty shell to anything that doesn't look like
         // a browser. This says what it is rather than pretending to be one.
-        "User-Agent": "maniacv/1.0 (+resume tailoring; one page, on request)",
+        "User-Agent": "meniacv/1.0 (+resume tailoring; one page, on request)",
         Accept: "text/html,text/plain;q=0.9",
       },
     });

@@ -12,7 +12,7 @@ import { Templates } from "@/components/landing/Templates";
 import { Testimonials } from "@/components/landing/Testimonials";
 
 export const metadata: Metadata = {
-  title: "maniacv — Build a job-winning resume for free",
+  title: "meniacv — Build a job-winning resume for free",
   description:
     "Free online resume builder. Your first resume is free forever, with unlimited watermark-free PDF downloads, AI writing help and ATS-ready templates.",
   alternates: { canonical: "/" },

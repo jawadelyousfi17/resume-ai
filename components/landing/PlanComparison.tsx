@@ -34,7 +34,7 @@ export function PlanComparison({ className }: { className?: string }) {
       <div className="relative mt-8 overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse text-left">
           <caption className="sr-only">
-            Features included in each maniacv plan
+            Features included in each meniacv plan
           </caption>
           <thead>
             <tr>

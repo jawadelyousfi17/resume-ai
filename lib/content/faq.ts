@@ -1,5 +1,5 @@
 // Questions about the product itself. The writing-advice questions live with
-// their guides in ./guides — these are the ones about maniacv.
+// their guides in ./guides — these are the ones about meniacv.
 
 import type { FaqEntry } from "./guides";
 
@@ -13,7 +13,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     title: "Getting started",
     entries: [
       {
-        question: "Do I need an account to use maniacv?",
+        question: "Do I need an account to use meniacv?",
         answer:
           "No. You can build one resume, preview it live and download the PDF without signing in — it's kept in your browser. Sign in when you want more than one, or when you want it saved to your account rather than to this device.",
       },

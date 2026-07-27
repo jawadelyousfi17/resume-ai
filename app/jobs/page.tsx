@@ -5,7 +5,7 @@ import { JobBoard } from "@/components/jobs/JobBoard";
 import { getAuthUser, requireUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Job Tracker — maniacv",
+  title: "Job Tracker — meniacv",
   description:
     "Track every application on one board: saved, applied, interviewing, offer, closed.",
 };

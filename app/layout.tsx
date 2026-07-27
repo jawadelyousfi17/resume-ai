@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toast";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
-import { DEFAULT_THEME, THEME_KEY } from "@/lib/themes";
+import { DEFAULT_THEME, LEGACY_THEME_KEY, THEME_KEY } from "@/lib/themes";
 
 const siteUrl = configuredSiteUrl();
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   // against this. Left undefined when NEXT_PUBLIC_SITE_URL isn't set, so those
   // URLs stay relative rather than pointing at a host we guessed wrong.
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
-  title: "maniacv — Build a standout resume",
+  title: "meniacv — Build a standout resume",
   description: "Create, customize, and export a beautiful resume in minutes.",
 };
 
@@ -35,7 +35,10 @@ export default function RootLayout({
             picked Sunset never sees a frame of Ocean first. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)});if(t)document.documentElement.dataset.theme=t}catch(e){}`,
+            // Falls back to the old key: the name used to be spelled wrong,
+            // and a theme picked under it shouldn't reset itself. Moved over
+            // on the way past, so this only reads twice once.
+            __html: `try{var k=${JSON.stringify(THEME_KEY)},t=localStorage.getItem(k);if(!t){t=localStorage.getItem(${JSON.stringify(LEGACY_THEME_KEY)});if(t){localStorage.setItem(k,t);localStorage.removeItem(${JSON.stringify(LEGACY_THEME_KEY)})}}if(t)document.documentElement.dataset.theme=t}catch(e){}`,
           }}
         />
       </head>

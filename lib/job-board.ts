@@ -8,8 +8,20 @@
 // the four writers below for server actions; nothing in the board itself knows
 // where the list is kept.
 
-const KEY = "maniacv:jobs:v1";
-const CHANGED = "maniacv:jobs-changed";
+const KEY = "meniacv:jobs:v1";
+const CHANGED = "meniacv:jobs-changed";
+
+/** What the key was called before the name was spelled right. Read once, on
+ *  the way past, so nobody loses a board to a typo fix. */
+const LEGACY_KEY = "maniacv:jobs:v1";
+
+function adoptLegacy(): string | null {
+  const old = window.localStorage.getItem(LEGACY_KEY);
+  if (!old) return null;
+  window.localStorage.setItem(KEY, old);
+  window.localStorage.removeItem(LEGACY_KEY);
+  return old;
+}
 
 export type JobStage = "saved" | "applied" | "interview" | "offer" | "closed";
 
@@ -133,7 +145,7 @@ const EMPTY: Job[] = [];
 
 export function jobsSnapshot(): Job[] {
   if (typeof window === "undefined") return EMPTY;
-  const raw = window.localStorage.getItem(KEY);
+  const raw = window.localStorage.getItem(KEY) ?? adoptLegacy();
   if (raw === cachedRaw) return cached;
   cachedRaw = raw;
   cached = parse(raw);

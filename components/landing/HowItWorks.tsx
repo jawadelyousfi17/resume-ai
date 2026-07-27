@@ -39,7 +39,7 @@ export function HowItWorks() {
     <section className={`${shell} ${sectionGap}`}>
       <h2 className={h2}>Create a professional resume in minutes</h2>
       <p className={lede}>
-        maniacv makes it easy to write and edit your resume. Here&apos;s how it
+        meniacv makes it easy to write and edit your resume. Here&apos;s how it
         works:
       </p>
 

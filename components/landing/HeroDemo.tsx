@@ -514,7 +514,7 @@ export function HeroDemo() {
       ref={shellRef}
       className="w-full"
       style={{ height: STAGE_H * scale }}
-      aria-label="A resume being built in maniacv, step by step"
+      aria-label="A resume being built in meniacv, step by step"
     >
       <div
         ref={stageRef}
@@ -835,7 +835,7 @@ export function HeroDemo() {
           </span>
           <span className="flex flex-col">
             <span className="text-[11px] font-extrabold tracking-[0.14em] text-ink-faint uppercase">
-              maniacv
+              meniacv
             </span>
             <span className="text-[21px] leading-tight font-extrabold tracking-tight text-ink">
               {ACTS[step]?.label}
