@@ -41,6 +41,72 @@ function getBrowser(): Promise<Browser> {
 
 export class PdfError extends Error {}
 
+/** The renderer on its own box — see build-pdf/. Unset means render here. */
+export const pdfServiceUrl = () =>
+  process.env.PDF_SERVICE_URL?.trim().replace(/\/$/, "") || undefined;
+
+/**
+ * Asks the standalone renderer for the page at `origin/print/<token>`.
+ *
+ * The service never sees the document: it is given a URL on this app and the
+ * page size, and it prints what it finds. Everything about what a resume looks
+ * like stays here.
+ */
+export async function renderViaService(
+  service: string,
+  origin: string,
+  token: string,
+  format: PageFormat,
+  filename: string,
+): Promise<Buffer> {
+  const { width, height } = PAGE_SIZES[format];
+
+  // `PDF_ORIGIN` is the address the renderer should use, which is not always
+  // the address a visitor uses: in development that's the machine's own IP on
+  // the network rather than localhost, which means nothing to another box.
+  const base = process.env.PDF_ORIGIN?.trim().replace(/\/$/, "") || origin;
+
+  // A renderer on another machine can't reach your laptop. Worth saying so
+  // plainly — the alternative is a Playwright stack trace about a refused
+  // connection to localhost.
+  if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i.test(base)) {
+    throw new PdfError(
+      "The PDF service is remote but this app is only reachable at " +
+        `${base}. Point PDF_ORIGIN (or NEXT_PUBLIC_SITE_URL) at an address ` +
+        "the service can reach, or clear PDF_SERVICE_URL to render locally.",
+    );
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${service}/pdf`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.PDF_SERVICE_TOKEN
+          ? { Authorization: `Bearer ${process.env.PDF_SERVICE_TOKEN}` }
+          : {}),
+      },
+      body: JSON.stringify({
+        url: `${base}/print/${token}`,
+        width,
+        height,
+        filename,
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch {
+    throw new PdfError("The PDF service didn't answer.");
+  }
+
+  if (!res.ok) {
+    const info = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new PdfError(info.error || `The PDF service answered ${res.status}.`);
+  }
+
+  return Buffer.from(await res.arrayBuffer());
+}
+
 /**
  * Renders `/print/<token>` to a PDF.
  *
@@ -59,7 +125,8 @@ export async function renderResumePdf(
     browser = await getBrowser();
   } catch (err) {
     throw new PdfError(
-      err instanceof Error && /executable doesn't exist|ENOENT/i.test(err.message)
+      err instanceof Error &&
+        /executable doesn't exist|ENOENT/i.test(err.message)
         ? "The PDF renderer isn't installed on this server. Run `npx playwright install --with-deps chromium`."
         : "Couldn't start the PDF renderer.",
     );

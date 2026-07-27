@@ -6,8 +6,14 @@
 // no reason to leave a browser render open to anonymous callers.
 
 import { getAuthUser } from "@/lib/auth";
-import { PdfError, renderResumePdf } from "@/lib/pdf";
+import {
+  PdfError,
+  pdfServiceUrl,
+  renderResumePdf,
+  renderViaService,
+} from "@/lib/pdf";
 import { createPrintJob } from "@/lib/print-store";
+import { printSecret, signPrintJob } from "@/lib/print-token";
 import { siteOrigin } from "@/lib/site-url";
 import { pageFormatSchema, parseCoverLetterData } from "@/lib/validation";
 import type { CoverLetterData } from "@/lib/types";
@@ -33,19 +39,32 @@ export async function POST(req: Request) {
     return jsonError("That page format isn't one we support.", 400);
   }
 
-  const token = createPrintJob({
+  const job = {
     kind: "letter",
     // Loose by design — see the note at the top of lib/validation.ts.
     data: parsedData.data as unknown as CoverLetterData,
     format: parsedFormat.data,
-  });
+  } as const;
+
+  // A renderer on another box can't read this process's memory, so when one is
+  // configured the job travels in the token instead. See lib/print-token.
+  const service = pdfServiceUrl();
+  const secret = printSecret();
+  const token =
+    service && secret ? signPrintJob(job, secret) : createPrintJob(job);
 
   try {
-    const pdf = await renderResumePdf(
-      await siteOrigin(),
-      token,
-      parsedFormat.data,
-    );
+    const origin = await siteOrigin();
+    const pdf =
+      service && secret
+        ? await renderViaService(
+            service,
+            origin,
+            token,
+            parsedFormat.data,
+            "cover-letter.pdf",
+          )
+        : await renderResumePdf(origin, token, parsedFormat.data);
 
     return new Response(new Uint8Array(pdf), {
       status: 200,

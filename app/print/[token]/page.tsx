@@ -4,6 +4,7 @@ import { ResumePreview } from "@/components/preview/ResumePreview";
 import { CoverLetterPreview } from "@/components/cover-letter/CoverLetterPreview";
 import { PAGE_SIZES } from "@/lib/defaults";
 import { claimPrintJob } from "@/lib/print-store";
+import { isSignedToken, printSecret, readSignedJob } from "@/lib/print-token";
 
 // The page the headless browser prints. Nothing here but the document itself,
 // at exactly one page width, so the PDF is the preview rather than a second
@@ -16,7 +17,16 @@ export const dynamic = "force-dynamic";
 
 export default async function PrintPage(props: PageProps<"/print/[token]">) {
   const { token } = await props.params;
-  const job = claimPrintJob(token);
+
+  // A signed token carries the document with it, which is what lets a renderer
+  // on another machine — or another serverless instance — read it. Anything
+  // else is a one-shot handle into this process's own store.
+  const secret = printSecret();
+  const job =
+    secret && isSignedToken(token)
+      ? readSignedJob(token, secret)
+      : claimPrintJob(token);
+
   if (!job) notFound();
 
   const { width } = PAGE_SIZES[job.format];

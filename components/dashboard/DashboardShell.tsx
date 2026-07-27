@@ -52,8 +52,14 @@ export function DashboardShell({
 
   return (
     <div className="flex min-h-dvh pb-16 md:pb-0">
-      {/* Sidebar — a phone gets the same places along the bottom instead. */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-black/5 px-4 py-6 md:flex">
+      {/* Sidebar — a phone gets the same places along the bottom instead.
+          Pinned to the viewport rather than stretched to the page: a flex
+          child takes the container's height, so with a screenful of resumes
+          below the fold the account row sat at the bottom of the *document*
+          and you had to scroll past everything to reach it. `h-dvh` + sticky
+          keeps `mt-auto` meaning the bottom of the screen, and the column
+          scrolls on its own if it ever outgrows one. */}
+      <aside className="scroll-slim sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r border-black/5 px-4 py-6 md:flex">
         <SidebarNav active={active} />
 
         <div className="mt-auto space-y-1 pt-6">

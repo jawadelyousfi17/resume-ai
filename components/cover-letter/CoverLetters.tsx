@@ -65,7 +65,13 @@ export function CoverLetters({
     // The dialog stays open, saying what it's doing, until the letter exists
     // and its editor is on screen.
     setCreating(true);
-    startTransition(async () => {
+    // The action runs outside startTransition on purpose. React keeps the
+    // current screen up for the length of a transition and suppresses Suspense
+    // fallbacks inside it, so a router.push() made in one skips the target
+    // route's loading.tsx entirely — the old page just sits there until the
+    // editor is ready. Run plainly, the push is an ordinary navigation and the
+    // skeleton shows while the page loads.
+    void (async () => {
       const result = await createCoverLetterAction(letter);
       if (!result.ok) {
         setCreating(false);
@@ -73,7 +79,7 @@ export function CoverLetters({
         return;
       }
       router.push(`/cover-letters/${result.id}`);
-    });
+    })();
   };
 
   return (

@@ -114,7 +114,13 @@ export function Dashboard({
     // writes it and the editor loads.
     setCreating(true);
     setBusyId(null);
-    startTransition(async () => {
+    // The action runs outside startTransition on purpose. React keeps the
+    // current screen up for the length of a transition and suppresses Suspense
+    // fallbacks inside it, so a router.push() made in one skips the target
+    // route's loading.tsx entirely — the old page just sits there until the
+    // editor is ready. Run plainly, the push is an ordinary navigation and the
+    // skeleton shows while the page loads.
+    void (async () => {
       const result = await createResumeAction();
       if (!result.ok) {
         setCreating(false);
@@ -122,7 +128,7 @@ export function Dashboard({
         return;
       }
       router.push(`/resume/${result.id}?setup=new`);
-    });
+    })();
   };
 
   /** A resume the AI just read out of an uploaded file. Guests never get
@@ -136,7 +142,9 @@ export function Dashboard({
       return;
     }
 
-    startTransition(async () => {
+    // Same reason as above: inside a transition the editor's loading.tsx
+    // would never show.
+    void (async () => {
       const result = await importResumeAction({
         name: imported.name,
         format: "A4",
@@ -148,7 +156,7 @@ export function Dashboard({
         return;
       }
       router.push(`/resume/${result.id}?setup=import`);
-    });
+    })();
   };
 
   const confirmRename = (resume: Resume, name: string) => {
