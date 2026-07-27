@@ -41,7 +41,12 @@ export class UploadError extends Error {}
  * Signed in or not — a guest's photo is stored too, under a folder of its own.
  * Only if the server says it can't store one does the photo stay inline.
  */
-export async function uploadPhoto(file: File): Promise<string> {
+export async function uploadPhoto(
+  file: File,
+  /** Longest edge to keep. A page background covers the whole sheet, so it
+   *  needs more pixels than a 120px portrait does. */
+  maxEdge: number = MAX_EDGE,
+): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new UploadError("That file isn't an image.");
   }
@@ -50,7 +55,7 @@ export async function uploadPhoto(file: File): Promise<string> {
   }
 
   const body = new FormData();
-  body.append("file", await shrink(file, MAX_EDGE), "photo.jpg");
+  body.append("file", await shrink(file, maxEdge), "photo.jpg");
 
   const res = await fetch("/api/upload", { method: "POST", body });
   if (!res.ok) {

@@ -71,7 +71,7 @@ function Shell({ resume }: { resume: Resume | null }) {
   const openRewrite = () => setRewriting(true);
 
   return (
-    <div className="flex min-h-dvh flex-col pb-16 lg:h-dvh lg:pb-0">
+    <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col pb-16 lg:h-dvh lg:pb-0">
       <TopBar tab={tab} onTab={setTab} onRewrite={openRewrite} />
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">

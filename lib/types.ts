@@ -174,7 +174,23 @@ export type TemplateId =
   | "modern"
   | "minimal"
   | "sidebar"
-  | "editorial";
+  | "editorial"
+  // The city set.
+  | "amsterdam"
+  | "berlin"
+  | "chicago"
+  | "copenhagen"
+  | "dublin"
+  | "helsinki"
+  | "madrid"
+  | "newyork"
+  | "rome"
+  | "santiago"
+  | "singapore"
+  | "sydney"
+  | "tokyo"
+  | "toronto"
+  | "vienna";
 
 export interface ResumeSettings {
   template: TemplateId;
@@ -183,6 +199,17 @@ export interface ResumeSettings {
   language?: LanguageCode;
   /** Accent color as a hex string, e.g. "#2563eb". */
   accent: string;
+  /* The three below are all optional and all overrides: absent means "whatever
+     the template does", which is what every resume saved before this said. */
+  /** The paper itself. */
+  pageColor?: string;
+  /** An image laid over the paper, covering it. A stored URL, never inline —
+   *  see lib/upload-image. */
+  pageImage?: string;
+  /** Body copy: paragraphs, bullets, everything that isn't a title. */
+  textColor?: string;
+  /** Section headings, entry titles and the name. */
+  headingColor?: string;
   fontFamily: FontFamily;
   /** Base body font size in points. */
   fontSize: number;

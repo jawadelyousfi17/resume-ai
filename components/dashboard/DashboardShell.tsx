@@ -51,7 +51,7 @@ export function DashboardShell({
   const signOut = () => startTransition(() => signOutAction());
 
   return (
-    <div className="flex min-h-dvh pb-16 md:pb-0">
+    <div className="mx-auto flex min-h-dvh w-full max-w-app pb-16 md:pb-0">
       {/* Sidebar — a phone gets the same places along the bottom instead.
           Pinned to the viewport rather than stretched to the page: a flex
           child takes the container's height, so with a screenful of resumes

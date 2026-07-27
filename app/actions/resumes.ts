@@ -33,6 +33,40 @@ export async function createResumeAction(): Promise<
 }
 
 /**
+ * The first save of a resume the editor is already showing.
+ *
+ * The template is chosen before anything is written, and the editor opens on
+ * the document the browser built rather than waiting for a round trip — so the
+ * insert happens once you are already typing. Named here rather than by the
+ * client, because only the server can count what you already have.
+ */
+export async function startResumeAction(input: {
+  format: string;
+  data: unknown;
+}): Promise<ActionResult<{ id: string }>> {
+  const user = await requireUser();
+
+  const parsedFormat = pageFormatSchema.safeParse(input.format);
+  const parsedData = parseResumeData(input.data);
+
+  if (!parsedData.ok) return { ok: false, error: parsedData.error };
+  if (!parsedFormat.success) {
+    return { ok: false, error: "That page format isn't one we support." };
+  }
+
+  const existing = await db.countResumes(user.id);
+  const resume = await db.importResume(user.id, {
+    name: `Resume ${existing + 1}`,
+    format: parsedFormat.data,
+    // Loose by design — see the note at the top of lib/validation.ts.
+    data: parsedData.data as unknown as ResumeData,
+  });
+
+  revalidatePath("/dashboard");
+  return { ok: true, id: resume.id };
+}
+
+/**
  * Stores a whole document the client already has.
  *
  * Two callers: the guest handover right after a sign-in

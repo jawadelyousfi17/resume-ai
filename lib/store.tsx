@@ -64,12 +64,22 @@ function saveResumeDataAction_guest(next: ResumeData) {
 export function ResumeProvider({
   resume,
   guest = false,
+  savingTo,
   children,
 }: {
   /** Loaded and ownership-checked on the server — see app/resume/[id] — or
    *  read from localStorage when `guest`. */
   resume: Resume;
   guest?: boolean;
+  /**
+   * Where writes go, when that isn't `resume.id`.
+   *
+   * A resume can be opened before it has been stored — see /resume/new, which
+   * shows the editor immediately and does the first insert in the background —
+   * and until that lands there is no row to write to. `null` means "hold
+   * everything"; the id arriving flushes whatever was held.
+   */
+  savingTo?: string | null;
   children: React.ReactNode;
 }) {
   const [data, setData] = useState<ResumeData>(resume.data);
@@ -82,7 +92,10 @@ export function ResumeProvider({
   // flush it instead of dropping it. localStorage used to make this free.
   const unsaved = useRef<ResumeData | null>(null);
 
-  const id = resume.id;
+  // A ref, not a value: `persist` is built once, and the id it writes to can
+  // arrive after the editor is already on screen.
+  const target = savingTo === undefined ? resume.id : savingTo;
+  const idRef = useRef<string | null>(target);
 
   const report = useCallback(
     (result: { ok: true } | { ok: false; error: string }) => {
@@ -102,16 +115,19 @@ export function ResumeProvider({
     data: (next: ResumeData) =>
       guest
         ? Promise.resolve(saveResumeDataAction_guest(next))
-        : saveResumeDataAction(id, next),
+        : saveResumeDataAction(idRef.current!, next),
     name: (next: string) =>
       guest
         ? Promise.resolve(renameGuestResume(next) ? OK : GONE)
-        : renameResumeAction(id, next),
+        : renameResumeAction(idRef.current!, next),
     format: (next: PageFormat) =>
       guest
         ? Promise.resolve(setGuestResumeFormat(next) ? OK : GONE)
-        : setResumeFormatAction(id, next),
+        : setResumeFormatAction(idRef.current!, next),
   });
+
+  /** True while there is nowhere to write to yet. */
+  const held = useCallback(() => !guest && !idRef.current, [guest]);
 
   const scheduleSave = useCallback(
     (next: ResumeData) => {
@@ -119,11 +135,14 @@ export function ResumeProvider({
       unsaved.current = next;
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(async () => {
+        // Still being stored for the first time: keep holding the edit rather
+        // than writing it nowhere. The effect below flushes it.
+        if (held()) return;
         unsaved.current = null;
         report(await persist.current.data(next));
       }, SAVE_DEBOUNCE_MS);
     },
-    [report],
+    [report, held],
   );
 
   const update = useCallback(
@@ -141,10 +160,13 @@ export function ResumeProvider({
   const setFormat = useCallback(
     (value: PageFormat) => {
       setFormatState(value);
+      // Nowhere to write yet: the insert that is already in flight carries the
+      // format, so there is nothing to catch up on afterwards.
+      if (held()) return;
       setSaveState("saving");
       void persist.current.format(value).then(report);
     },
-    [report],
+    [report, held],
   );
 
   const setName = useCallback(
@@ -155,11 +177,23 @@ export function ResumeProvider({
       // pasted.
       if (nameTimer.current) clearTimeout(nameTimer.current);
       nameTimer.current = setTimeout(async () => {
+        if (held()) return;
         report(await persist.current.name(value));
       }, SAVE_DEBOUNCE_MS);
     },
-    [report],
+    [report, held],
   );
+
+  // The row exists now. Anything typed while it was being created has been
+  // sitting in `unsaved`; send it.
+  useEffect(() => {
+    idRef.current = target;
+    if (!target) return;
+    const waiting = unsaved.current;
+    if (!waiting) return;
+    unsaved.current = null;
+    void persist.current.data(waiting).then(report);
+  }, [target, report]);
 
   // Leaving the editor — back to the dashboard, say — shouldn't cost whatever
   // was typed in the last few hundred milliseconds, so send it now. The
@@ -169,9 +203,11 @@ export function ResumeProvider({
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
       if (nameTimer.current) clearTimeout(nameTimer.current);
-      if (unsaved.current) void write(unsaved.current);
+      // Dropped rather than written if there is still no row: the insert in
+      // flight carries the document as it was, which is all there is to lose.
+      if (unsaved.current && !held()) void write(unsaved.current);
     };
-  }, []);
+  }, [held]);
 
   // Photos used to live inside the document as data URLs. One left there keeps
   // the resume too big to save and too big to export, so the first time we see
@@ -198,7 +234,9 @@ export function ResumeProvider({
   return (
     <ResumeContext.Provider
       value={{
-        id,
+        // What the editor shows this resume as. Its own id until the first
+        // insert answers with the real one.
+        id: target ?? resume.id,
         name,
         data,
         format,

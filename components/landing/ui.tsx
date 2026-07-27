@@ -10,8 +10,9 @@ import { cn } from "@/lib/utils";
 /* Layout                                                                     */
 /* -------------------------------------------------------------------------- */
 
-/** The column every section's content sits in. */
-export const shell = "mx-auto w-full max-w-[1180px] px-5 sm:px-8";
+/** The column every section's content sits in. Width lives in globals.css as
+ *  `--container-site`, so the nav and footer can't drift out of line with it. */
+export const shell = "mx-auto w-full max-w-site px-5 sm:px-8";
 
 /** Vertical rhythm between the page's major sections. */
 export const sectionGap = "mt-20 md:mt-24 lg:mt-32";

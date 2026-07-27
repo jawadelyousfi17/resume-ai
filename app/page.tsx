@@ -22,7 +22,12 @@ export default function LandingPage() {
   return (
     // Same cream page and floating white panels as the rest of the app, so
     // arriving here and arriving in the editor feel like one product.
-    <div className="flex min-h-dvh w-full flex-col overflow-x-hidden bg-cream">
+    //
+    // `overflow-x-clip`, not `overflow-x-hidden`: `hidden` makes this a scroll
+    // container, and a sticky child sticks to its scroll container — which is
+    // this box, which never scrolls — so the header quietly stopped sticking.
+    // `clip` trims the same overflow without becoming one.
+    <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-cream">
       <SiteNav />
       <main className="grow">
         <Hero />

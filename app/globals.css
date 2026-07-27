@@ -37,6 +37,17 @@
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
+  /* The column every public page's content sits in, as `max-w-site`. Named
+     once because the nav, the footer, the landing sections and the written
+     pages all have to agree on it — they read as one page only while they
+     share an edge. The app itself is wider; see the shells. */
+  --container-site: 1360px;
+
+  /* And the one the signed-in app sits in, as `max-w-app`. Applied by each
+     shell rather than by the root layout, so the public header can still span
+     the window. */
+  --container-app: 1600px;
+
   --shadow-panel:
     0 1px 2px rgba(32, 26, 46, 0.04), 0 8px 24px rgba(32, 26, 46, 0.06);
   --shadow-paper: 0 4px 24px rgba(32, 26, 46, 0.12);
@@ -95,6 +106,21 @@ body {
 /* ---------------------------------------------------------------------------
    Landing page primitives. Prefixed `lp-` and used only by components/landing.
    --------------------------------------------------------------------------- */
+
+/* A row that scrolls the full width of the window while its first card still
+   lines up with the page column — the gutter grows to whatever is left over
+   once the column has taken its share. `scroll-padding` repeats it so a snap
+   lands a card on that same edge rather than against the window. */
+.lp-bleed-row {
+  --lp-gutter: max(1.25rem, calc((100vw - var(--container-site)) / 2));
+  padding-inline: var(--lp-gutter);
+  scroll-padding-inline: var(--lp-gutter);
+}
+@media (min-width: 640px) {
+  .lp-bleed-row {
+    --lp-gutter: max(2rem, calc((100vw - var(--container-site)) / 2));
+  }
+}
 
 /* The templates rail. The track holds two identical copies of the card list,
    so translating by exactly -50% loops seamlessly. */

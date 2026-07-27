@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useResume } from "@/lib/store";
 import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
@@ -37,6 +37,8 @@ import {
 import { StepperSlider } from "@/components/ui/stepper-slider";
 import { CheckIcon } from "@/components/ui/icons";
 import { ChevronDownIcon } from "@/components/ui/svg-icons";
+import { removePhoto, uploadPhoto } from "@/lib/upload-image";
+import { ColorWheel } from "@/components/ui/color-picker";
 import { FontPicker } from "./FontPicker";
 
 const GROUPS = [
@@ -47,6 +49,7 @@ const GROUPS = [
   { id: "cz-headings", label: "Headings" },
   { id: "cz-font", label: "Font" },
   { id: "cz-colors", label: "Colors" },
+  { id: "cz-background", label: "Background" },
 ];
 
 const ACCENTS = [
@@ -59,6 +62,33 @@ const ACCENTS = [
   "#d97706",
   "#0f172a",
 ];
+
+/** Papers. Off-whites and one near-black, because a resume printed on a
+ *  saturated background stops being a resume. */
+const PAPERS = [
+  "#ffffff",
+  "#faf7f2",
+  "#f6f6f4",
+  "#f2f5f9",
+  "#f4f1f8",
+  "#eef3f0",
+  "#1f2430",
+];
+
+/** Inks. Greys and near-blacks, plus two that suit a dark paper. */
+const INKS = [
+  "#111827",
+  "#374151",
+  "#4b5563",
+  "#1e3a53",
+  "#3f3a34",
+  "#f8fafc",
+  "#cbd5e1",
+];
+
+/** Longest edge kept for a page background: an A4 sheet renders 794px
+ *  wide, so this survives a retina preview and a PDF. */
+const BACKGROUND_EDGE = 1600;
 
 const PAGE_FORMATS: { value: PageFormat; label: string; note: string }[] = [
   { value: "A4", label: "A4", note: "210 × 297 mm" },
@@ -93,6 +123,12 @@ export function CustomizePanel() {
     key: K,
     value: ResumeSettings[K],
   ) => update((d) => void (d.settings[key] = value));
+
+  // Which colour is being picked, if any. One at a time: four wheels open at
+  // once is a wall of gradients, and only one of them is the one you meant.
+  const [wheel, setWheel] = useState<
+    "accent" | "pageColor" | "textColor" | "headingColor" | null
+  >(null);
 
   const activeLang = language(s.language);
 
@@ -372,28 +408,323 @@ export function CustomizePanel() {
                 </button>
               );
             })}
-            <label className="ml-1 flex items-center gap-2 rounded-xl bg-field px-2.5 py-2">
-              <span
-                className="h-6 w-6 rounded-md border border-black/10"
-                style={{ backgroundColor: s.accent }}
-              />
-              <input
-                type="color"
-                value={s.accent}
-                onChange={(e) => set("accent", e.target.value)}
-                className="h-6 w-8 cursor-pointer bg-transparent p-0"
-                aria-label="Custom accent color"
-              />
-            </label>
+            <WheelButton
+              open={wheel === "accent"}
+              color={s.accent}
+              onClick={() => setWheel(wheel === "accent" ? null : "accent")}
+              label="accent color"
+            />
           </div>
+
+          {wheel === "accent" && (
+            <WheelPanel>
+              <ColorWheel value={s.accent} onChange={(v) => set("accent", v)} />
+            </WheelPanel>
+          )}
+
+          {/* The three below are overrides, and each says so: unset, the
+              template decides, which is what most people should leave them at.
+              Clearing one is a button rather than a colour you have to guess. */}
+          <ColorRow
+            label="Page background"
+            swatches={PAPERS}
+            value={s.pageColor}
+            fallback="#ffffff"
+            open={wheel === "pageColor"}
+            onToggle={() =>
+              setWheel(wheel === "pageColor" ? null : "pageColor")
+            }
+            onChange={(v) => set("pageColor", v)}
+          />
+
+          <ColorRow
+            label="Text color"
+            swatches={INKS}
+            value={s.textColor}
+            fallback="#374151"
+            open={wheel === "textColor"}
+            onToggle={() =>
+              setWheel(wheel === "textColor" ? null : "textColor")
+            }
+            onChange={(v) => set("textColor", v)}
+          />
+
+          <ColorRow
+            label="Heading color"
+            swatches={INKS}
+            value={s.headingColor}
+            fallback="#111827"
+            open={wheel === "headingColor"}
+            onToggle={() =>
+              setWheel(wheel === "headingColor" ? null : "headingColor")
+            }
+            onChange={(v) => set("headingColor", v)}
+          />
+        </Group>
+
+        <Group id="cz-background" title="Background image">
+          <BackgroundImage
+            value={s.pageImage}
+            onChange={(v) => set("pageImage", v)}
+          />
         </Group>
       </div>
     </div>
   );
 }
 
-/** The full template gallery. Picking one applies it and closes the dialog. */
-function TemplatePicker({
+/**
+ * One optional colour: a row of swatches, a custom picker, and a way back to
+ * the template's own choice.
+ *
+ * `undefined` is a real state here, not a missing value — it means "whatever
+ * the template does", so a resume keeps following its template until somebody
+ * deliberately overrules it. The picker needs *some* colour to show, which is
+ * what `fallback` is for; picking from it is what sets the override.
+ */
+function ColorRow({
+  label,
+  swatches,
+  value,
+  fallback,
+  open,
+  onToggle,
+  onChange,
+}: {
+  label: string;
+  swatches: string[];
+  value: string | undefined;
+  fallback: string;
+  open: boolean;
+  onToggle: () => void;
+  onChange: (value: string | undefined) => void;
+}) {
+  return (
+    <div className="mt-5">
+      <div className="mb-2.5 flex items-center gap-3">
+        <p className="text-[13.5px] font-bold text-ink">{label}</p>
+        {value ? (
+          <button
+            type="button"
+            onClick={() => onChange(undefined)}
+            className="text-[12.5px] font-bold text-ink-faint transition hover:text-ink"
+          >
+            Reset
+          </button>
+        ) : (
+          <span className="text-[12.5px] font-medium text-ink-faint">
+            From template
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2.5">
+        {swatches.map((color) => {
+          const selected = value?.toLowerCase() === color.toLowerCase();
+          return (
+            <button
+              key={color}
+              type="button"
+              onClick={() => onChange(color)}
+              aria-label={color}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 transition hover:scale-105"
+              style={{
+                backgroundColor: color,
+                boxShadow: selected
+                  ? `0 0 0 2px #fff, 0 0 0 4px ${color}`
+                  : undefined,
+              }}
+            >
+              {selected && (
+                <CheckIcon
+                  className="h-4 w-4"
+                  style={{ color: readableOn(color) }}
+                />
+              )}
+            </button>
+          );
+        })}
+        <WheelButton
+          open={open}
+          color={value ?? fallback}
+          onClick={onToggle}
+          label={label.toLowerCase()}
+        />
+      </div>
+
+      {open && (
+        <WheelPanel>
+          <ColorWheel value={value ?? fallback} onChange={onChange} />
+        </WheelPanel>
+      )}
+    </div>
+  );
+}
+
+/** The way into the wheel: a rainbow ring with the current colour in the
+ *  middle, which is what the thing it opens looks like. */
+function WheelButton({
+  open,
+  color,
+  onClick,
+  label,
+}: {
+  open: boolean;
+  color: string;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      aria-label={`Custom ${label}`}
+      className="ml-1 grid h-9 w-9 place-items-center rounded-full transition hover:scale-105"
+      style={{
+        background:
+          "conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)",
+        boxShadow: open ? "0 0 0 2px #fff, 0 0 0 4px #111827" : undefined,
+      }}
+    >
+      <span
+        className="h-[18px] w-[18px] rounded-full border-2 border-white shadow-sm"
+        style={{ backgroundColor: color }}
+      />
+    </button>
+  );
+}
+
+function WheelPanel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-4 flex justify-center rounded-2xl bg-field/70 p-4">
+      {children}
+    </div>
+  );
+}
+
+/** Black or white, whichever reads on the swatch — the tick has to be visible
+ *  on white paper and on near-black alike. */
+function readableOn(hex: string): string {
+  const raw = hex.replace("#", "");
+  const full =
+    raw.length === 3
+      ? raw
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : raw;
+  if (full.length !== 6) return "#ffffff";
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+  if ([r, g, b].some(Number.isNaN)) return "#ffffff";
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 150 ? "#111827" : "#ffffff";
+}
+
+/**
+ * A picture behind the whole page.
+ *
+ * It goes through the same uploader as the profile photo — shrunk in the
+ * browser and stored as a URL — but at a bigger edge, because this one covers
+ * a whole sheet rather than a 120px square. Inline data URLs would bloat every
+ * autosave and overflow the print token.
+ */
+function BackgroundImage({
+  value,
+  onChange,
+}: {
+  value: string | undefined;
+  onChange: (value: string | undefined) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const pick = async (file: File) => {
+    setError(null);
+    setBusy(true);
+    const previous = value;
+    try {
+      onChange(await uploadPhoto(file, BACKGROUND_EDGE));
+      // Only once the new one is in place, so a failed upload leaves the old
+      // background rather than nothing.
+      void removePhoto(previous);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "That image couldn't be added.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const clear = () => {
+    const previous = value;
+    onChange(undefined);
+    setError(null);
+    void removePhoto(previous);
+  };
+
+  return (
+    <div>
+      {/* The card's own title names this, so the row goes straight to the
+          controls rather than saying it twice. */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={busy}
+          className="h-11 rounded-xl bg-field px-4 text-[13.5px] font-bold text-ink transition hover:bg-field/70 disabled:opacity-60"
+        >
+          {busy ? "Uploading…" : value ? "Replace image" : "Upload an image"}
+        </button>
+
+        {value && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={value}
+              alt=""
+              className="h-11 w-11 rounded-lg object-cover ring-1 ring-black/10"
+            />
+            <button
+              type="button"
+              onClick={clear}
+              className="text-[13px] font-bold text-ink-faint transition hover:text-ink"
+            >
+              Remove
+            </button>
+          </>
+        )}
+      </div>
+
+      {error ? (
+        <p className="mt-2 text-[12px] font-medium text-danger">{error}</p>
+      ) : (
+        <p className="mt-2 text-[12px] text-ink-faint">
+          Sits behind everything and prints with the page. Keep it faint —
+          anything busy costs you the words on top of it.
+        </p>
+      )}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void pick(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
+/** The full template gallery. Picking one applies it and closes the dialog.
+ *  Exported because the same gallery asks the question again on the way in —
+ *  see components/dashboard/NewResumeDialog. */
+export function TemplatePicker({
   open,
   onOpenChange,
   selectedId,

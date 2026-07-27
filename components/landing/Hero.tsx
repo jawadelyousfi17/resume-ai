@@ -15,13 +15,15 @@ const FACES = [
 export function Hero() {
   return (
     <section className={`${shell} pt-8 lg:pt-14`}>
-      <div className="grid grid-cols-1 items-start gap-y-16 md:grid-cols-[46%_54%] lg:grid-cols-[44%_56%]">
+      <div className="grid grid-cols-1 items-start gap-y-16 md:grid-cols-[42%_58%] lg:grid-cols-[38%_62%]">
         {/* A real page being edited, not a screenshot of one — and a desktop
             thing only. On a phone it would be a postage stamp of a resume with
             three panels stacked over it, so the hero there is the words and
             the button, and the product is one tap away. */}
         <div className="hidden justify-center md:order-2 md:flex">
-          <div className="w-full max-w-[760px]">
+          {/* The demo draws itself at a fixed size and scales to whatever this
+              column gives it, so widening the column is what makes it bigger. */}
+          <div className="w-full max-w-[900px]">
             <HeroDemo />
           </div>
         </div>

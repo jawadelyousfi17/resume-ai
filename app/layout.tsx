@@ -40,11 +40,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full">
-        {/* Caps the whole app at 7xl and centres it, so it doesn't sprawl on
-            wide monitors. Children still own their own full-height layout. */}
-        <AuthDialogProvider>
-          <div className="mx-auto w-full max-w-[1600px]">{children}</div>
-        </AuthDialogProvider>
+        {/* Nothing is capped here. The signed-in app is centred and held to
+            `--container-app` by its own shells, and the public pages run edge
+            to edge — a cap at this level put the marketing header's border and
+            background inside a centred box, which reads as a bug on a wide
+            monitor. */}
+        <AuthDialogProvider>{children}</AuthDialogProvider>
         <ThemeSwitcher />
         <Toaster />
       </body>

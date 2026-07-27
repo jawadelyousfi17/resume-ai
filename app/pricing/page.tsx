@@ -51,12 +51,12 @@ export default function PricingPage() {
     //
     // Composed directly rather than through <ContentPage> because the written
     // pages sit in a 760px reading column and three plan cards need the full
-    // width. The padding matches SiteNav's, so the page lines up with the bar.
+    // width. The gutters match the nav's, so the page lines up with it.
     <div className="min-h-dvh bg-cream">
       <SiteNav />
 
-      <main className="px-3 pt-6 sm:px-4">
-        <div className="mx-auto w-full max-w-[1180px]">
+      <main className="px-5 pt-6 sm:px-8 lg:px-10">
+        <div className="mx-auto w-full max-w-site">
           <JsonLd
             data={{
               "@context": "https://schema.org",

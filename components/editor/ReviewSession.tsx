@@ -18,6 +18,7 @@ import {
   useState,
 } from "react";
 import { useResume } from "@/lib/store";
+import { ScanSweep } from "@/components/ui/scan-sweep";
 import type { ReviewReport } from "@/lib/ai/review";
 
 /** What became of a correction once Fix was pressed. `stale` means the line
@@ -117,22 +118,7 @@ export function ScanOverlay() {
   const { busy } = useReview();
   if (!busy) return null;
 
-  return (
-    // Square, like the paper underneath it — a rounded scan floating over
-    // sharp corners reads as a separate pane rather than light crossing the
-    // page.
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
-    >
-      <div className="absolute inset-0 bg-brand/[0.045]" />
-
-      {/* One band, its own height, swept from just above the page to just
-          below it — see `scan-sweep` in globals.css. */}
-      <div className="scan-sweep absolute inset-x-0 top-0 h-[24%]">
-        <div className="h-full bg-gradient-to-b from-transparent via-brand/[0.06] to-brand/20" />
-        <div className="scan-line h-px" />
-      </div>
-    </div>
-  );
+  // Square, like the paper underneath it — a rounded scan floating over sharp
+  // corners reads as a separate pane rather than light crossing the page.
+  return <ScanSweep />;
 }

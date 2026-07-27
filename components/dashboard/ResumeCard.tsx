@@ -1,11 +1,14 @@
 "use client";
 
 import Link, { useLinkStatus } from "next/link";
+import { useState } from "react";
 import type { Resume } from "@/lib/types";
+import { downloadResumePdf } from "@/lib/export";
 import { formatRelative } from "@/lib/relative-time";
 import {
   CopyIcon,
   DotsIcon,
+  DownloadIcon,
   PencilIcon,
   TagIcon,
   TrashIcon,
@@ -30,6 +33,20 @@ export function ResumeCard({
   onDuplicate: () => void;
   onDelete: () => void;
 }) {
+  // Building a PDF takes a couple of seconds on the server, so the row it was
+  // pressed from says so rather than looking like nothing happened. The toasts
+  // inside `downloadResumePdf` report the outcome.
+  const [downloading, setDownloading] = useState(false);
+  const download = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      await downloadResumePdf(resume);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="group relative overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-black/15">
@@ -60,6 +77,13 @@ export function ResumeCard({
           <div className="pointer-events-auto w-full max-w-[170px]">
             <CardAction href={`/resume/${resume.id}`} icon={PencilIcon}>
               Edit
+            </CardAction>
+            <CardAction
+              onClick={download}
+              icon={DownloadIcon}
+              busy={downloading}
+            >
+              {downloading ? "Building…" : "Download"}
             </CardAction>
             <CardAction onClick={onDuplicate} icon={CopyIcon}>
               Duplicate
@@ -97,6 +121,10 @@ export function ResumeCard({
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem onClick={() => void download()}>
+              <DownloadIcon />
+              Download
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={onRename}>
               <TagIcon />
               Rename
@@ -145,12 +173,16 @@ function CardAction({
   href,
   icon: Icon,
   destructive = false,
+  busy = false,
   onClick,
   children,
 }: {
   href?: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   destructive?: boolean;
+  /** Set while the row's own work is in flight — it spins where the link rows
+   *  spin, and stops taking presses. */
+  busy?: boolean;
   onClick?: () => void;
   children: React.ReactNode;
 }) {
@@ -179,8 +211,14 @@ function CardAction({
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={busy}
+      className={className}
+    >
       {inner}
+      {busy && <Spinner className="ml-auto h-3.5 w-3.5" />}
     </button>
   );
 }

@@ -58,7 +58,7 @@ export function SiteFooter() {
     // pages don't add bottom padding of their own on top of it.
     <footer className="mt-14 md:mt-16 lg:mt-20">
       {/* Closing CTA, on cream, above the dark footer slab. */}
-      <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 text-center sm:px-8 lg:pb-28">
+      <div className="mx-auto w-full max-w-site px-5 pb-20 text-center sm:px-8 lg:pb-28">
         <h2 className="mx-auto max-w-[18ch] text-[30px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[38px] lg:text-[44px]">
           Your first resume is free. Start writing it now.
         </h2>
@@ -77,7 +77,7 @@ export function SiteFooter() {
       </div>
 
       <div className="w-full bg-navy">
-        <div className="mx-auto w-full max-w-[1180px] px-5 pt-12 pb-8 sm:px-8 lg:pt-16 lg:pb-10">
+        <div className="mx-auto w-full max-w-site px-5 pt-12 pb-8 sm:px-8 lg:pt-16 lg:pb-10">
           {/* Mission + sitemap */}
           <div className="flex flex-wrap gap-y-10">
             <div className="w-full lg:w-[45%] lg:pr-10">

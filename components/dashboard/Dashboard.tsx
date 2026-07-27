@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Resume, ResumeData } from "@/lib/types";
 import {
-  createResumeAction,
   deleteResumeAction,
   duplicateResumeAction,
   importResumeAction,
@@ -24,6 +23,8 @@ import {
   RenameDialog,
 } from "@/components/ui/prompt-dialogs";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
+import { draftWithTemplate, setPendingResume } from "@/lib/pending-resume";
+import type { Template } from "@/lib/templates";
 import {
   createGuestResume,
   deleteGuestResume,
@@ -33,6 +34,7 @@ import {
   guestServerSnapshot,
   onGuestResumeChange,
   renameGuestResume,
+  saveGuestResumeData,
   replaceGuestResume,
 } from "@/lib/guest";
 
@@ -98,37 +100,32 @@ export function Dashboard({
     setAdding(true);
   };
 
-  /** "Start from scratch" — a blank document, opened straight away. The
-   *  `setup` parameter is what the phone editor reads to start its guided
-   *  build; the desktop editor ignores it. */
-  const startFromScratch = () => {
+  /**
+   * "Start from scratch", once a template has been chosen.
+   *
+   * Nothing is written here. A blank document wearing that template is built
+   * in the browser and handed to the editor, which opens on it immediately and
+   * stores it while you're already typing — see lib/pending-resume. Waiting on
+   * an insert to show an empty page was time spent for nothing.
+   *
+   * The `setup` parameter is what the phone editor reads to start its guided
+   * build; the desktop editor opens on the content, since the one question it
+   * would have asked has just been answered.
+   */
+  const startFromScratch = (template: Template) => {
+    const draft = draftWithTemplate(template);
+
     if (guest) {
       setAdding(false);
-      createGuestResume();
-      router.push(`/resume/${GUEST_RESUME_ID}?setup=new`);
+      const resume = createGuestResume();
+      saveGuestResumeData(draft.data);
+      router.push(`/resume/${resume.id}?setup=new`);
       return;
     }
 
-    // The dialog stays open until the resume exists — a row that says
-    // "Creating…" is the only sign anything is happening while the server
-    // writes it and the editor loads.
-    setCreating(true);
     setBusyId(null);
-    // The action runs outside startTransition on purpose. React keeps the
-    // current screen up for the length of a transition and suppresses Suspense
-    // fallbacks inside it, so a router.push() made in one skips the target
-    // route's loading.tsx entirely — the old page just sits there until the
-    // editor is ready. Run plainly, the push is an ordinary navigation and the
-    // skeleton shows while the page loads.
-    void (async () => {
-      const result = await createResumeAction();
-      if (!result.ok) {
-        setCreating(false);
-        toast.error(result.error);
-        return;
-      }
-      router.push(`/resume/${result.id}?setup=new`);
-    })();
+    setPendingResume(draft);
+    router.push("/resume/new");
   };
 
   /** A resume the AI just read out of an uploaded file. Guests never get

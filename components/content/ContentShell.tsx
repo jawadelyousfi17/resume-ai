@@ -24,9 +24,9 @@ export function ContentPage({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-cream">
       <SiteNav />
-      {/* The padding matches SiteNav's, so a page's edges line up with the
-          floating bar above it. */}
-      <main className="px-3 pt-6 sm:px-4">{children}</main>
+      {/* The gutters match the nav's, so a page's content lines up with the
+          wordmark above it. */}
+      <main className="px-5 pt-6 sm:px-8 lg:px-10">{children}</main>
       <SiteFooter />
     </div>
   );
@@ -42,7 +42,7 @@ export function Column({
   className?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-full max-w-[1180px]", className)}>
+    <div className={cn("mx-auto w-full max-w-site", className)}>
       {children}
     </div>
   );

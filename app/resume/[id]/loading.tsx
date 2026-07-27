@@ -62,7 +62,7 @@ export default function Loading() {
       </div>
 
       {/* Desktop */}
-      <div className="hidden h-dvh flex-col md:flex">
+      <div className="mx-auto hidden h-dvh w-full max-w-app flex-col md:flex">
         <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-black/5 bg-panel px-3 py-2">
           <div className="flex items-center gap-2">
             <Link

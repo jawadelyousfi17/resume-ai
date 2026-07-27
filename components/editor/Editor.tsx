@@ -19,6 +19,9 @@ import { useIsMobile } from "./mobile/use-mobile";
 
 function EditorShell({ initialMobile }: { initialMobile: boolean }) {
   const { data, format } = useResume();
+  // Always the content: the template is chosen before the editor opens, so
+  // there is nothing to answer here — just the page to write. `?setup=` is
+  // still read by the phone's guided build, which is its own flow.
   const [tab, setTab] = useState<EditorTab>("content");
   const mobile = useIsMobile(initialMobile);
 
@@ -27,7 +30,7 @@ function EditorShell({ initialMobile }: { initialMobile: boolean }) {
   if (mobile) return <MobileEditor />;
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="mx-auto flex h-dvh w-full max-w-app flex-col">
       <TopBar tab={tab} onTab={setTab} />
 
       <div className="flex min-h-0 flex-1">
@@ -62,6 +65,7 @@ export function Editor({
   resume,
   guest = false,
   mobile = false,
+  savingTo,
 }: {
   resume: Resume;
   /** The resume lives in this browser rather than the database. */
@@ -69,9 +73,11 @@ export function Editor({
   /** What the server made of the User-Agent — a starting point the client
    *  corrects against the real viewport. */
   mobile?: boolean;
+  /** Where saves go when that isn't `resume.id` yet — see <NewResume>. */
+  savingTo?: string | null;
 }) {
   return (
-    <ResumeProvider resume={resume} guest={guest}>
+    <ResumeProvider resume={resume} guest={guest} savingTo={savingTo}>
       {/* Outside the shell, so the report survives a tab change — and covers
           the phone editor, which renders the same Review panel. */}
       <ReviewProvider>

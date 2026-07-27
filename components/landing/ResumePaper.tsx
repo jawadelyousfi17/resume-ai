@@ -16,6 +16,7 @@ const PAGE_W = PAGE_SIZES.A4.width; // 794px
 const PAPER_SIZE = {
   hero: "w-[290px] [--paper:0.365] sm:w-[360px] sm:[--paper:0.453] lg:w-[430px] lg:[--paper:0.5416] xl:w-[470px] xl:[--paper:0.5919]",
   card: "w-[190px] [--paper:0.2393] sm:w-[230px] sm:[--paper:0.2897]",
+  fan: "w-[168px] [--paper:0.2116] sm:w-[240px] sm:[--paper:0.3023] lg:w-[300px] lg:[--paper:0.3778]",
 } as const;
 
 /**

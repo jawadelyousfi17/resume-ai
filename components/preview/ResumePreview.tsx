@@ -40,14 +40,75 @@ const MUTED = "#4b5563";
 const BODY = "#374151";
 /** The grey a banded heading sits on. */
 const BAND = "#eceef1";
+/** The hairline that divides two columns when nothing is filled in behind. */
+const LINE = "#d8dce2";
+
+/**
+ * Black or white — whichever can be read on the given fill.
+ *
+ * A template that paints its header in the accent has no idea what the accent
+ * will be: it ships as amber or mint, and the Customize panel can move it
+ * anywhere. Rec. 709 luma decides, so a bright band gets ink and a dark one
+ * gets paper without the template having to say.
+ */
+function readableOn(hex: string): string {
+  const raw = hex.replace("#", "");
+  const full =
+    raw.length === 3
+      ? raw
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : raw;
+  if (full.length !== 6) return "#ffffff";
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+  if ([r, g, b].some(Number.isNaN)) return "#ffffff";
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 150 ? INK : "#ffffff";
+}
+
+/**
+ * The document's three ink colours.
+ *
+ * Defaults unless the resume overrides them: a template decides the shapes, the
+ * Customize panel decides the colours. `muted` is derived from the body colour
+ * rather than asked for separately — a custom ink with the stock grey beside it
+ * reads as a mistake, and nobody wants to pick three greys by hand.
+ */
+function inks(s: ResumeSettings) {
+  return {
+    ink: s.headingColor ?? INK,
+    body: s.textColor ?? BODY,
+    muted: s.textColor ? fade(s.textColor, 0.72) : MUTED,
+  };
+}
+
+/** A colour at reduced strength, as an rgba() — works on any background,
+ *  which an 8-digit hex over an image would not. */
+function fade(hex: string, alpha: number): string {
+  const raw = hex.replace("#", "");
+  const full =
+    raw.length === 3
+      ? raw
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : raw;
+  if (full.length !== 6) return hex;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+  if ([r, g, b].some(Number.isNaN)) return hex;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 /** Everything the blocks need, gathered once rather than threaded field by
  *  field through six components. */
 interface Ctx {
   settings: ResumeSettings;
   template: Template;
-  /** True inside a dark rail, where every colour has to invert. */
+  /** True on a dark surface — a dark rail, or a page printed dark — where
+   *  every colour has to invert. */
   onDark?: boolean;
+  /** True inside the narrow column, which is too tight for two of anything. */
+  rail?: boolean;
 }
 
 export function ResumePreview({
@@ -85,7 +146,10 @@ export function ResumePreview({
   }
 
   const template = getTemplate(s.template);
-  const ctx: Ctx = { settings: s, template };
+  // A page printed dark inverts everything on it, exactly as a dark rail does
+  // — so it travels as the same flag rather than a second one.
+  const darkPage = template.page === "dark";
+  const ctx: Ctx = { settings: s, template, onDark: darkPage };
   const rtl = isRtl(s.language);
 
   const page: React.CSSProperties = {
@@ -95,7 +159,16 @@ export function ResumePreview({
     fontFamily: fontStack(s.fontFamily),
     fontSize: `${s.fontSize}pt`,
     lineHeight: s.lineHeight,
-    color: BODY,
+    color: darkPage ? "rgba(255,255,255,0.82)" : inks(s).body,
+    // The paper: the template's own if it has one, then whatever the document
+    // asks for. An image covers the sheet and sits over the colour, so a
+    // photograph that doesn't quite fill the page still lands on something
+    // deliberate rather than on white.
+    backgroundColor: darkPage ? s.accent : s.pageColor,
+    backgroundImage: s.pageImage ? `url("${s.pageImage}")` : undefined,
+    backgroundSize: s.pageImage ? "cover" : undefined,
+    backgroundPosition: s.pageImage ? "center" : undefined,
+    backgroundRepeat: s.pageImage ? "no-repeat" : undefined,
     minHeight,
     // Right-to-left languages flip the whole document: headings, contact rows,
     // list markers and the date column all follow the text direction.
@@ -115,33 +188,60 @@ export function ResumePreview({
     );
 
     const dark = template.sidebar === "dark";
-    const railCtx: Ctx = { ...ctx, onDark: dark };
+    // A ruled rail is the same two columns with nothing painted behind them —
+    // a hairline on the inner edge does the dividing instead.
+    const ruled = template.sidebar === "rule";
+    const onRight = template.sidebarSide === "right";
+    const railCtx: Ctx = { ...ctx, onDark: dark || darkPage, rail: true };
     const railPad = `${s.marginY}mm ${Math.max(s.marginX * 0.72, 8)}mm`;
+
+    const aside = (
+      <aside
+        key="rail"
+        style={{
+          width: dark ? "34%" : ruled ? "30%" : "31%",
+          backgroundColor: dark
+            ? s.accent
+            : ruled
+              ? undefined
+              : `${s.accent}14`,
+          color: dark ? "rgba(255,255,255,0.86)" : undefined,
+          padding: railPad,
+          borderRight: ruled && !onRight ? `1px solid ${LINE}` : undefined,
+          borderLeft: ruled && onRight ? `1px solid ${LINE}` : undefined,
+        }}
+        className="shrink-0"
+      >
+        {template.sidebarHeader === "inside" && (
+          <Header personal={personal} ctx={railCtx} stacked />
+        )}
+        {rail.map((section, i) => (
+          <SectionBlock
+            key={section.id}
+            section={section}
+            ctx={railCtx}
+            index={i}
+          />
+        ))}
+      </aside>
+    );
+
+    const column = (
+      <div key="main" style={{ padding: railPad }} className="min-w-0 flex-1">
+        {main.map((section, i) => (
+          <SectionBlock
+            key={section.id}
+            section={section}
+            ctx={ctx}
+            index={i}
+          />
+        ))}
+      </div>
+    );
 
     const columns = (
       <div className="flex flex-1 items-stretch">
-        <aside
-          style={{
-            width: dark ? "34%" : "31%",
-            backgroundColor: dark ? s.accent : `${s.accent}14`,
-            color: dark ? "rgba(255,255,255,0.86)" : undefined,
-            padding: railPad,
-          }}
-          className="shrink-0"
-        >
-          {template.sidebarHeader === "inside" && (
-            <Header personal={personal} ctx={railCtx} stacked />
-          )}
-          {rail.map((section) => (
-            <SectionBlock key={section.id} section={section} ctx={railCtx} />
-          ))}
-        </aside>
-
-        <div style={{ padding: railPad }} className="min-w-0 flex-1">
-          {main.map((section) => (
-            <SectionBlock key={section.id} section={section} ctx={ctx} />
-          ))}
-        </div>
+        {onRight ? [column, aside] : [aside, column]}
       </div>
     );
 
@@ -149,7 +249,11 @@ export function ResumePreview({
     // the rail is rendered inside it, and the columns run the full height.
     if (template.sidebarHeader === "inside") {
       return (
-        <div dir={rtl ? "rtl" : undefined} style={page} className="flex items-stretch">
+        <div
+          dir={rtl ? "rtl" : undefined}
+          style={page}
+          className="flex items-stretch"
+        >
           {columns}
         </div>
       );
@@ -167,7 +271,11 @@ export function ResumePreview({
 
   // ---- single column -----------------------------------------------------
   return (
-    <div dir={rtl ? "rtl" : undefined} style={page} className="flex items-stretch">
+    <div
+      dir={rtl ? "rtl" : undefined}
+      style={page}
+      className="flex items-stretch"
+    >
       {template.edgeStrip && (
         <div
           aria-hidden="true"
@@ -178,12 +286,22 @@ export function ResumePreview({
 
       <div className="min-w-0 flex-1">
         {/* A banded header bleeds to the page edge, so it pads itself. */}
-        <div style={{ padding: template.headerBand ? 0 : pad, paddingBottom: 0 }}>
+        <div
+          style={{ padding: template.headerBand ? 0 : pad, paddingBottom: 0 }}
+        >
           <Header personal={personal} ctx={ctx} />
         </div>
-        <div style={{ padding: pad, paddingTop: template.headerBand ? undefined : 0 }}>
-          {sections.map((section) => (
-            <SectionBlock key={section.id} section={section} ctx={ctx} />
+        {/* No top padding either way: an unbanded header is padded by the
+            block above it, and a banded one ends in its own margin. Letting the
+            page margin apply here as well opened a hole under the band. */}
+        <div style={{ padding: pad, paddingTop: 0 }}>
+          {sections.map((section, i) => (
+            <SectionBlock
+              key={section.id}
+              section={section}
+              ctx={ctx}
+              index={i}
+            />
           ))}
         </div>
       </div>
@@ -204,17 +322,32 @@ function Header({
   stacked?: boolean;
 }) {
   const { settings: s, template: t, onDark } = ctx;
+  const { ink: INK, muted: MUTED } = inks(s);
   const centered = t.headerAlign === "center" && !stacked;
-  const nameColor = onDark ? "#ffffff" : INK;
+
+  // A band painted in the accent itself decides its own type colour; a tinted
+  // one is pale by construction, so ink is always right on it.
+  const solidBand = t.headerBand && t.headerBandStyle === "accent" && !stacked;
+  const bandInk = solidBand ? readableOn(s.accent) : null;
+  const nameColor = bandInk ?? (onDark ? "#ffffff" : INK);
+  const bleedPhoto = solidBand && t.photoBleed && !!personal.photo;
 
   const identity = (
     <>
       <div
-        className={t.headerInlineTitle && !stacked ? "flex flex-wrap items-baseline gap-x-3" : ""}
+        className={
+          t.headerInlineTitle && !stacked
+            ? "flex flex-wrap items-baseline gap-x-3"
+            : ""
+        }
       >
         {personal.fullName && (
           <span
-            style={{ fontSize: stacked ? "1.6em" : "1.95em", color: nameColor, lineHeight: 1.08 }}
+            style={{
+              fontSize: stacked ? "1.6em" : "1.95em",
+              color: nameColor,
+              lineHeight: 1.08,
+            }}
             className="block font-extrabold tracking-tight"
           >
             {personal.fullName}
@@ -224,24 +357,38 @@ function Header({
           <span
             style={{
               fontSize: t.headerInlineTitle && !stacked ? "1.15em" : "1.12em",
-              color: onDark ? "rgba(255,255,255,0.75)" : t.headerBand ? MUTED : s.accent,
+              color: bandInk
+                ? bandInk
+                : onDark
+                  ? "rgba(255,255,255,0.75)"
+                  : t.headerBand
+                    ? MUTED
+                    : s.accent,
               marginTop: t.headerInlineTitle && !stacked ? 0 : "0.15em",
             }}
             className={
-              t.headerInlineTitle && !stacked
-                ? "italic"
-                : "block font-medium"
+              t.headerInlineTitle && !stacked ? "italic" : "block font-medium"
             }
           >
             {personal.title}
           </span>
         )}
       </div>
-      <ContactList personal={personal} ctx={ctx} stacked={stacked} centered={centered} />
+      <ContactList
+        personal={personal}
+        ctx={ctx}
+        stacked={stacked}
+        centered={centered}
+        ink={bandInk}
+      />
     </>
   );
 
-  const photo = <Avatar personal={personal} ctx={ctx} stacked={stacked} />;
+  // The bleeding photo belongs to the band, not to the name block, so it's
+  // pulled out of the row the other layouts build.
+  const photo = bleedPhoto ? null : (
+    <Avatar personal={personal} ctx={ctx} stacked={stacked} />
+  );
 
   const inner = stacked ? (
     <div className="mb-5">
@@ -262,20 +409,41 @@ function Header({
   );
 
   const marginBottom = `${1.25 * ctx.template.density}em`;
+  const bandPad = `${s.marginY * 0.8}mm ${s.marginX}mm`;
 
-  if (t.headerBand) {
+  if (t.headerBand && !stacked) {
+    const body = (
+      <div style={{ padding: bandPad }} className="min-w-0 flex-1">
+        {inner}
+      </div>
+    );
+
     return (
       <header
         style={{
-          backgroundColor: `${s.accent}1f`,
-          padding: `${s.marginY * 0.8}mm ${s.marginX}mm`,
+          backgroundColor: solidBand ? s.accent : `${s.accent}1f`,
           marginBottom,
         }}
+        className="flex items-stretch"
       >
-        {inner}
+        {bleedPhoto && personal.photo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={personal.photo}
+            alt=""
+            aria-hidden="true"
+            style={{ width: "26%", objectFit: "cover" }}
+            className="shrink-0 self-stretch bg-black/10"
+          />
+        )}
+        {body}
       </header>
     );
   }
+
+  // A ruled box is drawn around the name block alone — the rest of the page
+  // keeps its margins.
+  const boxed = t.headerBox && !stacked;
 
   return (
     <header
@@ -287,7 +455,18 @@ function Header({
         borderBottom: t.headerRule ? `1px solid ${s.accent}55` : undefined,
       }}
     >
-      {inner}
+      {boxed ? (
+        <div
+          style={{
+            border: `1.4px solid ${onDark ? "rgba(255,255,255,0.6)" : INK}`,
+            padding: "1.1em 1.4em",
+          }}
+        >
+          {inner}
+        </div>
+      ) : (
+        inner
+      )}
     </header>
   );
 }
@@ -378,14 +557,18 @@ function ContactList({
   ctx,
   stacked,
   centered,
+  ink,
 }: {
   personal: PersonalDetails;
   ctx: Ctx;
   stacked?: boolean;
   centered?: boolean;
+  /** Forced colour, where the header sits on a solid band. */
+  ink?: string | null;
 }) {
   const { settings: s, template: t, onDark } = ctx;
-  const color = onDark ? "rgba(255,255,255,0.72)" : MUTED;
+  const { muted: MUTED } = inks(s);
+  const color = ink ?? (onDark ? "rgba(255,255,255,0.72)" : MUTED);
 
   const contacts = [
     ...contactOrder(personal)
@@ -441,7 +624,9 @@ function ContactList({
       {contacts.map((c, i) => (
         <span key={i}>
           {i > 0 && (
-            <span style={{ margin: "0 0.45em", color: `${s.accent}80` }}>•</span>
+            <span style={{ margin: "0 0.45em", color: `${s.accent}80` }}>
+              •
+            </span>
           )}
           {c.value}
         </span>
@@ -452,8 +637,18 @@ function ContactList({
 
 // -------------------------------------------------------------- headings
 
-function SectionHeading({ children, ctx }: { children: string; ctx: Ctx }) {
+function SectionHeading({
+  children,
+  ctx,
+  index = 0,
+}: {
+  children: string;
+  ctx: Ctx;
+  /** Position in its column, for the templates that count sections off. */
+  index?: number;
+}) {
   const { settings: s, template: t, onDark } = ctx;
+  const { ink: INK } = inks(s);
 
   // The template sets the default; the Customize control still overrides it.
   const caps = s.headingStyle === "uppercase" || t.headingCaps;
@@ -462,9 +657,114 @@ function SectionHeading({ children, ctx }: { children: string; ctx: Ctx }) {
   const type: React.CSSProperties = {
     fontSize: "1.02em",
     letterSpacing: caps ? "0.06em" : undefined,
-    color: onDark ? "#ffffff" : t.headingAccentRule ? s.accent : INK,
+    // A heading colour the document asks for beats the template's accent
+    // headings — it was picked to be obeyed. The rule under it stays accent,
+    // so the template's character survives the override.
+    color: onDark
+      ? "#ffffff"
+      : (s.headingColor ?? (t.headingAccentRule ? s.accent : INK)),
     textAlign: t.headingAlign === "center" ? "center" : undefined,
   };
+
+  const ruleFor = onDark
+    ? "rgba(255,255,255,0.35)"
+    : t.headingAccentRule
+      ? s.accent
+      : INK;
+
+  // 01, 02, 03 — or the same number inside a drawn circle.
+  const mark =
+    t.headingNumber === "none" ? null : (
+      <span
+        style={{
+          color: onDark ? "rgba(255,255,255,0.65)" : s.accent,
+          marginInlineEnd: "0.5em",
+          ...(t.headingNumber === "circle"
+            ? {
+                display: "inline-flex",
+                width: "1.6em",
+                height: "1.6em",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "50%",
+                border: `1px solid currentColor`,
+                fontSize: "0.72em",
+              }
+            : { fontSize: "0.9em" }),
+        }}
+        aria-hidden="true"
+      >
+        {t.headingNumber === "circle"
+          ? index + 1
+          : String(index + 1).padStart(2, "0")}
+      </span>
+    );
+
+  const label = (
+    <>
+      {mark}
+      {text}
+    </>
+  );
+
+  // Reversed out of a solid label, sized to the words rather than the column.
+  if (t.headingStyle === "chip") {
+    return (
+      <h2 style={{ marginBottom: "0.6em", ...type, color: undefined }}>
+        <span
+          style={{
+            display: "inline-block",
+            backgroundColor: onDark ? "rgba(255,255,255,0.15)" : INK,
+            color: onDark ? "#ffffff" : "#ffffff",
+            padding: "0.24em 0.75em",
+            fontSize: "0.88em",
+            letterSpacing: "0.08em",
+          }}
+          className="font-bold"
+        >
+          {label}
+        </span>
+      </h2>
+    );
+  }
+
+  // A short heavy stub, the width of a word or two.
+  if (t.headingStyle === "underline-short") {
+    return (
+      <h2 style={{ ...type, marginBottom: "0.55em" }} className="font-bold">
+        {label}
+        <span
+          aria-hidden="true"
+          style={{
+            display: "block",
+            width: "2.4em",
+            height: "0.2em",
+            marginTop: "0.3em",
+            marginInline: t.headingAlign === "center" ? "auto" : undefined,
+            backgroundColor: ruleFor,
+          }}
+        />
+      </h2>
+    );
+  }
+
+  // A rule above and a rule below.
+  if (t.headingStyle === "rules") {
+    return (
+      <h2
+        style={{
+          ...type,
+          borderTop: `1.2px solid ${ruleFor}`,
+          borderBottom: `1.2px solid ${ruleFor}`,
+          padding: "0.18em 0",
+          marginBottom: "0.55em",
+        }}
+        className="font-bold"
+      >
+        {label}
+      </h2>
+    );
+  }
 
   if (t.headingStyle === "band") {
     return (
@@ -477,7 +777,7 @@ function SectionHeading({ children, ctx }: { children: string; ctx: Ctx }) {
         }}
         className="font-bold"
       >
-        {text}
+        {label}
       </h2>
     );
   }
@@ -485,52 +785,56 @@ function SectionHeading({ children, ctx }: { children: string; ctx: Ctx }) {
   if (t.headingStyle === "plain" && s.headingStyle === "plain") {
     return (
       <h2 style={{ ...type, marginBottom: "0.45em" }} className="font-bold">
-        {text}
+        {label}
       </h2>
     );
   }
-
-  const ruleColor = onDark
-    ? "rgba(255,255,255,0.35)"
-    : t.headingAccentRule
-      ? s.accent
-      : INK;
 
   return (
     <h2
       style={{
         ...type,
-        borderBottom: `1.2px solid ${ruleColor}`,
+        borderBottom: `1.2px solid ${ruleFor}`,
         paddingBottom: "0.22em",
         marginBottom: "0.55em",
       }}
       className="font-bold"
     >
-      {text}
+      {label}
     </h2>
   );
 }
 
-function SectionBlock({ section, ctx }: { section: Section; ctx: Ctx }) {
+function SectionBlock({
+  section,
+  ctx,
+  index = 0,
+}: {
+  section: Section;
+  ctx: Ctx;
+  /** Position in its column. Only the numbered templates read it. */
+  index?: number;
+}) {
   const wrap: React.CSSProperties = {
     marginBottom: `${1.15 * ctx.template.density}em`,
   };
+  const props = { ctx, wrap, index };
 
   switch (section.type) {
     case "summary":
-      return <SummaryBlock section={section} ctx={ctx} wrap={wrap} />;
+      return <SummaryBlock section={section} {...props} />;
     case "experience":
     case "projects":
     case "volunteering":
-      return <ExperienceBlock section={section} ctx={ctx} wrap={wrap} />;
+      return <ExperienceBlock section={section} {...props} />;
     case "education":
     case "certifications":
     case "awards":
-      return <EducationBlock section={section} ctx={ctx} wrap={wrap} />;
+      return <EducationBlock section={section} {...props} />;
     case "skills":
     case "languages":
     case "interests":
-      return <TagBlock section={section} ctx={ctx} wrap={wrap} />;
+      return <TagBlock section={section} {...props} />;
   }
 }
 
@@ -540,20 +844,36 @@ function SummaryBlock({
   section,
   ctx,
   wrap,
+  index,
 }: {
   section: SummarySection;
   ctx: Ctx;
   wrap: React.CSSProperties;
+  index: number;
 }) {
   if (isMarkdownEmpty(section.content)) return null;
+
+  // Some templates open on the profile rather than lead up to it: same text,
+  // set at display size and in full ink, as a statement.
+  const big = ctx.template.bigSummary && !ctx.rail;
+
   return (
     <section style={wrap}>
-      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      <SectionHeading ctx={ctx} index={index}>
+        {section.title}
+      </SectionHeading>
       <MarkdownView
         md={section.content}
         style={{
-          fontSize: "0.95em",
-          color: ctx.onDark ? "rgba(255,255,255,0.8)" : BODY,
+          fontSize: big ? "1.5em" : "0.95em",
+          lineHeight: big ? 1.3 : undefined,
+          color: ctx.onDark
+            ? big
+              ? "#ffffff"
+              : "rgba(255,255,255,0.8)"
+            : big
+              ? inks(ctx.settings).ink
+              : inks(ctx.settings).body,
         }}
       />
     </section>
@@ -572,8 +892,8 @@ function Meta({
   ctx: Ctx;
   align: "left" | "right";
 }) {
-  const { template: t, onDark } = ctx;
-  const color = onDark ? "rgba(255,255,255,0.6)" : "#6b7280";
+  const { settings: s, template: t, onDark } = ctx;
+  const color = onDark ? "rgba(255,255,255,0.6)" : fade(inks(s).body, 0.8);
   const style: React.CSSProperties = {
     fontSize: "0.85em",
     color,
@@ -602,12 +922,15 @@ function ExperienceBlock({
   section,
   ctx,
   wrap,
+  index,
 }: {
   section: ExperienceSection;
   ctx: Ctx;
   wrap: React.CSSProperties;
+  index: number;
 }) {
   const { settings: s, template: t, onDark } = ctx;
+  const { ink: INK, body: BODY, muted: MUTED } = inks(s);
   const items = section.items.filter(
     (i) => !i.hidden && (i.role || i.company || !isMarkdownEmpty(i.highlights)),
   );
@@ -615,18 +938,34 @@ function ExperienceBlock({
 
   return (
     <section style={wrap}>
-      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      <SectionHeading ctx={ctx} index={index}>
+        {section.title}
+      </SectionHeading>
       <div style={{ display: "grid", rowGap: `${0.7 * t.density}em` }}>
         {items.map((item) => {
           const range = showsDates(section)
-            ? formatRange(item.startDate, item.endDate, item.current, s.language, s.dateFormat)
+            ? formatRange(
+                item.startDate,
+                item.endDate,
+                item.current,
+                s.language,
+                s.dateFormat,
+              )
             : "";
 
-          const heading = (
+          const heading = t.entryTitleChip ? (
+            <p style={{ fontSize: "1em" }}>
+              <Chip ctx={ctx}>
+                {[item.role, item.company].filter(Boolean).join(", ")}
+              </Chip>
+            </p>
+          ) : (
             <p style={{ fontSize: "1em", color: onDark ? "#fff" : INK }}>
               <span className="font-bold">{item.role}</span>
               {item.role && item.company && (
-                <span style={{ color: onDark ? "rgba(255,255,255,0.7)" : MUTED }}>
+                <span
+                  style={{ color: onDark ? "rgba(255,255,255,0.7)" : MUTED }}
+                >
                   {", "}
                 </span>
               )}
@@ -654,9 +993,18 @@ function ExperienceBlock({
             return (
               <div
                 key={item.id}
-                style={{ display: "grid", gridTemplateColumns: "9em 1fr", columnGap: "1em" }}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "9em 1fr",
+                  columnGap: "1em",
+                }}
               >
-                <Meta range={range} location={item.location} ctx={ctx} align="left" />
+                <Meta
+                  range={range}
+                  location={item.location}
+                  ctx={ctx}
+                  align="left"
+                />
                 <div className="min-w-0">
                   {heading}
                   {body}
@@ -669,7 +1017,12 @@ function ExperienceBlock({
             <div key={item.id}>
               <div className="flex items-baseline justify-between gap-4">
                 <div className="min-w-0">{heading}</div>
-                <Meta range={range} location={item.location} ctx={ctx} align="right" />
+                <Meta
+                  range={range}
+                  location={item.location}
+                  ctx={ctx}
+                  align="right"
+                />
               </div>
               {body}
             </div>
@@ -684,29 +1037,50 @@ function EducationBlock({
   section,
   ctx,
   wrap,
+  index,
 }: {
   section: EducationSection;
   ctx: Ctx;
   wrap: React.CSSProperties;
+  index: number;
 }) {
   const { settings: s, template: t, onDark } = ctx;
-  const items = section.items.filter((i) => !i.hidden && (i.degree || i.school));
+  const { ink: INK, body: BODY, muted: MUTED } = inks(s);
+  const items = section.items.filter(
+    (i) => !i.hidden && (i.degree || i.school),
+  );
   if (items.length === 0) return null;
 
   return (
     <section style={wrap}>
-      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      <SectionHeading ctx={ctx} index={index}>
+        {section.title}
+      </SectionHeading>
       <div style={{ display: "grid", rowGap: `${0.55 * t.density}em` }}>
         {items.map((item) => {
           const range = showsDates(section)
-            ? formatRange(item.startDate, item.endDate, false, s.language, s.dateFormat)
+            ? formatRange(
+                item.startDate,
+                item.endDate,
+                false,
+                s.language,
+                s.dateFormat,
+              )
             : "";
 
-          const heading = (
+          const heading = t.entryTitleChip ? (
+            <p style={{ fontSize: "1em" }}>
+              <Chip ctx={ctx}>
+                {[item.degree, item.school].filter(Boolean).join(", ")}
+              </Chip>
+            </p>
+          ) : (
             <p style={{ fontSize: "1em", color: onDark ? "#fff" : INK }}>
               <span className="font-bold">{item.degree}</span>
               {item.degree && item.school && (
-                <span style={{ color: onDark ? "rgba(255,255,255,0.7)" : MUTED }}>
+                <span
+                  style={{ color: onDark ? "rgba(255,255,255,0.7)" : MUTED }}
+                >
                   {", "}
                 </span>
               )}
@@ -733,9 +1107,18 @@ function EducationBlock({
             return (
               <div
                 key={item.id}
-                style={{ display: "grid", gridTemplateColumns: "9em 1fr", columnGap: "1em" }}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "9em 1fr",
+                  columnGap: "1em",
+                }}
               >
-                <Meta range={range} location={item.location} ctx={ctx} align="left" />
+                <Meta
+                  range={range}
+                  location={item.location}
+                  ctx={ctx}
+                  align="left"
+                />
                 <div className="min-w-0">
                   {heading}
                   {body}
@@ -748,7 +1131,12 @@ function EducationBlock({
             <div key={item.id}>
               <div className="flex items-baseline justify-between gap-4">
                 <div className="min-w-0">{heading}</div>
-                <Meta range={range} location={item.location} ctx={ctx} align="right" />
+                <Meta
+                  range={range}
+                  location={item.location}
+                  ctx={ctx}
+                  align="right"
+                />
               </div>
               {body}
             </div>
@@ -756,6 +1144,29 @@ function EducationBlock({
         })}
       </div>
     </section>
+  );
+}
+
+/** An entry's title, reversed out of a solid block. Inline rather than a
+ *  band, so a long role wraps to a second chip-width line instead of stretching
+ *  the block across a column of white space. */
+function Chip({ children, ctx }: { children: string; ctx: Ctx }) {
+  if (!children) return null;
+  return (
+    <span
+      style={{
+        backgroundColor: ctx.onDark
+          ? "rgba(255,255,255,0.16)"
+          : inks(ctx.settings).ink,
+        color: "#ffffff",
+        padding: "0.12em 0.45em",
+        boxDecorationBreak: "clone",
+        WebkitBoxDecorationBreak: "clone",
+      }}
+      className="font-bold"
+    >
+      {children}
+    </span>
   );
 }
 
@@ -787,12 +1198,15 @@ function TagBlock({
   section,
   ctx,
   wrap,
+  index,
 }: {
   section: SkillsSection;
   ctx: Ctx;
   wrap: React.CSSProperties;
+  index: number;
 }) {
   const { settings: s, template: t, onDark } = ctx;
+  const { body: BODY, muted: MUTED } = inks(s);
   const items = section.items.filter((i) => !i.hidden && i.name.trim());
   if (items.length === 0) return null;
 
@@ -809,12 +1223,12 @@ function TagBlock({
             return (
               <span key={item.id}>
                 {i > 0 && (
-                  <span style={{ margin: "0 0.5em", color: `${s.accent}66` }}>|</span>
+                  <span style={{ margin: "0 0.5em", color: `${s.accent}66` }}>
+                    |
+                  </span>
                 )}
                 <span className="font-medium">{item.name}</span>
-                {level && (
-                  <span style={{ color: MUTED }}> ({level})</span>
-                )}
+                {level && <span style={{ color: MUTED }}> ({level})</span>}
               </span>
             );
           })}
@@ -822,15 +1236,73 @@ function TagBlock({
       );
     }
 
+    // Name over a bar filled to the level. Two across in the main column, one
+    // in a rail — a half-width bar reads as a broken one.
+    if (t.tags === "bars") {
+      const track = onDark ? "rgba(255,255,255,0.22)" : `${s.accent}26`;
+      const fill = onDark ? "rgba(255,255,255,0.9)" : s.accent;
+      return (
+        <div
+          style={{
+            fontSize: size,
+            color,
+            display: "grid",
+            gridTemplateColumns: `repeat(${ctx.rail ? 1 : 2}, minmax(0, 1fr))`,
+            columnGap: "1.6em",
+            rowGap: "0.6em",
+          }}
+        >
+          {items.map((item) => (
+            <div key={item.id}>
+              <p className="font-medium">{item.name}</p>
+              <span
+                aria-hidden="true"
+                style={{
+                  display: "block",
+                  height: "0.34em",
+                  marginTop: "0.3em",
+                  backgroundColor: track,
+                }}
+              >
+                <span
+                  style={{
+                    display: "block",
+                    height: "100%",
+                    // A four-step scale, and an unrated skill reads as full
+                    // rather than as a bar somebody forgot to finish.
+                    width: `${Math.min(100, ((item.level ?? 4) / 4) * 100)}%`,
+                    backgroundColor: fill,
+                  }}
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     // Name on the left, a proficiency meter on the right.
     if (t.tags === "dots") {
       return (
         <div
-          style={{ fontSize: size, color, display: "grid", columnGap: "2.5em", rowGap: "0.35em" }}
-          className="sm:grid-cols-2"
+          style={{
+            fontSize: size,
+            color,
+            display: "grid",
+            // One per row in a rail: half of a narrow column is not enough for
+            // a name and five dots, and they were overprinting each other.
+            gridTemplateColumns: ctx.rail
+              ? "minmax(0, 1fr)"
+              : "repeat(2, minmax(0, 1fr))",
+            columnGap: "2.5em",
+            rowGap: "0.35em",
+          }}
         >
           {items.map((item) => (
-            <span key={item.id} className="flex items-center justify-between gap-3">
+            <span
+              key={item.id}
+              className="flex items-center justify-between gap-3"
+            >
               <span className="min-w-0">{item.name}</span>
               <Dots level={item.level ?? 3} ctx={ctx} />
             </span>
@@ -870,7 +1342,9 @@ function TagBlock({
               <span className="min-w-0">
                 {item.name}
                 {level && (
-                  <span style={{ color: onDark ? "rgba(255,255,255,0.6)" : MUTED }}>
+                  <span
+                    style={{ color: onDark ? "rgba(255,255,255,0.6)" : MUTED }}
+                  >
                     {" "}
                     ({level})
                   </span>
@@ -885,7 +1359,9 @@ function TagBlock({
 
   return (
     <section style={wrap}>
-      <SectionHeading ctx={ctx}>{section.title}</SectionHeading>
+      <SectionHeading ctx={ctx} index={index}>
+        {section.title}
+      </SectionHeading>
       {inner()}
     </section>
   );

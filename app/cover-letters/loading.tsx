@@ -5,7 +5,7 @@ import { BottomNav, SidebarNav } from "@/components/dashboard/nav";
 
 export default function Loading() {
   return (
-    <div className="flex min-h-dvh pb-16 md:pb-0">
+    <div className="mx-auto flex min-h-dvh w-full max-w-app pb-16 md:pb-0">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-black/5 px-4 py-6 md:flex">
         <SidebarNav active="letters" />
       </aside>
