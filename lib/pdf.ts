@@ -12,8 +12,12 @@ import "server-only";
 // The text stays real text: Chromium embeds fonts and glyphs, so the output is
 // selectable, searchable, and parses in an applicant tracking system.
 
+// Type-only, so nothing is loaded to typecheck this. The module itself is
+// pulled in when a render actually happens here — see `getBrowser`. A
+// deployment that renders elsewhere (Vercel calling build-pdf/) then never
+// touches Playwright, which is a large package to initialise inside a
+// serverless function that has no browser to drive anyway.
 import type { Browser } from "playwright";
-import { chromium } from "playwright";
 
 import { PAGE_SIZES } from "./defaults";
 import type { PageFormat } from "./types";
@@ -24,7 +28,9 @@ let browserPromise: Promise<Browser> | null = null;
 
 function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
-    browserPromise = chromium.launch({ args: ["--font-render-hinting=none"] });
+    browserPromise = import("playwright").then(({ chromium }) =>
+      chromium.launch({ args: ["--font-render-hinting=none"] }),
+    );
     // A crashed browser must not poison every later request.
     browserPromise.then(
       (browser) =>

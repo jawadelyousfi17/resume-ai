@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Playwright is required at runtime by the local renderer and never bundled:
+  // its driver ships as files on disk that a bundler can't trace, and the
+  // deployment that calls the standalone renderer doesn't load it at all.
+  serverExternalPackages: ["playwright"],
   experimental: {
     // Every page behind the sidebar is dynamic (it reads the session), and
     // dynamic segments aren't cached client-side by default — so moving
