@@ -1,6 +1,9 @@
-// Tailors a resume to one posting: a fit score, the gaps, and a rewrite of
-// every field that should change. Structured output, like the review — the
-// panel renders a report, not a stream of prose.
+// Reads a resume against one posting: a fit score, the gaps, and the fields
+// that need rewriting before it's sent. Structured output, like the review —
+// the panel renders a report, not a stream of prose.
+//
+// No new wording comes back from here. See the note at the top of
+// lib/ai/tailoring for why the person writes it themselves.
 
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -8,14 +11,16 @@ import { requireFeature } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
 import { LIMITS } from "@/lib/ai/tasks";
 import {
+  fieldFormat,
   locateField,
   MAX_POSTING_CHARS,
   MIN_POSTING_CHARS,
   readField,
   TAILOR_SCHEMA,
   tailorPrompt,
-  type TailorEdit,
   type TailorReport,
+  type TailorRequirement,
+  type TailorRewrite,
 } from "@/lib/ai/tailoring";
 import { collectStrings } from "@/lib/ai/translate";
 import type { ResumeData } from "@/lib/types";
@@ -26,7 +31,8 @@ export const maxDuration = 120;
 const MODEL = "claude-sonnet-5";
 
 /** More than this and the panel is a wall rather than a set of decisions. */
-const MAX_EDITS = 12;
+const MAX_REWRITES = 8;
+const MAX_REQUIREMENTS = 14;
 
 let client: Anthropic | null = null;
 
@@ -123,7 +129,9 @@ export async function POST(req: Request) {
   }
 
   const report = shape(parsed, data);
-  if (!report.edits.length) {
+  // A resume needing no rewrites is a real answer, but a report with nothing
+  // in it at all is far more likely to be a failed read.
+  if (!report.rewrites.length && !report.requirements.length && !report.summary) {
     return jsonError(
       "Nothing came back worth changing. Try a fuller posting.",
       422,
@@ -134,72 +142,90 @@ export async function POST(req: Request) {
 }
 
 interface RawReport {
+  job?: unknown;
   fit?: unknown;
-  verdict?: unknown;
-  gaps?: unknown;
-  edits?: unknown;
+  summary?: unknown;
+  requirements?: unknown;
+  rewrites?: unknown;
 }
 
 /**
  * Turns the model's answer into the report the panel renders.
  *
- * The schema guarantees the shape, not that the keys exist or that a rewrite
- * is a rewrite. An edit survives only if its key resolves to a field that is
- * really on this document, and only if it actually says something different.
+ * The schema guarantees the shape, not that the keys exist. A note survives
+ * only if its key resolves to a field really on this document — otherwise the
+ * panel would offer to open something that isn't there.
  */
 function shape(parsed: unknown, data: ResumeData): TailorReport {
   const raw = (parsed ?? {}) as RawReport;
 
-  const edits: TailorEdit[] = [];
-  for (const entry of asArray(raw.edits)) {
-    if (edits.length >= MAX_EDITS) break;
+  const rewrites: TailorRewrite[] = [];
+  const seen = new Set<string>();
+
+  for (const entry of asArray(raw.rewrites)) {
+    if (rewrites.length >= MAX_REWRITES) break;
 
     const key = str(entry.key);
-    const after = str(entry.after);
-    const before = readField(data, key);
+    const hint = str(entry.hint);
+    // One note per field. Two briefs for the same summary would open the same
+    // editor twice and disagree with each other inside it.
+    if (!hint || seen.has(key) || readField(data, key) === null) continue;
+    seen.add(key);
 
-    if (before === null || !after) continue;
-    // A "rewrite" that only moves whitespace is not one.
-    if (flatten(before) === flatten(after)) continue;
-
-    const priority = str(entry.priority);
-    edits.push({
+    rewrites.push({
       key,
-      before,
-      after,
       why: str(entry.why),
-      priority:
-        priority === "high" || priority === "medium" || priority === "low"
-          ? priority
-          : "medium",
+      hint,
+      priority: priorityOf(entry.priority),
       where: locateField(data, key),
+      format: fieldFormat(key),
     });
   }
 
-  // One edit per field: two rewrites of the same summary can't both be applied,
-  // and the second would silently fail the `before` check anyway.
-  const seen = new Set<string>();
-  const unique = edits.filter((edit) =>
-    seen.has(edit.key) ? false : (seen.add(edit.key), true),
-  );
+  // Kept in the order the posting raises them, not sorted by status: the point
+  // of the list is to read as the posting reads.
+  const requirements: TailorRequirement[] = [];
+  for (const entry of asArray(raw.requirements)) {
+    if (requirements.length >= MAX_REQUIREMENTS) break;
+    const requirement = str(entry.requirement);
+    if (!requirement) continue;
+    requirements.push({
+      requirement,
+      kind: str(entry.kind) === "nice" ? "nice" : "key",
+      status: statusOf(entry.status),
+      detail: str(entry.detail),
+    });
+  }
+
+  const job = (raw.job ?? {}) as Record<string, unknown>;
 
   return {
+    job: {
+      role: str(job.role),
+      company: str(job.company),
+      location: str(job.location),
+    },
     fit: clamp(raw.fit),
-    verdict: str(raw.verdict),
-    gaps: Array.isArray(raw.gaps)
-      ? raw.gaps.filter((g): g is string => typeof g === "string").slice(0, 5)
-      : [],
-    edits: order(unique),
+    summary: str(raw.summary),
+    requirements,
+    rewrites: rewrites.sort((a, b) => RANK[a.priority] - RANK[b.priority]),
   };
 }
 
-/** Biggest first, so the panel reads top to bottom. */
-function order(edits: TailorEdit[]): TailorEdit[] {
-  const rank = { high: 0, medium: 1, low: 2 };
-  return [...edits].sort((a, b) => rank[a.priority] - rank[b.priority]);
+/** Biggest first, so the rewrite list reads top to bottom. */
+const RANK = { high: 0, medium: 1, low: 2 } as const;
+
+function priorityOf(value: unknown): TailorRewrite["priority"] {
+  const v = str(value);
+  return v === "high" || v === "low" ? v : "medium";
 }
 
-const flatten = (value: string) => value.replace(/\s+/g, " ").trim();
+/** Anything unrecognised reads as "partial" — the honest middle, rather than
+ *  crediting the resume with something or accusing it of a gap. */
+function statusOf(value: unknown): TailorRequirement["status"] {
+  const v = str(value);
+  return v === "met" || v === "missing" ? v : "partial";
+}
 
 function asArray(value: unknown): Record<string, unknown>[] {
   return Array.isArray(value)

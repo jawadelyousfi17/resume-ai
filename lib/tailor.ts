@@ -36,7 +36,12 @@ const WORD_WEIGHT = 1;
 const TERMS = 28;
 
 export interface MatchTerm {
+  /** The stemmed form, which is what actually compares. */
   term: string;
+  /** The same term as the posting wrote it — what a person is shown. Stemming
+   *  turns "kubernetes" into "kubernete", which matches correctly and reads
+   *  like a typo, so the two are kept apart. */
+  label: string;
   /** How much of the score this term is worth. */
   weight: number;
   found: boolean;
@@ -68,18 +73,27 @@ const stem = (word: string) =>
     ? word.slice(0, -1)
     : word;
 
-const words = (value: string) =>
+/** A word twice over: the stem that matching uses, and the form it was
+ *  written in, which is the only one fit to show anybody. */
+interface Word {
+  stem: string;
+  surface: string;
+}
+
+const wordList = (value: string): Word[] =>
   normalise(value)
     .split(" ")
     .filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w))
-    .map(stem);
+    .map((surface) => ({ stem: stem(surface), surface }));
+
+const words = (value: string) => wordList(value).map((w) => w.stem);
 
 /** The posting, cut at the punctuation people list things with — so two words
  *  either side of a comma never become a phrase. */
 const segments = (value: string) =>
   value
     .split(/[.,;:•|\n()[\]]+/)
-    .map((part) => words(part))
+    .map((part) => wordList(part))
     .filter((part) => part.length > 0);
 
 /** Everything on the resume the posting could plausibly match against. */
@@ -110,22 +124,34 @@ export function resumeText(data: ResumeData): string {
 }
 
 /** The posting's own vocabulary, most-repeated first. */
-function terms(posting: string): { term: string; weight: number }[] {
+function terms(posting: string): { term: string; label: string; weight: number }[] {
   const counts = new Map<string, number>();
+  // The first spelling seen of each stem, kept to show back. Later ones say
+  // the same thing, so there's nothing to gain by revisiting the choice.
+  const surfaces = new Map<string, string>();
+
+  const note = (key: string, surface: string, weight: number) => {
+    counts.set(key, (counts.get(key) ?? 0) + weight);
+    if (!surfaces.has(key)) surfaces.set(key, surface);
+  };
 
   for (const part of segments(posting)) {
     for (const word of part) {
-      counts.set(word, (counts.get(word) ?? 0) + WORD_WEIGHT);
+      note(word.stem, word.surface, WORD_WEIGHT);
     }
     for (let i = 0; i < part.length - 1; i++) {
-      const phrase = `${part[i]} ${part[i + 1]}`;
-      counts.set(phrase, (counts.get(phrase) ?? 0) + PHRASE_WEIGHT);
+      note(
+        `${part[i].stem} ${part[i + 1].stem}`,
+        `${part[i].surface} ${part[i + 1].surface}`,
+        PHRASE_WEIGHT,
+      );
     }
   }
 
   return [...counts]
     .map(([term, count]) => ({
       term,
+      label: surfaces.get(term) ?? term,
       // Repetition matters, but the tenth mention says little the second
       // didn't — so weight grows with the root rather than the count.
       weight: Math.sqrt(count) * (term.includes(" ") ? PHRASE_WEIGHT : 1),
@@ -143,8 +169,9 @@ function titleOf(posting: string): string | null {
 
 export function matchResume(data: ResumeData, posting: string): MatchResult {
   const haystack = ` ${resumeText(data)} `;
-  const scored = terms(posting).map<MatchTerm>(({ term, weight }) => ({
+  const scored = terms(posting).map<MatchTerm>(({ term, label, weight }) => ({
     term,
+    label,
     weight,
     found: haystack.includes(` ${term} `),
   }));

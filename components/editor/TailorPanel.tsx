@@ -1,27 +1,46 @@
 "use client";
 
-// The Tailor tab: paste one posting, see how the resume answers it, and take
-// the rewrites you want.
+// The Tailor tab: paste one posting, see how the resume answers it, then tailor
+// it — either from what's already on the page, or from what the person tells us
+// when we ask.
 //
-// It reads like the Review tab on purpose — score, verdict, then a list of
-// specific changes with a button on each — because it is the same act: the AI
-// reads the whole document and reports back. The difference is that a review
-// tells you what is wrong, and this one hands you the corrected field.
+// The report opens on the score and the job it is a score for, then folds into
+// Keywords (the posting's own vocabulary, checked word by word) and Requirements
+// fit (everything the posting asks for, each marked met, partly met or not
+// shown, with the evidence behind it — the met ones included, because a list of
+// nothing but failures tells someone less about where they stand than the same
+// facts with their own credentials beside them).
+//
+// Under that is one button. Pressing it takes over the tab: two ways to go about
+// the rewrite, then the rewrite, then the score again. Nothing here touches the
+// document until it's pressed.
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "@/components/ui/toast";
 
 import { useAuthDialog } from "@/components/auth/AuthDialog";
-import { CheckIcon } from "@/components/ui/icons";
+import {
+  BulbIcon,
+  CheckIcon,
+  TargetIcon,
+  UserIcon,
+} from "@/components/ui/icons";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input, Textarea } from "@/components/ui/fields";
-import { ArticleIcon, MagicIcon, PencilIcon } from "@/components/ui/svg-icons";
-import { MIN_POSTING_CHARS, type TailorEdit } from "@/lib/ai/tailoring";
+import {
+  ArticleIcon,
+  ChevronDownIcon,
+  MagicIcon,
+} from "@/components/ui/svg-icons";
+import { MIN_POSTING_CHARS, type TailorRequirement } from "@/lib/ai/tailoring";
+import type { TailorAnswer } from "@/lib/ai/tailor-apply";
+import { MatchGauge } from "./MatchGauge";
 import { addJob } from "@/lib/job-board";
 import { useResume } from "@/lib/store";
 import { matchResume, verdict as wordVerdict } from "@/lib/tailor";
 import { cn } from "@/lib/utils";
 
-import { useTailor, type EditState } from "./TailorSession";
+import { useTailor } from "./TailorSession";
 
 /** How a fit score reads, and the colour it reads in — the review's bands, so
  *  a number means the same thing in both tabs. */
@@ -32,27 +51,44 @@ function band(score: number) {
   return { color: "#e11d48", label: "Long shot" };
 }
 
-const PRIORITY = {
-  high: { label: "Change first", bar: "bg-danger" },
-  medium: { label: "Worth doing", bar: "bg-brand" },
-  low: { label: "Polish", bar: "bg-ink-faint" },
+/** How a requirement reads at a glance. The glyph carries it in the row; the
+ *  label is what a screen reader says and what the opened detail is prefixed
+ *  with, so the meaning never rests on colour alone. */
+const STATUS = {
+  met: {
+    glyph: "✓",
+    label: "Met",
+    chip: "bg-positive/15 text-positive",
+    text: "text-positive",
+  },
+  partial: {
+    glyph: "?",
+    label: "Partly met",
+    chip: "bg-caution/15 text-caution",
+    text: "text-caution",
+  },
+  missing: {
+    glyph: "✕",
+    label: "Not shown",
+    chip: "bg-danger/15 text-danger",
+    text: "text-danger",
+  },
 } as const;
 
 export function TailorPanel() {
   const { data, guest } = useResume();
   const auth = useAuthDialog();
-  const { posting, setPosting, report, busy, error, run, reset } = useTailor();
+  const { posting, setPosting, stage, busy, error, run, reset } = useTailor();
 
   if (guest) {
     return (
       <div className="space-y-3">
-        <Heading />
         <div className="rounded-2xl bg-panel p-6 text-center shadow-[var(--shadow-panel)]">
           <MagicIcon className="mx-auto h-6 w-6 text-purple" />
           <h3 className="mt-3 text-[17px] font-extrabold text-ink">
             Sign in to tailor your resume
           </h3>
-          <p className="mx-auto mt-1.5 max-w-sm text-[14px] leading-relaxed text-ink-soft">
+          <p className="mx-auto mt-1.5 max-w-sm text-[14px] leading-relaxed font-medium text-ink-soft">
             Tailoring rewrites the page against one posting. It comes with an
             account — and the resume you&rsquo;ve started comes with you.
           </p>
@@ -68,11 +104,19 @@ export function TailorPanel() {
     );
   }
 
+  if (busy) return <Working />;
+
   return (
     <div className="space-y-3">
-      <Heading />
+      {/* The form shows its errors inline, beside the field that caused them.
+          Anything that fails later has no field to sit beside. */}
+      {error && stage !== "form" && (
+        <p className="rounded-xl bg-danger/10 px-4 py-3 text-[13.5px] leading-relaxed font-medium text-danger">
+          {error}
+        </p>
+      )}
 
-      {!report && !busy && (
+      {stage === "form" && (
         <PostingForm
           posting={posting}
           setPosting={setPosting}
@@ -82,19 +126,10 @@ export function TailorPanel() {
         />
       )}
 
-      {busy && <Working />}
-
-      {report && !busy && <Report onChange={reset} />}
-    </div>
-  );
-}
-
-function Heading() {
-  return (
-    <div className="px-1 pt-1 pb-2">
-      <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink">
-        Which job is this for?
-      </h2>
+      {stage === "report" && <Report onChange={reset} />}
+      {stage === "choose" && <Choose />}
+      {stage === "interview" && <Interview />}
+      {stage === "done" && <Done onChange={reset} />}
     </div>
   );
 }
@@ -214,14 +249,14 @@ function PostingForm({
           className="btn-gradient mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45"
         >
           <MagicIcon className="h-5 w-5" />
-          Tailor my resume
+          Check my resume
         </button>
 
-        <p className="mt-2.5 text-center text-[12.5px] text-ink-faint">
+        <p className="mt-2.5 text-center text-[12.5px] font-medium text-ink-faint">
           {!canRun
             ? "Write the resume first — there's nothing to tailor yet."
             : ready
-              ? "Takes around half a minute. Nothing changes until you apply it."
+              ? "Takes around half a minute. Nothing on your resume changes on its own."
               : "Paste a few paragraphs of the posting to start."}
         </p>
       </section>
@@ -253,7 +288,7 @@ function KeywordPreview({
         </span>
       </div>
 
-      <p className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+      <p className="mt-2 text-[13.5px] leading-relaxed font-medium text-ink-soft">
         <span className="font-bold text-ink">{words.label}.</span> {words.copy}
       </p>
 
@@ -264,7 +299,7 @@ function KeywordPreview({
               key={term.term}
               className="rounded-lg bg-field px-2.5 py-1.5 text-[12.5px] font-bold text-ink-soft"
             >
-              {term.term}
+              {term.label}
             </li>
           ))}
         </ul>
@@ -307,18 +342,16 @@ function TrackButton({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Step two: the report                                                       */
-/* -------------------------------------------------------------------------- */
-
 function Working() {
+  const { busyLabel } = useTailor();
+
   return (
     <div className="rounded-2xl bg-panel px-6 py-8 text-center shadow-[var(--shadow-panel)]">
       <p className="text-[16px] font-extrabold text-ink">
-        Reading the posting against your resume…
+        {busyLabel || "Working…"}
       </p>
-      <p className="mt-1.5 text-[13.5px] text-ink-soft">
-        Judging the fit, then rewriting the fields that should change.
+      <p className="mt-1.5 text-[13.5px] font-medium text-ink-soft">
+        This takes a little while. Leaving the tab won&rsquo;t stop it.
       </p>
       <div
         className="ai-progress-track mt-5 h-1.5 w-full"
@@ -331,239 +364,748 @@ function Working() {
   );
 }
 
-function Report({ onChange }: { onChange: () => void }) {
-  const { report, applied, applyAll } = useTailor();
-  if (!report) return null;
+/* -------------------------------------------------------------------------- */
+/* Step two: the report                                                       */
+/* -------------------------------------------------------------------------- */
 
-  const { color, label } = band(report.fit);
-  const left = report.edits.filter((_, i) => !applied[i]).length;
+/** The score, the job it's for, and the verdict. Shared by the report and the
+ *  screen at the end, which is the same card with a different number. */
+function ScoreCard({
+  score,
+  children,
+}: {
+  score: number;
+  children?: React.ReactNode;
+}) {
+  const { report } = useTailor();
+  const { color, label } = band(score);
+  const job = report?.job;
 
   return (
-    <div className="space-y-3">
-      <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
-        <div className="flex items-center gap-5">
-          <ScoreRing value={report.fit} color={color} />
-          <div className="min-w-0 flex-1">
-            <p
-              className="text-[13px] font-extrabold tracking-wide uppercase"
-              style={{ color }}
-            >
-              {label}
-            </p>
-            <p className="mt-1 text-[14.5px] leading-relaxed font-medium text-ink">
-              {report.verdict}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={applyAll}
-            disabled={left === 0}
-            className="btn-gradient inline-flex h-11 items-center gap-2 rounded-xl px-5 text-[14.5px] font-bold disabled:opacity-45"
-          >
-            <CheckIcon className="h-[18px] w-[18px]" />
-            {left === 0 ? "All applied" : `Apply all ${left}`}
-          </button>
-          <button
-            type="button"
-            onClick={onChange}
-            className="h-11 rounded-xl bg-field px-4 text-[14px] font-bold text-ink transition hover:bg-black/[0.06]"
-          >
-            Another job
-          </button>
-        </div>
-      </section>
-
-      {report.gaps.length > 0 && <Gaps gaps={report.gaps} />}
-
-      <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
-        <h3 className="text-[17px] font-extrabold text-ink">
-          {report.edits.length} rewrite{report.edits.length === 1 ? "" : "s"}
-        </h3>
-        <p className="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          Each one replaces a single field. Read it, then take it or leave it.
+    <section className="rounded-2xl bg-panel px-5 pt-5 pb-6 shadow-[var(--shadow-panel)]">
+      {job && (job.role || job.company) && (
+        <p className="text-center text-[15px] leading-snug font-medium text-ink-soft">
+          {job.role && (
+            <span className="font-extrabold text-ink">{job.role}</span>
+          )}
+          {job.role && job.company && " at "}
+          {job.company && (
+            <span className="font-extrabold text-ink">{job.company}</span>
+          )}
         </p>
+      )}
+      {job?.location && (
+        <p className="mt-0.5 text-center text-[13px] font-medium text-ink-faint">
+          {job.location}
+        </p>
+      )}
 
-        <ul className="mt-4 space-y-3">
-          {report.edits.map((edit, index) => (
-            <EditRow
-              key={`${edit.key}-${index}`}
-              edit={edit}
-              index={index}
-              state={applied[index]}
-            />
-          ))}
-        </ul>
-      </section>
-    </div>
-  );
-}
+      <div className="mx-auto mt-2 max-w-[300px]">
+        <MatchGauge value={score} color={color} />
+      </div>
 
-function Gaps({ gaps }: { gaps: string[] }) {
-  return (
-    <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
-      <h3 className="text-[15px] font-extrabold text-ink">
-        What the posting wants and the resume doesn&rsquo;t show
-      </h3>
-      <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-        Not written into anything — tailoring never claims experience you
-        haven&rsquo;t got.
+      <p
+        className="text-center text-[13px] font-extrabold tracking-wide uppercase"
+        style={{ color }}
+      >
+        {label}
       </p>
-      <ul className="mt-3 space-y-2">
-        {gaps.map((gap) => (
-          <li
-            key={gap}
-            className="flex gap-2.5 text-[14px] leading-relaxed text-ink-soft"
-          >
-            <span
-              aria-hidden="true"
-              className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
-            />
-            {gap}
-          </li>
-        ))}
-      </ul>
+
+      {children}
     </section>
   );
 }
 
-function EditRow({
-  edit,
-  index,
-  state,
-}: {
-  edit: TailorEdit;
-  index: number;
-  state?: EditState;
-}) {
-  const { apply } = useTailor();
-  const [open, setOpen] = useState(false);
-  const priority = PRIORITY[edit.priority];
+function Report({ onChange }: { onChange: () => void }) {
+  const { data } = useResume();
+  const { report, posting, setStage } = useTailor();
+  if (!report) return null;
+
+  // Recomputed against the document as it stands rather than as it was read,
+  // so the chips empty out while the person works. It costs nothing to redo.
+  const keywords = matchResume(data, posting);
 
   return (
-    <li className="overflow-hidden rounded-xl bg-field/60 ring-1 ring-black/5">
-      <div className="flex items-start gap-3 px-4 py-3.5">
-        <span
-          className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", priority.bar)}
-          aria-hidden="true"
-        />
+    <div className="space-y-3">
+      <ScoreCard score={report.fit}>
+        <button
+          type="button"
+          onClick={onChange}
+          className="mx-auto mt-5 block h-10 rounded-xl bg-field px-4 text-[13.5px] font-bold text-ink transition hover:bg-black/[0.06]"
+        >
+          Another job
+        </button>
+      </ScoreCard>
 
-        <div className="min-w-0 flex-1">
-          <p className="flex flex-wrap items-baseline gap-x-2">
-            <span className="text-[14.5px] font-extrabold text-ink">
-              {edit.where}
-            </span>
-            <span className="text-[12px] font-bold text-ink-faint uppercase">
-              {priority.label}
-            </span>
+      {report.summary && (
+        <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
+          <h3 className="text-[15px] font-extrabold text-ink">Match summary</h3>
+          <p className="mt-1.5 text-[14px] leading-relaxed font-medium text-ink-soft">
+            {report.summary}
           </p>
-          <p className="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-            {edit.why}
-          </p>
-        </div>
+        </section>
+      )}
 
-        {state === "applied" ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-brand-soft px-2.5 py-1.5 text-[12.5px] font-bold text-brand">
-            <CheckIcon className="h-3.5 w-3.5" />
-            Applied
-          </span>
-        ) : state === "stale" ? (
-          <span className="shrink-0 text-[12.5px] font-bold text-ink-faint">
-            Moved on
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => apply(index)}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-navy px-3.5 text-[13.5px] font-bold text-white transition hover:opacity-90"
-          >
-            <PencilIcon className="h-4 w-4" />
-            Apply
-          </button>
-        )}
-      </div>
+      <Keywords result={keywords} />
 
+      <RequirementsFit requirements={report.requirements} />
+
+      {/* Stays on screen while the report is read: the report is long, and the
+          one thing to do about it shouldn't be at the end of a scroll. */}
+      <button
+        type="button"
+        onClick={() => setStage("choose")}
+        className="btn-gradient sticky bottom-3 z-10 flex h-14 w-full items-center justify-center gap-2 rounded-2xl text-[16px] font-bold shadow-lg"
+      >
+        <MagicIcon className="h-5 w-5" />
+        Start tailoring
+      </button>
+    </div>
+  );
+}
+
+/** A titled section that folds away, so a long report is a page of headings
+ *  until you ask for more. */
+function Section({
+  title,
+  count,
+  blurb,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  /** Shown beside the title — how many things are in here. */
+  count?: string;
+  blurb?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <section className="rounded-2xl bg-panel px-5 py-4 shadow-[var(--shadow-panel)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="w-full border-t border-black/5 px-4 py-2 text-left text-[12.5px] font-bold text-ink-faint transition hover:text-ink"
+        className="flex w-full items-center gap-2 py-1 text-left"
       >
-        {open ? "Hide the wording" : "See before and after"}
+        <h3 className="text-[17px] font-extrabold text-ink">{title}</h3>
+        {count && (
+          <span className="rounded-md bg-field px-1.5 py-0.5 text-[12px] font-bold text-ink-soft">
+            {count}
+          </span>
+        )}
+        <ChevronDownIcon
+          className={cn(
+            "ml-auto h-[18px] w-[18px] shrink-0 text-ink-faint transition-transform",
+            open && "rotate-180",
+          )}
+          aria-hidden="true"
+        />
       </button>
 
       {open && (
-        <div className="space-y-2 border-t border-black/5 px-4 py-3">
-          <Wording label="Now" text={edit.before} tone="before" />
-          <Wording label="Tailored" text={edit.after} tone="after" />
+        <div className="pt-1 pb-1">
+          {blurb && (
+            <p className="text-[13.5px] leading-relaxed font-medium text-ink-soft">
+              {blurb}
+            </p>
+          )}
+          {children}
         </div>
+      )}
+    </section>
+  );
+}
+
+/** The posting's own vocabulary, matched word by word against the page. Free
+ *  and instant, so it answers back the moment a rewrite lands. */
+function Keywords({ result }: { result: ReturnType<typeof matchResume> }) {
+  const { missing, matched } = result;
+
+  return (
+    <Section
+      title="Keywords"
+      count={`${matched.length}/${matched.length + missing.length}`}
+      blurb="The words this posting leans on, checked against your page. Work in the ones you can honestly claim — a keyword you can't talk about in the interview costs you more than a missing one."
+    >
+      {missing.length > 0 && (
+        <>
+          <p className="mt-4 text-[12px] font-extrabold tracking-wide text-ink-faint uppercase">
+            Missing
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {missing.map((term) => (
+              <li
+                key={term.term}
+                className="rounded-lg bg-danger/10 px-2.5 py-1.5 text-[12.5px] font-bold text-ink"
+              >
+                {term.label}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {matched.length > 0 && (
+        <>
+          <p className="mt-4 text-[12px] font-extrabold tracking-wide text-ink-faint uppercase">
+            Already covered
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {matched.map((term) => (
+              <li
+                key={term.term}
+                className="rounded-lg bg-field px-2.5 py-1.5 text-[12.5px] font-bold text-ink-soft"
+              >
+                {term.label}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </Section>
+  );
+}
+
+function RequirementsFit({
+  requirements,
+}: {
+  requirements: TailorRequirement[];
+}) {
+  if (!requirements.length) return null;
+
+  const key = requirements.filter((r) => r.kind === "key");
+  const nice = requirements.filter((r) => r.kind === "nice");
+  const met = requirements.filter((r) => r.status === "met").length;
+
+  return (
+    <Section
+      title="Requirements fit"
+      count={`${met}/${requirements.length}`}
+      blurb="See which requirements from the posting you already meet, and where to add more evidence. It's fine not to meet all of them — cover as many as you honestly can."
+      defaultOpen
+    >
+      {key.length > 0 && (
+        <Group
+          title="Key requirements"
+          blurb="The qualifications this posting states outright. These are what a recruiter checks first."
+          requirements={key}
+        />
+      )}
+      {nice.length > 0 && (
+        <Group
+          title="Nice-to-haves"
+          blurb="Not mandatory, but each one you can evidence makes the application stronger."
+          requirements={nice}
+        />
+      )}
+    </Section>
+  );
+}
+
+function Group({
+  title,
+  blurb,
+  requirements,
+}: {
+  title: string;
+  blurb: string;
+  requirements: TailorRequirement[];
+}) {
+  return (
+    <div className="mt-5 border-t border-black/5 pt-4">
+      <h4 className="text-[14.5px] font-extrabold text-ink">{title}</h4>
+      <p className="mt-1 text-[13px] leading-relaxed font-medium text-ink-soft">
+        {blurb}
+      </p>
+
+      <ul className="mt-3 space-y-1.5">
+        {requirements.map((requirement) => (
+          <RequirementRow
+            key={requirement.requirement}
+            requirement={requirement}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RequirementRow({ requirement }: { requirement: TailorRequirement }) {
+  const [open, setOpen] = useState(false);
+  const status = STATUS[requirement.status];
+
+  return (
+    <li className="overflow-hidden rounded-xl bg-field/60 ring-1 ring-black/5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2.5 px-3.5 py-3 text-left transition hover:bg-black/[0.02]"
+      >
+        <span
+          className={cn(
+            "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[13px] font-extrabold",
+            status.chip,
+          )}
+          aria-hidden="true"
+        >
+          {status.glyph}
+        </span>
+        <span className="min-w-0 flex-1 text-[13.5px] leading-snug font-medium text-ink">
+          {requirement.requirement}
+        </span>
+        <span className="sr-only">{status.label}</span>
+        <ChevronDownIcon
+          className={cn(
+            "h-4 w-4 shrink-0 text-ink-faint transition-transform",
+            open && "rotate-180",
+          )}
+          aria-hidden="true"
+        />
+      </button>
+
+      {open && requirement.detail && (
+        <p className="border-t border-black/5 px-3.5 py-3 text-[13px] leading-relaxed font-medium text-ink-soft">
+          <span className={cn("font-extrabold", status.text)}>
+            {status.label}.{" "}
+          </span>
+          {requirement.detail}
+        </p>
       )}
     </li>
   );
 }
 
-function Wording({
-  label,
-  text,
-  tone,
-}: {
-  label: string;
-  text: string;
-  tone: "before" | "after";
-}) {
+/* -------------------------------------------------------------------------- */
+/* Step three: how to go about it                                             */
+/* -------------------------------------------------------------------------- */
+
+function Choose() {
+  const { report, setStage, tailor } = useTailor();
+  const open =
+    report?.requirements.filter((r) => r.status !== "met").length ?? 0;
+
   return (
-    <div>
-      <p className="text-[11.5px] font-extrabold tracking-wide text-ink-faint uppercase">
-        {label}
-      </p>
-      <p
-        className={cn(
-          "mt-1 rounded-lg px-3 py-2 text-[13.5px] leading-relaxed whitespace-pre-wrap",
-          tone === "after"
-            ? "bg-brand-soft text-ink"
-            : "bg-panel text-ink-soft line-through decoration-ink-faint/40",
-        )}
+    <div className="space-y-3">
+      <div className="px-1 pt-1 pb-1">
+        <h2 className="text-[22px] leading-tight font-extrabold tracking-tight text-ink">
+          How should we tailor it?
+        </h2>
+        <p className="mt-1 text-[13.5px] leading-relaxed font-medium text-ink-soft">
+          Both rewrite your resume for this job. The difference is where the
+          material comes from.
+        </p>
+      </div>
+
+      <Option
+        icon={<UserIcon className="h-5 w-5 text-purple" />}
+        title="Tick what you've done"
+        recommended
+        blurb={
+          open > 0
+            ? `The ${open} thing${open === 1 ? "" : "s"} this posting wants that your resume doesn't show yet, as a checklist. Tick the ones you have and they go on — most people's resumes are missing the evidence, not the experience. Say where you used them and they go into the roles too.`
+            : "Everything this posting wants that your resume doesn't spell out, as a checklist. Tick what you have and it goes on."
+        }
+        cta="Go through the checklist"
+        onClick={() => setStage("interview")}
+      />
+
+      <Option
+        icon={<TargetIcon className="h-5 w-5 text-brand" />}
+        title="Rewrite it for me"
+        blurb="No questions. We go through every requirement in the posting and make sure the ones your experience already backs are answered clearly and early — in this employer's own words, leading each section, with the rest cut back to make room. Anything you genuinely haven't done is left off and listed at the end."
+        cta="Rewrite it now"
+        onClick={() => tailor()}
+      />
+
+      <button
+        type="button"
+        onClick={() => setStage("report")}
+        className="mx-auto block h-10 rounded-xl px-4 text-[13.5px] font-bold text-ink-soft transition hover:bg-black/5 hover:text-ink"
       >
-        {text}
-      </p>
+        Back to the report
+      </button>
     </div>
   );
 }
 
-/** The same ring the review draws, for the same reason: a bare number out of
- *  100 reads like a mark on a test. */
-function ScoreRing({ value, color }: { value: number; color: string }) {
-  const radius = 34;
-  const circumference = 2 * Math.PI * radius;
+function Option({
+  icon,
+  title,
+  blurb,
+  cta,
+  onClick,
+  recommended = false,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  blurb: string;
+  cta: string;
+  onClick: () => void;
+  recommended?: boolean;
+}) {
+  return (
+    <section
+      className={cn(
+        "rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]",
+        recommended && "ring-2 ring-purple/35",
+      )}
+    >
+      <div className="flex items-center gap-2.5">
+        {icon}
+        <h3 className="text-[17px] font-extrabold text-ink">{title}</h3>
+        {recommended && (
+          <span className="ml-auto rounded-md bg-purple-soft px-2 py-1 text-[11.5px] font-extrabold tracking-wide text-purple uppercase">
+            Best results
+          </span>
+        )}
+      </div>
+
+      <p className="mt-2 text-[13.5px] leading-relaxed font-medium text-ink-soft">
+        {blurb}
+      </p>
+
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          "mt-4 flex h-12 w-full items-center justify-center rounded-xl text-[15px] font-bold transition",
+          recommended
+            ? "btn-gradient"
+            : "bg-field text-ink hover:bg-black/[0.06]",
+        )}
+      >
+        {cta}
+      </button>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Step four: the questions                                                   */
+/* -------------------------------------------------------------------------- */
+
+/** Skills are asked about separately from the requirements: a posting's loose
+ *  vocabulary isn't a qualification, but it's where most of the honest
+ *  additions come from — tools somebody has used and never thought to list. */
+const SKILLS_QUESTION =
+  "Tools and technologies from the posting that aren't on the resume";
+
+function Interview() {
+  const { data } = useResume();
+  const { report, posting, setStage, tailor } = useTailor();
+
+  const [have, setHave] = useState<Record<string, boolean>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  const open = useMemo(
+    () => report?.requirements.filter((r) => r.status !== "met") ?? [],
+    [report],
+  );
+  const missingWords = useMemo(
+    () => matchResume(data, posting).missing.slice(0, 12),
+    [data, posting],
+  );
+
+  const skillsTicked = Boolean(have[SKILLS_QUESTION]);
+  const confirmed =
+    open.filter((r) => have[r.requirement]).length + (skillsTicked ? 1 : 0);
+  const total = open.length + (missingWords.length ? 1 : 0);
+
+  const submit = () => {
+    const list: TailorAnswer[] = open
+      .filter((r) => have[r.requirement])
+      .map((r) => ({
+        requirement: r.requirement,
+        confirmed: true,
+        answer: answers[r.requirement] ?? "",
+      }));
+
+    if (skillsTicked) {
+      list.push({
+        requirement: SKILLS_QUESTION,
+        confirmed: true,
+        answer: answers[SKILLS_QUESTION] ?? "",
+      });
+    }
+    tailor(list);
+  };
 
   return (
-    <div className="relative h-[86px] w-[86px] shrink-0">
-      <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
-        <circle
-          cx="40"
-          cy="40"
-          r={radius}
-          fill="none"
-          strokeWidth="7"
-          className="stroke-black/[0.06]"
+    <div className="space-y-3">
+      <div className="px-1 pt-1 pb-1">
+        <h2 className="text-[22px] leading-tight font-extrabold tracking-tight text-ink">
+          Which of these have you done?
+        </h2>
+        <p className="mt-1 text-[13.5px] leading-relaxed font-medium text-ink-soft">
+          Tick everything this posting asks for that you actually have. A tick
+          alone puts it in your skills, which is what a screening system reads.
+          Add a line about where you used it and it goes into that job as well,
+          which is what a person reads. Anything you leave unticked stays off
+          the page.
+        </p>
+      </div>
+
+      {open.map((requirement) => (
+        <Question
+          key={requirement.requirement}
+          title={requirement.requirement}
+          note={requirement.detail}
+          badge={STATUS[requirement.status].label}
+          have={Boolean(have[requirement.requirement])}
+          onHave={(value) =>
+            setHave((prev) => ({ ...prev, [requirement.requirement]: value }))
+          }
+          value={answers[requirement.requirement] ?? ""}
+          onChange={(value) =>
+            setAnswers((prev) => ({ ...prev, [requirement.requirement]: value }))
+          }
+          placeholder="Where did you use it? e.g. Two years at Acme — rebuilt their reporting on it and cut the monthly close from five days to two."
         />
-        <circle
-          cx="40"
-          cy="40"
-          r={radius}
-          fill="none"
-          strokeWidth="7"
-          strokeLinecap="round"
-          stroke={color}
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference * (1 - value / 100)}
+      ))}
+
+      {missingWords.length > 0 && (
+        <Question
+          title="Have you worked with these?"
+          note="The posting keeps using these words and none of them are on your resume. Ticking puts the ones you name into your skills; saying where you used them gets them into the roles as well."
+          have={skillsTicked}
+          onHave={(value) =>
+            setHave((prev) => ({ ...prev, [SKILLS_QUESTION]: value }))
+          }
+          value={answers[SKILLS_QUESTION] ?? ""}
+          onChange={(value) =>
+            setAnswers((prev) => ({ ...prev, [SKILLS_QUESTION]: value }))
+          }
+          placeholder="Which ones, and where? e.g. Docker and Postgres daily at Acme; Kubernetes on one migration project."
+          chips={missingWords.map((t) => t.label)}
         />
-      </svg>
-      <span className="absolute inset-0 grid place-items-center text-[24px] font-extrabold text-ink">
-        {value}
-      </span>
+      )}
+
+      {/* Sticky for the same reason as the report's: there can be a dozen
+          questions above this, and the count is what tells you how far in you
+          are — which is worth nothing at the bottom of a long scroll. */}
+      <section className="sticky bottom-3 z-10 rounded-2xl bg-panel px-5 py-5 shadow-lg ring-1 ring-black/5">
+        <p className="text-center text-[13px] font-medium text-ink-faint">
+          {confirmed} of {total} ticked
+          {confirmed === 0 && " — tick at least one to add anything new"}
+        </p>
+        <button
+          type="button"
+          onClick={submit}
+          disabled={confirmed === 0}
+          className="btn-gradient mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          <MagicIcon className="h-5 w-5" />
+          Tailor my resume
+        </button>
+        <button
+          type="button"
+          onClick={() => setStage("choose")}
+          className="mx-auto mt-2 block h-10 rounded-xl px-4 text-[13.5px] font-bold text-ink-soft transition hover:bg-black/5 hover:text-ink"
+        >
+          Back
+        </button>
+      </section>
+    </div>
+  );
+}
+
+function Question({
+  title,
+  note,
+  badge,
+  have,
+  onHave,
+  value,
+  onChange,
+  placeholder,
+  chips,
+}: {
+  title: string;
+  note?: string;
+  badge?: string;
+  /** They've said they have this. */
+  have: boolean;
+  onHave: (value: boolean) => void;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  chips?: string[];
+}) {
+  return (
+    <section
+      className={cn(
+        "rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)] transition",
+        have && "ring-2 ring-positive/40",
+      )}
+    >
+      <div className="flex items-start gap-2">
+        <h3 className="min-w-0 flex-1 text-[15px] leading-snug font-extrabold text-ink">
+          {title}
+        </h3>
+        {/* The reason this is being asked lives behind the bulb rather than
+            under the question. Eight of these on screen, each with its own
+            paragraph of why, buries the thing the person is actually here to
+            do — which is type an answer. */}
+        {note && (
+          <span
+            title={note}
+            aria-label={note}
+            tabIndex={0}
+            className="shrink-0 cursor-help rounded-md p-1 text-ink-faint transition hover:bg-black/5 hover:text-ink"
+          >
+            <BulbIcon className="h-4 w-4" />
+          </span>
+        )}
+        {badge && (
+          <span className="shrink-0 rounded-md bg-field px-2 py-1 text-[11.5px] font-extrabold tracking-wide text-ink-faint uppercase">
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {chips && chips.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-1.5">
+          {chips.map((chip) => (
+            <li
+              key={chip}
+              className="rounded-lg bg-field px-2.5 py-1.5 text-[12.5px] font-bold text-ink-soft"
+            >
+              {chip}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <label className="mt-3 flex cursor-pointer items-center gap-2.5 rounded-xl bg-field px-3.5 py-3">
+        <Checkbox
+          checked={have}
+          onCheckedChange={(next) => onHave(next === true)}
+        />
+        <span className="text-[13.5px] font-bold text-ink">
+          I&rsquo;ve done this
+        </span>
+      </label>
+
+      {/* The detail box only exists once they've said they have it. Asking
+          "where did you use it?" under something they haven't done is a
+          question with one honest answer, and it shouldn't be on screen. */}
+      {have && (
+        <Textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="mt-2 max-h-[220px] min-h-[80px] overflow-y-auto"
+        />
+      )}
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Step five: what came of it                                                 */
+/* -------------------------------------------------------------------------- */
+
+function Done({ onChange }: { onChange: () => void }) {
+  const { outcome, report, setStage } = useTailor();
+  if (!outcome || !report) return null;
+
+  const gained = outcome.after - outcome.before;
+
+  return (
+    <div className="space-y-3">
+      <ScoreCard score={outcome.after}>
+        <p className="mt-3 text-center text-[14px] font-medium text-ink-soft">
+          {gained > 0 ? (
+            <>
+              Up{" "}
+              <span className="font-extrabold text-positive">
+                {gained} point{gained === 1 ? "" : "s"}
+              </span>{" "}
+              from {outcome.before}%
+            </>
+          ) : gained < 0 ? (
+            <>Down from {outcome.before}% — worth reading what changed</>
+          ) : (
+            <>Unchanged at {outcome.before}%</>
+          )}
+        </p>
+      </ScoreCard>
+
+      <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
+        <div className="flex items-center gap-2">
+          <CheckIcon className="h-[18px] w-[18px] text-positive" />
+          <h3 className="text-[17px] font-extrabold text-ink">
+            Your resume has been updated
+          </h3>
+        </div>
+        <p className="mt-1.5 text-[13.5px] leading-relaxed font-medium text-ink-soft">
+          {outcome.changed} section{outcome.changed === 1 ? "" : "s"} rewritten
+          {outcome.addedSkills.length > 0 &&
+            `, ${outcome.addedSkills.length} skill${
+              outcome.addedSkills.length === 1 ? "" : "s"
+            } added`}
+          . It&rsquo;s all in the preview and in the Content tab — read it
+          before you send it, and change anything that doesn&rsquo;t sound like
+          you.
+        </p>
+
+        {outcome.addedSkills.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {outcome.addedSkills.map((skill) => (
+              <li
+                key={skill}
+                className="rounded-lg bg-positive/10 px-2.5 py-1.5 text-[12.5px] font-bold text-ink"
+              >
+                {skill}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {outcome.stillMissing.length > 0 && (
+        <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
+          <h3 className="text-[15px] font-extrabold text-ink">
+            Still not on the page
+          </h3>
+          <p className="mt-1 text-[13px] leading-relaxed font-medium text-ink-soft">
+            You didn&rsquo;t have these, so they were left off. Plenty of people
+            are hired without everything on the list — a gap costs you an
+            interview, and something you can&rsquo;t back up costs you the job.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            {outcome.stillMissing.map((item) => (
+              <li
+                key={item}
+                className="rounded-xl bg-field/60 px-3.5 py-2.5 text-[13.5px] leading-snug font-medium text-ink-soft ring-1 ring-black/5"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setStage("report")}
+          className="h-12 flex-1 rounded-xl bg-field px-4 text-[14px] font-bold text-ink transition hover:bg-black/[0.06]"
+        >
+          See the new report
+        </button>
+        <button
+          type="button"
+          onClick={onChange}
+          className="h-12 flex-1 rounded-xl bg-field px-4 text-[14px] font-bold text-ink transition hover:bg-black/[0.06]"
+        >
+          Another job
+        </button>
+      </div>
     </div>
   );
 }

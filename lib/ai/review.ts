@@ -190,6 +190,13 @@ Scoring
 - Score each category out of 100 against a strong resume in this person's field. Be honest rather than kind: a competent, unremarkable resume sits around 60, and 90+ is reserved for one you would struggle to improve.
 - A short or half-finished resume scores low on completeness. Say so plainly instead of scoring what isn't there.
 
+What the categories are asking
+- impact: how many lines report a result rather than a duty, and how many of those carry a measure — a figure, or scope like team size, budget, volume, or frequency. A well-written list of responsibilities still scores low here.
+- clarity: lines that open on a strong verb, land on what they produced, and are read once. Padding, buzzwords, passive constructions, and bullets that wrap to a third line all cost marks.
+- completeness: a summary worth reading, dated roles with no unexplained gap, education, and a skills section specific enough to be searched. Judge what a recruiter would go looking for and not find.
+- language: as under Proofreading below.
+- ats: entries a parser reads cleanly — every role dated, headings called what they are conventionally called, the terms the field itself uses, acronyms given with their expansion. Nothing that carries meaning only as a graphic or a symbol.
+
 Proofreading
 - Report only mistakes that are actually present: misspellings, subject-verb disagreement, missing or wrong punctuation, tense that shifts inside a single entry, capitalisation that is inconsistent with the rest of the document.
 - Copy the wrong span character for character from the item it appears in, and keep it short — the words around the mistake, not the whole bullet.

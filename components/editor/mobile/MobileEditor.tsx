@@ -31,8 +31,10 @@ import { AIPanel } from "../ai/AIPanel";
 import { ContentPanel } from "../ContentPanel";
 import { CustomizePanel } from "../CustomizePanel";
 import { ReviewPanel } from "../ReviewPanel";
+import { ScanOverlay } from "../ReviewSession";
 import { useDownloadPdf } from "../use-download-pdf";
 import { TailorPanel } from "../TailorPanel";
+import { TailorOverlay } from "../TailorSession";
 import { SetupFlow } from "./SetupFlow";
 
 type MobileTab = "content" | "customize" | "ai" | "review" | "tailor";
@@ -193,10 +195,18 @@ function PreviewTab() {
   const { data, format } = useResume();
 
   return (
-    <div className="relative px-3 pt-4 pb-24">
-      <PreviewCanvas format={format}>
-        <ResumePreview data={data} format={format} />
-      </PreviewCanvas>
+    <div className="px-3 pt-4 pb-24">
+      {/* Its own positioning context, so an overlay covers the paper rather
+          than the padding around it. */}
+      <div className="relative">
+        <PreviewCanvas format={format}>
+          <ResumePreview data={data} format={format} />
+        </PreviewCanvas>
+        {/* Switching to this tab mid-run is exactly when you want to see that
+            something is still happening to the page. */}
+        <ScanOverlay />
+        <TailorOverlay />
+      </div>
     </div>
   );
 }
