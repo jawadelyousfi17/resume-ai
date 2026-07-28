@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { JobBoard } from "@/components/jobs/JobBoard";
-import { getAuthUser, requireUser } from "@/lib/auth";
+import { PlanProvider } from "@/components/plan/PlanProvider";
+import { requireUser } from "@/lib/auth";
+import { planFor } from "@/lib/subscription";
 
 export const metadata: Metadata = {
   title: "Job Tracker — meniacv",
@@ -11,17 +13,25 @@ export const metadata: Metadata = {
 };
 
 export default async function JobsPage() {
-  // Open to guests, like the dashboard: the board lives in the browser, so
-  // there is nothing here that needs an account.
-  const authUser = await getAuthUser();
-  const user = authUser ? await requireUser() : null;
+  // Behind the same door as the rest of the signed-in app. The board itself
+  // lives in the browser, but a sidebar whose other links bounce you to
+  // /login is not a page anyone should be standing on.
+  const user = await requireUser();
+  const plan = await planFor(user.id);
 
   return (
-    <DashboardShell
-      active="jobs"
-      account={user ? { email: user.email, name: user.name, avatarUrl: user.avatarUrl } : null}
-    >
-      <JobBoard />
-    </DashboardShell>
+    <PlanProvider plan={plan}>
+      <DashboardShell
+        active="jobs"
+        account={{
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+          plan,
+        }}
+      >
+        <JobBoard />
+      </DashboardShell>
+    </PlanProvider>
   );
 }

@@ -16,6 +16,7 @@ import {
 
 import { applyEdit, type TailorReport } from "@/lib/ai/tailoring";
 import { useResume } from "@/lib/store";
+import { usePlan } from "@/components/plan/PlanProvider";
 
 /** What became of a rewrite once Apply was pressed. `stale` means the field
  *  had already moved on — it was edited while the report sat there. */
@@ -39,6 +40,7 @@ const TailorContext = createContext<TailorValue | null>(null);
 
 export function TailorProvider({ children }: { children: React.ReactNode }) {
   const { data, update } = useResume();
+  const plan = usePlan();
 
   const [posting, setPosting] = useState("");
   const [report, setReport] = useState<TailorReport | null>(null);
@@ -52,6 +54,9 @@ export function TailorProvider({ children }: { children: React.ReactNode }) {
 
   const run = useCallback(
     (text: string) => {
+      // One gate for every way in, same as the review's.
+      if (!plan.ask("tailor")) return;
+
       controller.current?.abort();
       const ctrl = new AbortController();
       controller.current = ctrl;
@@ -88,7 +93,7 @@ export function TailorProvider({ children }: { children: React.ReactNode }) {
         }
       })();
     },
-    [data],
+    [data, plan],
   );
 
   /** Writes one rewrite onto the document, and records whether it landed. */

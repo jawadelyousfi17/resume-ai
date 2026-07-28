@@ -8,7 +8,12 @@ import {
   signUpAction,
   type AuthFormState,
 } from "@/app/auth/actions";
-import { OAUTH_PROVIDERS } from "@/lib/auth-providers";
+import {
+  CREDENTIALS_ENABLED,
+  OAUTH_PROVIDERS,
+  SIGN_IN_DISABLED,
+} from "@/lib/auth-providers";
+import { cn } from "@/lib/utils";
 import { Input, Label } from "@/components/ui/fields";
 import { Spinner } from "@/components/ui/spinner";
 import { GoogleMark, LinkedInMark } from "./ProviderIcons";
@@ -71,6 +76,18 @@ export function AuthCard({
       <div className="mt-7 space-y-2.5">
         {OAUTH_PROVIDERS.map((provider) => {
           const Mark = MARKS[provider.id];
+
+          // Switched off: the button stays where it was, greyed out and
+          // labelled, so nobody wonders whether their account went with it.
+          if (!provider.enabled) {
+            return (
+              <ClosedButton key={provider.id}>
+                <Mark className="h-[18px] w-[18px] opacity-60" />
+                Continue with {provider.label}
+              </ClosedButton>
+            );
+          }
+
           return (
             <form key={provider.id} action={signInWithProviderAction}>
               <input type="hidden" name="provider" value={provider.id} />
@@ -81,7 +98,11 @@ export function AuthCard({
         })}
       </div>
 
-      {showCredentials ? (
+      {!CREDENTIALS_ENABLED ? (
+        <ClosedButton className="mt-2.5 border-transparent bg-transparent">
+          Use email and password
+        </ClosedButton>
+      ) : showCredentials ? (
         /* Remounts on switch so a stale error doesn't hang around. */
         <CredentialsForm key={mode} mode={mode} next={next} />
       ) : (
@@ -92,6 +113,14 @@ export function AuthCard({
         >
           Use email and password
         </button>
+      )}
+
+      {!CREDENTIALS_ENABLED && (
+        <p className="mt-3 text-center text-[13px] text-ink-faint">
+          Google is the only way in while we&rsquo;re opening up. Email and
+          LinkedIn follow shortly — and nothing you make now is lost when they
+          do.
+        </p>
       )}
 
       <p className="mt-7 text-center text-[14px] text-ink-soft">
@@ -105,6 +134,38 @@ export function AuthCard({
         </button>
       </p>
     </div>
+  );
+}
+
+/**
+ * A way in that isn't open yet.
+ *
+ * Shaped like the button it stands in for, so the card keeps its rhythm, but
+ * inert and marked: greyed, "Soon" beside the label, and the reason on hover
+ * for anyone who goes looking for one.
+ */
+function ClosedButton({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      disabled
+      title={SIGN_IN_DISABLED}
+      className={cn(
+        "flex w-full cursor-not-allowed items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white/60 px-4 py-3 text-[15px] font-bold text-ink-faint",
+        className,
+      )}
+    >
+      {children}
+      <span className="rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-bold tracking-wide uppercase">
+        Soon
+      </span>
+    </button>
   );
 }
 

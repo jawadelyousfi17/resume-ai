@@ -9,8 +9,52 @@ import { TEMPLATES } from "./templates";
 
 export type BillingCycle = "monthly" | "yearly";
 
+/** Matches the `PlanId` enum in prisma/schema.prisma, so a row read out of
+ *  the database is already one of these. */
+export type PlanId = "free" | "basic" | "ultimate";
+
+/**
+ * What a plan allows. Counts are `Infinity` when there's no cap.
+ *
+ * These are the numbers the server actually enforces (lib/subscription.ts),
+ * and they're what the feature lists below are written from — so the page
+ * can't promise something the server then refuses.
+ */
+export interface PlanLimits {
+  /** How many resumes can exist at once. */
+  resumes: number;
+  /** How many cover letters can exist at once. Zero means the feature is off. */
+  coverLetters: number;
+  /** Writing and rewriting with the assistant. */
+  ai: boolean;
+  /** Reading an existing resume out of an uploaded file. */
+  import: boolean;
+  /** The scored review of the whole page. */
+  review: boolean;
+  /** Tailoring a copy to one posting. */
+  tailor: boolean;
+  /** Translating a resume into another language. */
+  translate: boolean;
+}
+
+/** The in-or-out features, as opposed to the counted ones. */
+export type PlanFeature = {
+  [K in keyof PlanLimits]: PlanLimits[K] extends boolean ? K : never;
+}[keyof PlanLimits];
+
+/** Anything a plan can be short of: the switched features, and the counted
+ *  ones for when the count runs out. */
+export type PlanGate = PlanFeature | "resumes" | "coverLetters";
+
+/** The counted gates, which are refused for a different reason — a full plan
+ *  rather than one that never had it. */
+export const isCounted = (gate: PlanGate): gate is "resumes" | "coverLetters" =>
+  gate === "resumes" || gate === "coverLetters";
+
 export interface Plan {
-  id: string;
+  id: PlanId;
+  /** The plan's own name, for the places that name it in a sentence. */
+  title: string;
   /** Two-line name: a muted qualifier over the plan itself. */
   qualifier: string;
   name: string;
@@ -22,6 +66,7 @@ export interface Plan {
   href: string;
   featuresHeading: string;
   features: string[];
+  limits: PlanLimits;
   /** The one plan carrying the flame badge. */
   featured?: boolean;
 }
@@ -29,6 +74,7 @@ export interface Plan {
 export const PLANS: Plan[] = [
   {
     id: "free",
+    title: "Free",
     qualifier: "For one",
     name: "well-made resume",
     monthly: 0,
@@ -43,9 +89,19 @@ export const PLANS: Plan[] = [
       "No watermark, ever",
       "Full layout and design control",
     ],
+    limits: {
+      resumes: 1,
+      coverLetters: 0,
+      ai: false,
+      import: false,
+      review: false,
+      tailor: false,
+      translate: false,
+    },
   },
   {
     id: "basic",
+    title: "Basic",
     qualifier: "For a real",
     name: "job search",
     monthly: 9,
@@ -60,9 +116,19 @@ export const PLANS: Plan[] = [
       "AI review of the whole page",
       "Tailor a copy per role",
     ],
+    limits: {
+      resumes: 3,
+      coverLetters: 0,
+      ai: true,
+      import: true,
+      review: true,
+      tailor: true,
+      translate: false,
+    },
   },
   {
     id: "ultimate",
+    title: "Ultimate",
     qualifier: "For applying",
     name: "everywhere at once",
     monthly: 17,
@@ -77,9 +143,89 @@ export const PLANS: Plan[] = [
       "LaTeX source export",
       "Priority support",
     ],
+    limits: {
+      resumes: Infinity,
+      coverLetters: Infinity,
+      ai: true,
+      import: true,
+      review: true,
+      tailor: true,
+      translate: true,
+    },
     featured: true,
   },
 ];
+
+/**
+ * Whether a paid plan can actually be bought.
+ *
+ * There's no checkout yet, so the cards still say what's coming and what it
+ * will cost, with the button held shut rather than pointing somewhere that
+ * can't take the money. While this is false the first hundred accounts are
+ * on Ultimate for a year anyway — see lib/early-supporter.ts.
+ */
+export const CHECKOUT_ENABLED = false;
+
+/** The launch offer: the first hundred accounts are handed Ultimate for a
+ *  year, no card involved. Granted in lib/early-supporter.ts; the number lives
+ *  here because the pricing cards and the thank-you both quote it. */
+export const EARLY_SUPPORTER = { places: 100, months: 12 } as const;
+
+export const PLAN_LIMITS = Object.fromEntries(
+  PLANS.map((plan) => [plan.id, plan.limits]),
+) as Record<PlanId, PlanLimits>;
+
+export const planById = (id: PlanId) => PLANS.find((p) => p.id === id)!;
+
+/** The cheapest plan that includes something — what an upgrade prompt should
+ *  name. Everything is on Ultimate, so there's always an answer. */
+export const cheapestPlanWith = (gate: PlanGate) =>
+  PLANS.find((plan) => plan.limits[gate])!;
+
+/** The thing, said in a sentence: "AI writing is part of Basic." */
+export const FEATURE_NAMES: Record<PlanGate, string> = {
+  ai: "AI writing",
+  resumes: "More resumes",
+  import: "Importing an existing resume",
+  review: "The AI review",
+  tailor: "Tailoring to a posting",
+  translate: "Translation",
+  coverLetters: "Cover letters",
+};
+
+/** The next plan up on a counted limit — who to point at when the one they're
+ *  on is full. Undefined when they're already on the roomiest. */
+export const nextPlanFor = (gate: PlanGate, plan: PlanId) =>
+  PLANS.find((p) => p.limits[gate] > PLAN_LIMITS[plan][gate]);
+
+/** What a locked feature says when someone reaches it anyway. */
+export function upgradeMessage(gate: PlanGate): string {
+  const plan = cheapestPlanWith(gate);
+  return `${FEATURE_NAMES[gate]} is part of ${plan.title} — $${plan.yearly}/month billed yearly. Upgrade on the pricing page to use it.`;
+}
+
+/** What an account at its ceiling is told when it tries to add another
+ *  document. Names the next plan up rather than only saying no. */
+export function limitMessage(
+  plan: Plan,
+  kind: "resumes" | "coverLetters",
+): string {
+  const noun = kind === "resumes" ? "resume" : "cover letter";
+  const cap = plan.limits[kind];
+  const next = PLANS.find((p) => p.limits[kind] > cap);
+  const more = next
+    ? ` Upgrade to ${next.title} for ${
+        next.limits[kind] === Infinity
+          ? `as many ${noun}s as you like`
+          : `${next.limits[kind]} ${noun}s`
+      }.`
+    : "";
+
+  if (cap === 0) {
+    return `${noun[0].toUpperCase()}${noun.slice(1)}s aren't part of ${plan.title}.${more}`;
+  }
+  return `${plan.title} keeps ${cap} ${noun}${cap === 1 ? "" : "s"} at a time.${more}`;
+}
 
 /** What a plan costs on the selected cycle, ready to print. */
 export function planPrice(plan: Plan, cycle: BillingCycle) {

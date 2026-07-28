@@ -9,15 +9,15 @@ import Link from "next/link";
 
 import {
   BriefcaseIcon,
-  CapIcon,
   FileTextIcon,
   MailIcon,
-  TagIcon,
 } from "@/components/ui/icons";
 import { LogoLockup } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
-export type DashboardSection = "resumes" | "letters" | "jobs";
+/** "profile" is a place the sidebar can be on without being a place it can
+ *  take you: it's reached from the account menu, so nothing lights up. */
+export type DashboardSection = "resumes" | "letters" | "jobs" | "profile";
 
 /** Where the sidebar can take you. An entry without an href is a place that
  *  doesn't exist yet — it stays inert rather than pretending. */
@@ -35,11 +35,6 @@ export const NAV: {
     icon: MailIcon,
   },
   { id: "jobs", label: "Job Tracker", href: "/jobs", icon: BriefcaseIcon },
-];
-
-export const NAV_FOOTER = [
-  { label: "Plans & Pricing", href: "/pricing", icon: TagIcon },
-  { label: "Student Benefits", icon: CapIcon },
 ];
 
 /** The sidebar as it looks with no account loaded — the shape a fallback

@@ -23,6 +23,7 @@ import {
   RenameDialog,
 } from "@/components/ui/prompt-dialogs";
 import { LetterCard } from "./LetterCard";
+import { usePlan } from "@/components/plan/PlanProvider";
 import { NewLetterDialog, type NewLetter } from "./NewLetterDialog";
 
 export function CoverLetters({
@@ -60,6 +61,11 @@ export function CoverLetters({
       router.refresh();
     });
   };
+
+  // Cover letters are an Ultimate feature, so the question is asked at the
+  // door — before the dialog that would collect a posting to write from.
+  const plan = usePlan();
+  const startLetter = () => plan.ask("coverLetters") && setAdding(true);
 
   const create = (letter: NewLetter) => {
     // The dialog stays open, saying what it's doing, until the letter exists
@@ -108,7 +114,7 @@ export function CoverLetters({
           button, so there it collapses to a single row. */}
       <button
         type="button"
-        onClick={() => setAdding(true)}
+        onClick={startLetter}
         disabled={pending}
         className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink-faint/40 text-[15px] font-bold text-ink-soft transition active:border-purple/50 disabled:opacity-60 md:hidden"
       >
@@ -119,7 +125,7 @@ export function CoverLetters({
       <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:mt-8 md:grid-cols-[repeat(auto-fill,minmax(190px,1fr))] md:gap-x-6 md:gap-y-8">
         <button
           type="button"
-          onClick={() => setAdding(true)}
+          onClick={startLetter}
           disabled={pending}
           className="group hidden aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink-faint/40 text-ink-soft transition hover:border-purple/50 hover:text-purple disabled:opacity-60 md:flex"
         >

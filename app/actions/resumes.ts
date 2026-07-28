@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import * as db from "@/lib/resumes";
+import { quotaDenial } from "@/lib/subscription";
 import {
   idSchema,
   pageFormatSchema,
@@ -14,6 +15,9 @@ import type { ResumeData } from "@/lib/types";
 // Server Actions are reachable by anyone who can POST to the app, so each one
 // starts by resolving the signed-in user and then only ever touches rows that
 // belong to them. `requireUser()` redirects to /login when there's no session.
+//
+// Anything that adds a resume also asks lib/subscription whether the plan has
+// room for one. Whatever the dashboard chooses to show, the limit is here.
 
 export type ActionResult<T extends object = object> =
   | ({ ok: true } & T)
@@ -25,6 +29,10 @@ export async function createResumeAction(): Promise<
   ActionResult<{ id: string }>
 > {
   const user = await requireUser();
+
+  const denied = await quotaDenial(user.id, "resumes");
+  if (denied) return { ok: false, error: denied };
+
   const existing = await db.countResumes(user.id);
   const resume = await db.createResume(user.id, `Resume ${existing + 1}`);
 
@@ -47,6 +55,11 @@ export async function importResumeAction(input: {
   data: unknown;
 }): Promise<ActionResult<{ id: string }>> {
   const user = await requireUser();
+
+  // A guest handing over the resume they wrote signed out counts against the
+  // plan like any other: the free one resume is the one they just wrote.
+  const denied = await quotaDenial(user.id, "resumes");
+  if (denied) return { ok: false, error: denied };
 
   const parsedName = resumeNameSchema.safeParse(input.name);
   const parsedFormat = pageFormatSchema.safeParse(input.format);
@@ -98,6 +111,9 @@ export async function duplicateResumeAction(
 
   const parsedId = idSchema.safeParse(id);
   if (!parsedId.success) return { ok: false, error: NOT_FOUND };
+
+  const denied = await quotaDenial(user.id, "resumes");
+  if (denied) return { ok: false, error: denied };
 
   const copy = await db.duplicateResume(user.id, parsedId.data);
   if (!copy) return { ok: false, error: NOT_FOUND };

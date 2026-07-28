@@ -3,9 +3,9 @@
 // runtime because it holds the API key and the Anthropic SDK.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { getAuthUser } from "@/lib/auth";
+import { requireFeature } from "@/lib/subscription";
 import { buildPrompt, PromptError } from "@/lib/ai/prompt";
-import { AI_TASKS, LIMITS, type AIRequest } from "@/lib/ai/tasks";
+import { AI_TASKS, LIMITS, TASK_GATE, type AIRequest } from "@/lib/ai/tasks";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -22,10 +22,6 @@ function getClient(): Anthropic {
 }
 
 export async function POST(req: Request) {
-  // This route spends money on every call, so it checks the session itself
-  // rather than trusting the proxy to have done it.
-  if (!(await getAuthUser())) return jsonError("Not signed in", 401);
-
   let body: AIRequest;
   try {
     body = (await req.json()) as AIRequest;
@@ -36,6 +32,12 @@ export async function POST(req: Request) {
   if (!body?.task || !(body.task in AI_TASKS)) {
     return jsonError("Unknown task", 400);
   }
+
+  // This route spends money on every call, so it checks the session and the
+  // plan itself rather than trusting the proxy or the panel to have done it.
+  const denied = await requireFeature(TASK_GATE[body.task]);
+  if (denied) return denied;
+
   if (!body.data || !Array.isArray(body.data.sections) || !body.data.personal) {
     return jsonError("Missing resume data", 400);
   }

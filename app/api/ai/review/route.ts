@@ -3,7 +3,7 @@
 // being written, and half a score is no use to anybody.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { getAuthUser } from "@/lib/auth";
+import { requireFeature } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
 import { collectStrings } from "@/lib/ai/translate";
 import {
@@ -36,8 +36,10 @@ const MAX_ADVICE = 8;
 let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
-  // Every call here spends money, so the route checks the session itself.
-  if (!(await getAuthUser())) return jsonError("Not signed in", 401);
+  // Every call here spends money, so the route checks the session and the
+  // plan itself.
+  const denied = await requireFeature("review");
+  if (denied) return denied;
 
   let body: { data?: ResumeData };
   try {

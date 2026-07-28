@@ -12,9 +12,10 @@ import { createClient } from "@/lib/supabase/server";
 // closed to anonymous writes: a guest's photo is stored with the secret key,
 // under a folder of its own, after this route has checked it.
 //
-// Open to signed-out visitors on purpose. The app works without an account,
-// and a photo that only exists inside the document is what made resumes too
-// big to save and too big to export.
+// Needs an account, like everything else that writes: a photo that only exists
+// inside the document is what made resumes too big to save and too big to
+// export, and an upload endpoint open to the world is a bucket someone else
+// fills.
 //
 // The browser has already shrunk the image to about 100KB; the limits below
 // are a check against anything else arriving.

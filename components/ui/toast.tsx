@@ -9,7 +9,10 @@
 // line itself. Everything else — ids, dismissal, the promise of a loading
 // toast turning into a result — is the library's, untouched.
 
+import { useEffect, useState } from "react";
 import hot, { Toaster as HotToaster } from "react-hot-toast";
+
+import { MOBILE_QUERY } from "@/lib/device";
 
 interface Options {
   /** Replaces an existing toast instead of stacking a new one. Used by the
@@ -46,22 +49,61 @@ export const toast = {
   dismiss: (id?: string) => hot.dismiss(id),
 };
 
+/** True on a phone-sized screen. Starts false so the server and the first
+ *  client paint agree; nothing is on screen at mount for the correction to
+ *  disturb. */
+function useNarrow() {
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return narrow;
+}
+
 /**
  * Where they appear.
  *
  * Bottom right on a desktop — the editor's own controls live top and left, and
  * a toast over the page being edited is a toast in the way. On a phone there is
  * no such corner, so they come down from the top, clear of the bottom bar.
+ *
+ * The side is switched through the library's own `position` rather than by
+ * pinning the container with CSS. `position` is not only where the box sits:
+ * react-hot-toast reads it to decide which way a toast enters and which way the
+ * stack grows — `translateY(offset * (isTop ? 1 : -1))`. Told "bottom" while
+ * CSS held the container at the top, every toast after the first translated
+ * *upwards*, off the top of the screen, which is what made them look half cut
+ * off. Given the real position it animates and stacks downwards, as it should.
  */
 export function Toaster() {
+  const narrow = useNarrow();
+
   return (
     <HotToaster
-      position="bottom-right"
-      containerClassName="!bottom-6 !right-6 max-sm:!top-4 max-sm:!bottom-auto max-sm:!right-4 max-sm:!left-4"
+      position={narrow ? "top-center" : "bottom-right"}
+      containerStyle={
+        narrow
+          ? {
+              // Clear of the status bar and the notch, not just of the
+              // viewport's top edge.
+              top: "calc(env(safe-area-inset-top, 0px) + 12px)",
+              left: 12,
+              right: 12,
+              bottom: "auto",
+            }
+          : { bottom: 24, right: 24 }
+      }
       toastOptions={{
-        // The app's panel, not the library's white box.
+        // The app's panel, not the library's white box. Full width on a phone,
+        // where the container's gutters already set the margin.
         className:
-          "!bg-panel !text-ink !text-[14px] !font-semibold !rounded-xl !shadow-[var(--shadow-panel)] !ring-1 !ring-black/5 !max-w-[420px]",
+          "!bg-panel !text-ink !text-[14px] !font-semibold !rounded-xl !shadow-[var(--shadow-panel)] !ring-1 !ring-black/5 !max-w-[420px] max-sm:!w-full",
         duration: 4000,
         success: {
           iconTheme: { primary: "var(--app-brand)", secondary: "#fff" },

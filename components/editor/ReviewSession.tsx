@@ -18,6 +18,7 @@ import {
   useState,
 } from "react";
 import { useResume } from "@/lib/store";
+import { usePlan } from "@/components/plan/PlanProvider";
 import { ScanSweep } from "@/components/ui/scan-sweep";
 import type { ReviewReport } from "@/lib/ai/review";
 
@@ -42,6 +43,7 @@ const ReviewContext = createContext<ReviewValue | null>(null);
 
 export function ReviewProvider({ children }: { children: React.ReactNode }) {
   const { data } = useResume();
+  const plan = usePlan();
 
   const [report, setReport] = useState<ReviewReport | null>(null);
   const [busy, setBusy] = useState(false);
@@ -53,6 +55,11 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => () => controller.current?.abort(), []);
 
   const run = useCallback(() => {
+    // Asked here rather than on each button that starts a review: there are
+    // several, and the answer must be the same from all of them. A refusal
+    // puts the upgrade card up and nothing is sent.
+    if (!plan.ask("review")) return;
+
     controller.current?.abort();
     const ctrl = new AbortController();
     controller.current = ctrl;
@@ -86,7 +93,7 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
         if (!ctrl.signal.aborted) setBusy(false);
       }
     })();
-  }, [data]);
+  }, [data, plan]);
 
   const recordFixes = useCallback((applied: Record<number, FixState>) => {
     setFixes((current) => ({ ...current, ...applied }));

@@ -7,6 +7,7 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Add01Icon,
+  AiChipIcon,
   ArrowDown01Icon,
   Award01Icon,
   Briefcase01Icon,
@@ -37,6 +38,7 @@ import {
   Search01Icon,
   SparklesIcon as HugeSparklesIcon,
   Tag01Icon,
+  Target02Icon,
   TextAlignLeftIcon,
   TextBoldIcon,
   TranslateIcon as HugeTranslateIcon,
@@ -101,3 +103,7 @@ export const TranslateIcon = icon(HugeTranslateIcon);
 export const CopyIcon = icon(Copy01Icon);
 export const SearchIcon = icon(Search01Icon);
 export const LogoutIcon = icon(Logout02Icon);
+/** The editor's AI tab. */
+export const ChipIcon = icon(AiChipIcon);
+/** The editor's tailoring tab. */
+export const TargetIcon = icon(Target02Icon);

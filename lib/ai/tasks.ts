@@ -1,6 +1,7 @@
 // The contract between the AI panel and `POST /api/ai`. Kept free of any
 // server-only imports so both sides can share it.
 
+import type { PlanFeature } from "@/lib/plans";
 import type { ResumeData } from "@/lib/types";
 
 export type AITaskId =
@@ -97,6 +98,20 @@ export const PANEL_TASKS: AITaskId[] = [
   "skills",
   "translate",
 ];
+
+/** Which plan each task belongs to. The writing tools come with Basic;
+ *  reading the whole page back and rewriting it in another language are their
+ *  own features, priced with the panels that usually run them. Read by the
+ *  panel before it opens a task and by the route before it spends anything,
+ *  so the two can't disagree about what's paid for. */
+export const TASK_GATE: Record<AITaskId, PlanFeature> = {
+  summary: "ai",
+  highlights: "ai",
+  skills: "ai",
+  polish: "ai",
+  review: "review",
+  translate: "translate",
+};
 
 export interface AIRequest {
   task: AITaskId;

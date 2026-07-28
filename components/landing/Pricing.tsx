@@ -12,6 +12,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import {
+  CHECKOUT_ENABLED,
+  EARLY_SUPPORTER,
   PLANS,
   bestSaving,
   planPrice,
@@ -19,22 +21,18 @@ import {
   type Plan,
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { FlameMark } from "@/components/ui/plan-badge";
 
 import { h2, lede, sectionGap, shell } from "./ui";
 
 /** The flame, for the plan we'd point someone at. */
-function HotBadge() {
+export function HotBadge() {
   return (
     <span
-      className="absolute top-5 right-5 grid h-11 w-11 place-items-center rounded-xl border border-[#0393a6] bg-gradient-to-br from-[#58d7ed] via-[#17c2df] to-[#09b4d7] shadow-[inset_0_1px_2px_rgba(255,255,255,0.75),0_2px_4px_rgba(0,0,0,0.09)]"
+      className="absolute top-5 right-5 grid h-11 w-11 place-items-center rounded-xl border border-[#0393a6] bg-gradient-to-br from-[#58d7ed] via-[#17c2df] to-[#09b4d7] text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.75),0_2px_4px_rgba(0,0,0,0.09)]"
       aria-hidden="true"
     >
-      <svg viewBox="0 0 48 48" className="h-6 w-6">
-        <path
-          fill="#fff"
-          d="M27.7 4.8c1.6 7.3-4.4 10.2-7.4 14.8-2.4 3.7-2.8 7.9-.8 11.3-2.7-1.6-4.4-4.4-4.4-7.7-5.4 4.1-7.9 9.5-6 15.2C11.1 44.2 16.5 47 23 47c8.7 0 15.8-6.6 15.8-15.4 0-8.4-5.4-14.9-11.1-26.8Zm-3.6 35.8c-4.1 0-7.4-2.8-7.4-6.7 0-2.9 1.8-5.5 4.8-7.9-.2 3.2 1.7 5.2 3.7 6.5 2.2-2.4 3.6-5.3 3.8-8.8 3.5 4.2 5.1 7.4 5.1 10.4 0 3.8-3.7 6.5-10 6.5Z"
-        />
-      </svg>
+      <FlameMark className="h-6 w-6" />
     </span>
   );
 }
@@ -93,6 +91,9 @@ export function BillingToggle({
 
 export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
   const price = planPrice(plan, cycle);
+  // The free plan is always available — it costs nothing to hand over. The
+  // paid ones need a checkout that doesn't exist yet.
+  const closed = !CHECKOUT_ENABLED && plan.monthly > 0;
 
   return (
     <article
@@ -130,12 +131,27 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
         </div>
         <p className="mt-2 text-[12.5px] text-ink-faint">{price.note}</p>
 
-        <Link
-          href={plan.href}
-          className="plan-cta mt-6 flex h-12 w-full items-center justify-center rounded-[10px] text-[14.5px] font-medium tracking-[-0.025em] transition hover:opacity-95"
-        >
-          {plan.cta}
-        </Link>
+        {closed ? (
+          // Nothing to hand a card to yet. The button keeps its place and its
+          // words so the card still reads as an offer, but it doesn't pretend
+          // to be a way to buy anything.
+          <button
+            type="button"
+            disabled
+            title="Payments aren't open yet."
+            className="plan-cta mt-6 flex h-12 w-full cursor-not-allowed items-center justify-center rounded-[10px] text-[14.5px] font-medium tracking-[-0.025em] opacity-55"
+          >
+            {plan.cta}
+          </button>
+        ) : (
+          <Link
+            href={plan.href}
+            className="plan-cta mt-6 flex h-12 w-full items-center justify-center rounded-[10px] text-[14.5px] font-medium tracking-[-0.025em] transition hover:opacity-95"
+          >
+            {plan.cta}
+          </Link>
+        )}
+
       </div>
 
       {/* The features, on the slab */}
@@ -160,22 +176,66 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
 }
 
 /** The toggle and the three plans. Used by the landing page and by /pricing. */
-export function PlanGrid({ className }: { className?: string }) {
+export function PlanGrid({
+  className,
+  // On a page there's a whole screen to scroll and stacking is right. Inside a
+  // dialog there isn't: three stacked cards put the third one two swipes below
+  // the fold, where nobody goes. `swipe` lays them along instead, one card to a
+  // screen with the next one peeking, so all three are a thumb apart.
+  swipe = false,
+}: {
+  className?: string;
+  swipe?: boolean;
+}) {
   // Yearly first: it's the price the headline copy quotes, and the monthly
   // figure is one click away for anyone who doesn't want to commit a year.
   const [cycle, setCycle] = useState<BillingCycle>("yearly");
 
   return (
-    <div className={className}>
+    // `min-w-0` matters inside the upgrade dialog: its content is a grid, and
+    // a grid item defaults to min-width:auto, so a scrolling row of cards
+    // would size the whole dialog to the row rather than scrolling inside it.
+    <div className={cn("min-w-0", className)}>
       <div className="text-center">
         <BillingToggle cycle={cycle} onChange={setCycle} />
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3 md:gap-5">
+      <div
+        className={cn(
+          "mt-8 grid min-w-0 gap-4 md:grid-cols-3 md:gap-5",
+          swipe &&
+            // `scroll-slim` takes the bar away: the peeking card is the
+            // affordance, and a scrollbar under it is furniture nobody on a
+            // phone needs. Bleeds to the edges so that card runs off the
+            // screen rather than stopping short of it, which is what makes it
+            // read as "there's more this way".
+            "scroll-slim",
+          swipe &&
+            "max-md:-mx-5 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:px-5 max-md:pb-1",
+        )}
+      >
         {PLANS.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} cycle={cycle} />
+          <div
+            key={plan.id}
+            className={cn(
+              swipe && "max-md:w-[86%] max-md:shrink-0 max-md:snap-center",
+            )}
+          >
+            <PlanCard plan={plan} cycle={cycle} />
+          </div>
         ))}
       </div>
+
+      {/* Said once under the grid rather than on each shut card, so the three
+          cards keep the same shape and the reason doesn't arrive twice. */}
+      {!CHECKOUT_ENABLED && (
+        <p className="mt-6 text-center text-[13.5px] text-ink-soft">
+          <span className="font-bold text-ink">Not on sale yet.</span> The first{" "}
+          {EARLY_SUPPORTER.places}{" "}
+          accounts get Ultimate free for a year — sign
+          up and it&rsquo;s yours, no card involved.
+        </p>
+      )}
     </div>
   );
 }
@@ -187,8 +247,8 @@ export function Pricing() {
       <div className="text-center">
         <h2 className={h2}>Simple pricing. One free resume, forever.</h2>
         <p className={`${lede} mx-auto`}>
-          Start without an account and without a card. Upgrade only when you
-          want the AI to write with you, or when one resume stops being enough.
+          Start free and without a card. Upgrade only when you want the AI to
+          write with you, or when one resume stops being enough.
         </p>
       </div>
 

@@ -15,12 +15,12 @@ export const FAQ_GROUPS: FaqGroup[] = [
       {
         question: "Do I need an account to use meniacv?",
         answer:
-          "No. You can build one resume, preview it live and download the PDF without signing in — it's kept in your browser. Sign in when you want more than one, or when you want it saved to your account rather than to this device.",
+          "Yes — signing in takes a moment with Google, and it's free. Your resume is then saved to your account rather than to one browser, so it's still there on your phone, on a different machine, and after a cleared cache.",
       },
       {
-        question: "What happens to my resume if I sign in later?",
+        question: "What does the free plan actually include?",
         answer:
-          "It comes with you. The resume you built as a guest is saved to your account the moment you sign in, and the local copy is only cleared once that has succeeded.",
+          "One resume, every template, full control over the layout, and unlimited PDF downloads with no watermark. It doesn't expire and it doesn't ask for a card.",
       },
       {
         question: "Can I import a resume I already have?",

@@ -1,6 +1,8 @@
 // Client-side download helpers for the generated resume artifacts.
 
 import { toast } from "@/components/ui/toast";
+import { FIRST_EXPORT_EVENT, recordExport } from "@/lib/first-export";
+import { reachedMilestone } from "@/lib/feedback-nudge";
 
 import type { PageFormat, ResumeData } from "@/lib/types";
 
@@ -87,6 +89,16 @@ export async function downloadResumePdf(resume: {
     const filename = `${slugify(resume.name)}.pdf`;
     downloadBlob(filename, await res.blob());
     toast.success(`Downloaded ${filename}`, { id: toastId });
+
+    // Announced rather than shown from here: this module builds files, and
+    // whoever wants to make something of it is listening. The first one gets
+    // the celebration; the ones after it are a fair moment to ask how it's
+    // going, which is not something to do to someone mid-confetti.
+    if (recordExport()) {
+      window.dispatchEvent(new Event(FIRST_EXPORT_EVENT));
+    } else {
+      reachedMilestone("export");
+    }
   } catch (err) {
     // Never reached the renderer at all — offline, or the request was cut.
     toast.error("Couldn't build the PDF", {

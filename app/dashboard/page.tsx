@@ -1,20 +1,41 @@
-import { getAuthUser, requireUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { listResumes } from "@/lib/resumes";
+import { pendingCelebration } from "@/lib/early-supporter";
+import { planFor } from "@/lib/subscription";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import { PlanProvider } from "@/components/plan/PlanProvider";
+import { SupporterCelebration } from "@/components/dashboard/SupporterCelebration";
 
 export default async function DashboardPage() {
-  // Open to guests: with no session the dashboard renders against the single
-  // resume their browser is holding, and offers to keep it if they sign in.
-  const authUser = await getAuthUser();
-  if (!authUser) return <Dashboard resumes={[]} account={null} />;
-
-  // Mirrors the Supabase identity into our own table on first sight.
+  // Resumes belong to an account, so this page needs one: `requireUser()`
+  // sends a signed-out visitor to /login, and mirrors the Supabase identity
+  // into our own table on first sight.
   const user = await requireUser();
 
+  const [resumes, plan, celebration] = await Promise.all([
+    listResumes(user.id),
+    planFor(user.id),
+    // Null for everyone but an early supporter who hasn't been thanked yet,
+    // which is all but one page load in an account's life.
+    pendingCelebration(user.id),
+  ]);
+
   return (
-    <Dashboard
-      resumes={await listResumes(user.id)}
-      account={{ email: user.email, name: user.name, avatarUrl: user.avatarUrl }}
-    />
+    <PlanProvider plan={plan}>
+      <Dashboard
+        resumes={resumes}
+        account={{
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+          plan,
+        }}
+      />
+      {celebration && (
+        <SupporterCelebration
+          celebration={{ ...celebration, until: celebration.until.getTime() }}
+        />
+      )}
+    </PlanProvider>
   );
 }

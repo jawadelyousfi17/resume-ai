@@ -3,6 +3,8 @@ import { fontVariables } from "./fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toast";
+import { FirstExportCelebration } from "@/components/ui/first-export-celebration";
+import { FeedbackNudge } from "@/components/feedback/FeedbackNudge";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
@@ -50,6 +52,11 @@ export default function RootLayout({
             monitor. */}
         <AuthDialogProvider>{children}</AuthDialogProvider>
         <ThemeSwitcher />
+        {/* Dormant until the first resume is downloaded, wherever that
+            happens from. */}
+        <FirstExportCelebration />
+        {/* Asleep until something goes right — see lib/feedback-nudge. */}
+        <FeedbackNudge />
         <Toaster />
       </body>
     </html>

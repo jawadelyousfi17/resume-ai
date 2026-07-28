@@ -3,7 +3,7 @@
 // and half a salutation is no use to anybody.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { getAuthUser } from "@/lib/auth";
+import { requireQuota } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
 import {
   DEFAULT_TONE,
@@ -26,7 +26,10 @@ const MIN_JOB_DESCRIPTION = 40;
 let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
-  if (!(await getAuthUser())) return jsonError("Not signed in", 401);
+  // Drafting is only worth paying for if the letter can then be saved, so the
+  // gate is the same one the create action uses: room for another letter.
+  const denied = await requireQuota("coverLetters");
+  if (denied) return denied;
 
   let body: {
     data?: ResumeData;

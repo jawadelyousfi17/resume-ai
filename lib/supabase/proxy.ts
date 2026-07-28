@@ -2,10 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { supabaseAnonKey, supabaseUrl } from "./env";
 
-/** API routes a signed-out visitor may call. Everything else under /api is
- *  turned away here; the pages are all public, because the app works as a
- *  guest and the marketing and guide pages have to be crawlable. */
-const PUBLIC_API_PATHS = ["/api/compile", "/api/upload"];
+/** API routes a signed-out visitor may call. There are none: writing a resume
+ *  needs an account, so every route under /api does too. The marketing and
+ *  guide pages stay public and crawlable — this list is only about /api. */
+const PUBLIC_API_PATHS: string[] = [];
 
 /** Exact matches only. A prefix match would have let `/api/compile/cover-letter`
  *  in behind `/api/compile`, and a route nested under a public one is not

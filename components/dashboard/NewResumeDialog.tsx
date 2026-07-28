@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { ImportScan } from "@/components/dashboard/ImportScan";
+import { usePlan } from "@/components/plan/PlanProvider";
+import { PlanBadge } from "@/components/ui/plan-badge";
+import { cheapestPlanWith } from "@/lib/plans";
 import { TemplatePicker } from "@/components/editor/CustomizePanel";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import type { Template } from "@/lib/templates";
@@ -30,7 +33,6 @@ export function NewResumeDialog({
   onScratchOpen,
   onScratchCancel,
   onImported,
-  canImport = true,
   onImportBlocked,
   /** The resume's language, so extracted headings come out in it. */
   language,
@@ -47,12 +49,23 @@ export function NewResumeDialog({
    *  should be undone. */
   onScratchCancel?: () => void;
   onImported: (resume: { name: string; data: ResumeData }) => void;
-  /** False for guests — reading a file costs a model call, so it needs an
-   *  account. The card then offers to sign in rather than failing a request. */
-  canImport?: boolean;
+  /** Called when the file was turned away before it was read — the dialog
+   *  behind the refusal should get out of the way. */
   onImportBlocked?: () => void;
   language?: string;
 }) {
+  // Reading a file costs a model call, so it's on the paid plans and needs an
+  // account. Both refusals happen here, on the click — nothing is uploaded and
+  // nothing is read to find out what we already know.
+  const plan = usePlan();
+  const canImport = plan.allows("import");
+
+  /** The way in, or the upgrade card, and word to whoever opened this. */
+  const refuseImport = () => {
+    onImportBlocked?.();
+    plan.ask("import");
+  };
+
   const fileInput = useRef<HTMLInputElement>(null);
   // "Start from scratch" asks what it should look like before anything else.
   // The gallery is the same one the editor shows, so the choice is made
@@ -139,7 +152,7 @@ export function NewResumeDialog({
 
     const file = e.dataTransfer.files[0];
     if (!file) return;
-    if (!canImport) return onImportBlocked?.();
+    if (!canImport) return refuseImport();
     if (!accepted(file)) {
       return toast.error("Can't read that kind of file", {
         description: "A PDF, an image or a text file, please.",
@@ -238,19 +251,30 @@ export function NewResumeDialog({
             <button
               type="button"
               onClick={() =>
-                canImport ? fileInput.current?.click() : onImportBlocked?.()
+                canImport ? fileInput.current?.click() : refuseImport()
               }
               disabled={creating}
               className="flex w-full items-center gap-4 rounded-xl bg-navy px-6 py-5 text-left text-[17px] font-bold text-white transition hover:bg-navy/90 disabled:opacity-60"
             >
               <span className="text-[24px] leading-none">📄</span>
-              {canImport ? "Upload a resume" : "Sign in to upload"}
+              {plan.plan === null && !canImport
+                ? "Sign in to upload"
+                : "Upload a resume"}
               {/* Which formats is the one thing worth saying — it saves a
-                  round trip to a rejected file. */}
-              {canImport && (
+                  round trip to a rejected file. On a plan without it, the same
+                  spot names the plan that has it, so the row still answers
+                  "and then what?" before it's pressed. */}
+              {canImport ? (
                 <span className="ml-auto pl-3 text-[13.5px] font-medium text-white/55">
                   PDF, image, text
                 </span>
+              ) : (
+                plan.plan !== null && (
+                  <PlanBadge
+                    plan={cheapestPlanWith("import").id}
+                    className="ml-auto"
+                  />
+                )
               )}
             </button>
 

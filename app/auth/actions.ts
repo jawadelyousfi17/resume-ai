@@ -6,7 +6,11 @@ import { syncUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { siteOrigin } from "@/lib/site-url";
 import { credentialsSchema } from "@/lib/validation";
-import { isOAuthProvider } from "@/lib/auth-providers";
+import {
+  CREDENTIALS_ENABLED,
+  isProviderEnabled,
+  SIGN_IN_DISABLED,
+} from "@/lib/auth-providers";
 
 export type AuthFormState = {
   error?: string;
@@ -18,6 +22,10 @@ export async function signInAction(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  // The card disables the form, but a disabled input is a suggestion — the
+  // POST it would have made can still be sent by hand.
+  if (!CREDENTIALS_ENABLED) return { error: SIGN_IN_DISABLED };
+
   const parsed = credentialsSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -44,6 +52,8 @@ export async function signUpAction(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  if (!CREDENTIALS_ENABLED) return { error: SIGN_IN_DISABLED };
+
   const parsed = credentialsSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -76,8 +86,10 @@ export async function signUpAction(
  *  consent screen, which sends it back to /auth/callback with a code. */
 export async function signInWithProviderAction(formData: FormData) {
   const provider = formData.get("provider");
-  if (!isOAuthProvider(provider)) {
-    redirect("/login?error=Unknown+sign-in+provider");
+  // Covers both the unknown provider and the one that's switched off: neither
+  // is a hand-off this app will make today.
+  if (!isProviderEnabled(provider)) {
+    redirect(`/login?error=${encodeURIComponent(SIGN_IN_DISABLED)}`);
   }
 
   const origin = await siteOrigin();

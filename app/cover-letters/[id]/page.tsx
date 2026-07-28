@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { getCoverLetter } from "@/lib/cover-letters";
 import { getResume } from "@/lib/resumes";
 import { LetterEditor } from "@/components/cover-letter/LetterEditor";
+import { PlanProvider } from "@/components/plan/PlanProvider";
+import { planFor } from "@/lib/subscription";
 
 export default async function CoverLetterEditorPage(
   props: PageProps<"/cover-letters/[id]">,
@@ -22,5 +24,9 @@ export default async function CoverLetterEditorPage(
     ? await getResume(user.id, letter.resumeId)
     : null;
 
-  return <LetterEditor letter={letter} resume={resume} />;
+  return (
+    <PlanProvider plan={await planFor(user.id)}>
+      <LetterEditor letter={letter} resume={resume} />
+    </PlanProvider>
+  );
 }

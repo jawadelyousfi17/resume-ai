@@ -3,7 +3,7 @@
 // being written, and the whole point is that it lands intact.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { getAuthUser } from "@/lib/auth";
+import { requireFeature } from "@/lib/subscription";
 import {
   applyTranslations,
   collectStrings,
@@ -24,7 +24,8 @@ const MAX_STRINGS = 400;
 let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
-  if (!(await getAuthUser())) return jsonError("Not signed in", 401);
+  const denied = await requireFeature("translate");
+  if (denied) return denied;
 
   let body: { data?: ResumeData; target?: string };
   try {

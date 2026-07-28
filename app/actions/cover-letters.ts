@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import * as db from "@/lib/cover-letters";
 import { getResume } from "@/lib/resumes";
+import { quotaDenial } from "@/lib/subscription";
 import { letterFromResume } from "@/lib/cover-letter";
 import {
   coverLetterNameSchema,
@@ -15,7 +16,9 @@ import type { CoverLetterData } from "@/lib/types";
 import type { ActionResult } from "./resumes";
 
 // Same rules as the resume actions: these are public endpoints, so each one
-// resolves the signed-in user first and only ever touches rows they own.
+// resolves the signed-in user first and only ever touches rows they own, and
+// anything that adds a letter checks the plan has room for one. Cover letters
+// are an Ultimate feature, so on the other plans that check is the whole gate.
 
 const NOT_FOUND = "That cover letter no longer exists.";
 
@@ -32,6 +35,9 @@ export async function createCoverLetterAction(input?: {
   data?: unknown;
 }): Promise<ActionResult<{ id: string }>> {
   const user = await requireUser();
+
+  const denied = await quotaDenial(user.id, "coverLetters");
+  if (denied) return { ok: false, error: denied };
 
   const parsedId = input?.resumeId
     ? idSchema.safeParse(input.resumeId)
@@ -97,6 +103,9 @@ export async function duplicateCoverLetterAction(
 
   const parsedId = idSchema.safeParse(id);
   if (!parsedId.success) return { ok: false, error: NOT_FOUND };
+
+  const denied = await quotaDenial(user.id, "coverLetters");
+  if (denied) return { ok: false, error: denied };
 
   const copy = await db.duplicateCoverLetter(user.id, parsedId.data);
   if (!copy) return { ok: false, error: NOT_FOUND };

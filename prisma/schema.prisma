@@ -16,6 +16,30 @@ enum PageFormat {
   Letter
 }
 
+/// The three plans. Values match the `id` of each entry in lib/plans.ts, so a
+/// row read out of here is already a `PlanId` and nothing has to be mapped.
+enum PlanId {
+  free
+  basic
+  ultimate
+}
+
+/// Where a subscription stands with the billing provider. `past_due` is a
+/// payment that failed but hasn't been given up on yet — access lasts until
+/// the period already paid for runs out, same as a cancellation.
+enum SubscriptionStatus {
+  active
+  trialing
+  past_due
+  canceled
+}
+
+/// How often it renews. Mirrors `BillingCycle` in lib/plans.ts.
+enum BillingCycle {
+  monthly
+  yearly
+}
+
 /// The app-side half of a Supabase user: one row per `auth.users` row, keyed
 /// by the same UUID. Written by `syncUser()` on first sign-in — Supabase stays
 /// the source of truth for identity, this table just anchors the resumes.
@@ -30,8 +54,81 @@ model User {
 
   resumes      Resume[]
   coverLetters CoverLetter[]
+  subscription Subscription?
+  feedback     Feedback[]
 
   @@map("users")
+}
+
+/// Something a user wrote in about: a bug, an idea, or a word either way.
+///
+/// `SetNull` rather than `Cascade` on the author: a bug report is about the
+/// app, and it stays useful — often most useful — after the person who sent it
+/// has gone.
+model Feedback {
+  id     String  @id @default(uuid()) @db.Uuid
+  userId String? @db.Uuid
+
+  /// How it's going, 1 (badly) to 5 (perfect). The whole answer, for anyone
+  /// who has nothing to add — which is most people, most of the time.
+  rating Int
+  /// Anything they wanted to say as well. Optional on purpose: asking for a
+  /// paragraph is how you stop getting answers.
+  message String? @db.Text
+  /// Where they were when they sent it. A bug report without the page it
+  /// happened on is a puzzle rather than a report.
+  path String?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // The only read anyone does: newest first.
+  @@index([createdAt(sort: Desc)])
+  @@map("feedback")
+}
+
+/// What a user is paying for.
+///
+/// At most one row per user, and only once they've bought something: no row
+/// means the free plan, which is what most accounts are. What each plan
+/// actually allows lives in lib/plans.ts — this table only records which one
+/// is in force, and lib/subscription.ts turns the two into an answer.
+model Subscription {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+
+  plan   PlanId             @default(free)
+  status SubscriptionStatus @default(active)
+  cycle  BillingCycle       @default(monthly)
+
+  /// The end of the period already paid for. Access holds until then even
+  /// after a cancellation; once it's in the past the account reads as free
+  /// whatever the status says, so a missed webhook can't hand out a plan
+  /// forever. Null means no end date — a plan granted by hand.
+  currentPeriodEnd DateTime?
+  /// Set when someone cancels but has time left on the clock.
+  cancelAtPeriodEnd Boolean @default(false)
+
+  /// The billing provider's own ids, for matching a webhook back to a user.
+  /// Null until checkout exists — until then plans are granted by hand.
+  customerId     String? @unique
+  subscriptionId String? @unique
+
+  /// One of the first hundred accounts, handed Ultimate for a year on the
+  /// house. See `EARLY_SUPPORTER` in lib/subscription.ts.
+  earlySupporter Boolean @default(false)
+  /// Their place in that hundred, which is what the thank-you counts off.
+  supporterNumber Int?
+  /// When the thank-you was shown, so it's shown exactly once.
+  celebratedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }
 
 model Resume {

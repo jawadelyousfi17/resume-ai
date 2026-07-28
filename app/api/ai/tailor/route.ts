@@ -4,7 +4,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 
-import { getAuthUser } from "@/lib/auth";
+import { requireFeature } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
 import { LIMITS } from "@/lib/ai/tasks";
 import {
@@ -31,7 +31,8 @@ const MAX_EDITS = 12;
 let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
-  if (!(await getAuthUser())) return jsonError("Not signed in", 401);
+  const denied = await requireFeature("tailor");
+  if (denied) return denied;
 
   let body: { data?: ResumeData; posting?: string };
   try {

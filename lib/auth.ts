@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { prisma } from "./prisma";
 import { randomAccountAvatarUrl } from "./avatar";
+import { grantEarlySupporter } from "./early-supporter";
+import { CREDENTIALS_ENABLED } from "./auth-providers";
 import { createClient } from "./supabase/server";
 import type { User } from "@/generated/prisma/client";
 
@@ -71,11 +73,13 @@ export async function syncUser(authUser: SupabaseUser): Promise<User> {
   const avatarUrl =
     pickString(metadata.avatar_url) ?? pickString(metadata.picture) ?? null;
 
-  return prisma.user.upsert({
+  const claimedEmail = await claimEmail(authUser, email);
+
+  const user = await prisma.user.upsert({
     where: { id: authUser.id },
     create: {
       id: authUser.id,
-      email,
+      email: claimedEmail,
       name,
       // The provider's photo when there is one — email and password sign-ups
       // arrive without. Otherwise a random `adventurer-neutral` portrait,
@@ -84,11 +88,67 @@ export async function syncUser(authUser: SupabaseUser): Promise<User> {
     },
     // Only overwrite a provider-supplied field when the provider supplied one.
     update: {
-      email,
+      email: claimedEmail,
       ...(name ? { name } : {}),
       ...(avatarUrl ? { avatarUrl } : {}),
     },
   });
+
+  // The launch offer. Runs on every sign-in rather than only on the first:
+  // it settles into a single read once someone has a subscription, and an
+  // account that arrived while the offer was open still gets it if the grant
+  // was missed the first time round.
+  await grantEarlySupporter(user);
+
+  return user;
+}
+
+/**
+ * Settles the case where that address is already on somebody's row.
+ *
+ * Rows here are keyed by the Supabase user id, but the same person can arrive
+ * under a new one — they signed up with a password and came back through
+ * Google, or the auth project was rebuilt around data this app kept. Their
+ * resumes would be stranded on the old row, and the unique index on `email`
+ * would fail the sign-in outright rather than quietly making a second account.
+ *
+ * So when the provider has verified the address, the old row is re-keyed to
+ * the new id and everything hanging off it — resumes, letters, subscription —
+ * comes along: every foreign key to `users` is `ON UPDATE CASCADE`.
+ *
+ * Without that proof the accounts stay apart, and the new one gets an address
+ * that can't collide. Handing over someone else's resumes on the strength of a
+ * typed-in address is the one outcome worse than a duplicate account.
+ *
+ * Returns the address the row should carry.
+ */
+async function claimEmail(
+  authUser: SupabaseUser,
+  email: string,
+): Promise<string> {
+  const holder = await prisma.user.findUnique({ where: { email } });
+  if (!holder || holder.id === authUser.id) return email;
+
+  if (!emailIsVerified(authUser)) return `${authUser.id}@users.noreply.local`;
+
+  await prisma.user.update({
+    where: { id: holder.id },
+    data: { id: authUser.id },
+  });
+  return email;
+}
+
+/** Whether anyone has actually checked that the address belongs to them. */
+function emailIsVerified(authUser: SupabaseUser): boolean {
+  // The provider's own claim. Google and the other OIDC providers set it.
+  if (authUser.user_metadata?.email_verified === true) return true;
+
+  // Supabase stamps this when it accepts an address. While email and password
+  // sign-up is switched off, the only way to have one is to have come through
+  // a provider that checked — so it counts. If credentials come back, and
+  // Supabase is still creating accounts without confirming them, it stops
+  // being proof of anything and this line stops trusting it.
+  return !CREDENTIALS_ENABLED && Boolean(authUser.email_confirmed_at);
 }
 
 /** `user_metadata` is untyped JSON — take the value only if it's a real

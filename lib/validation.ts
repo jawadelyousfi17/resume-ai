@@ -110,3 +110,20 @@ export const credentialsSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
 });
+
+/** A message written in from the feedback dialog. Long enough to describe a
+ *  bug, short enough that nobody pastes a resume into it. */
+export const feedbackMessageSchema = z
+  .string()
+  .trim()
+  .min(4, { error: "Tell us a little more than that." })
+  .max(4000, { error: "That's longer than we can take — trim it a little." });
+
+/** The page they were on when they wrote. Ours only, and only a path: it's
+ *  written by the browser, and a full URL from elsewhere tells us nothing we
+ *  should be storing. */
+export const feedbackPathSchema = z
+  .string()
+  .trim()
+  .max(300)
+  .refine((value) => value.startsWith("/") && !value.startsWith("//"));

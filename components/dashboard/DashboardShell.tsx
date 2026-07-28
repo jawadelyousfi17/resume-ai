@@ -8,7 +8,7 @@
 // products.
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import { signOutAction } from "@/app/auth/actions";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
@@ -19,13 +19,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { AccountAvatar } from "@/components/ui/account-avatar";
-import { LogoutIcon } from "@/components/ui/icons";
+import { PlanBadge } from "@/components/ui/plan-badge";
+import { BulbIcon, LogoutIcon, UserIcon } from "@/components/ui/icons";
 import { LogoLockup } from "@/components/ui/logo";
+import type { PlanId } from "@/lib/plans";
 
 import {
   BottomNav,
-  NAV_FOOTER,
   SidebarNav,
   type DashboardSection,
 } from "./nav";
@@ -35,6 +37,8 @@ export type Account = {
   name: string | null;
   /** A provider photo, or the portrait minted when the account was created. */
   avatarUrl: string | null;
+  /** What they're paying for, for the badge beside their name. */
+  plan: PlanId;
 } | null;
 
 export function DashboardShell({
@@ -49,6 +53,9 @@ export function DashboardShell({
   const auth = useAuthDialog();
   const [, startTransition] = useTransition();
   const signOut = () => startTransition(() => signOutAction());
+  // Held here rather than in each menu: both of them open the same dialog,
+  // and it has to outlive the menu that opened it.
+  const [feedback, setFeedback] = useState(false);
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-app pb-16 md:pb-0">
@@ -63,24 +70,6 @@ export function DashboardShell({
         <SidebarNav active={active} />
 
         <div className="mt-auto space-y-1 pt-6">
-          {NAV_FOOTER.map((item) => {
-            const Icon = item.icon;
-            const className =
-              "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[14px] font-semibold text-ink-soft transition hover:text-ink";
-
-            return item.href ? (
-              <Link key={item.label} href={item.href} className={className}>
-                <Icon className="h-[18px] w-[18px]" />
-                {item.label}
-              </Link>
-            ) : (
-              <button key={item.label} type="button" className={className}>
-                <Icon className="h-[18px] w-[18px]" />
-                {item.label}
-              </button>
-            );
-          })}
-
           {account ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -94,8 +83,11 @@ export function DashboardShell({
                     className="h-8 w-8"
                   />
                   <span className="min-w-0">
-                    <span className="block truncate text-[14px] font-semibold text-ink">
-                      {account.name ?? "My account"}
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-[14px] font-semibold text-ink">
+                        {account.name ?? "My account"}
+                      </span>
+                      <PlanBadge plan={account.plan} />
                     </span>
                     <span className="block truncate text-[12px] text-ink-soft">
                       {account.email}
@@ -104,6 +96,16 @@ export function DashboardShell({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">
+                    <UserIcon />
+                    Account and plan
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setFeedback(true)}>
+                  <BulbIcon />
+                  Send feedback
+                </DropdownMenuItem>
                 {/* Called straight from the row — the action redirects, so
                     there's nothing here to wrap in a form. */}
                 <DropdownMenuItem onSelect={signOut}>
@@ -145,6 +147,7 @@ export function DashboardShell({
           <MobileAccount
             account={account}
             onSignOut={signOut}
+            onFeedback={() => setFeedback(true)}
             onAuth={auth.open}
           />
         </div>
@@ -153,6 +156,8 @@ export function DashboardShell({
       </main>
 
       <BottomNav active={active} />
+
+      <FeedbackDialog open={feedback} onOpenChange={setFeedback} />
     </div>
   );
 }
@@ -161,10 +166,12 @@ export function DashboardShell({
 function MobileAccount({
   account,
   onSignOut,
+  onFeedback,
   onAuth,
 }: {
   account: Account;
   onSignOut: () => void;
+  onFeedback: () => void;
   onAuth: (view: "signin" | "signup") => void;
 }) {
   if (!account) {
@@ -191,11 +198,14 @@ function MobileAccount({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
+        {/* The badge rides beside the portrait rather than on it: at this size
+            a pill across the corner would cover half a face. */}
         <button
           type="button"
           aria-label="Account"
-          className="shrink-0 rounded-full"
+          className="flex shrink-0 items-center gap-2 rounded-full"
         >
+          <PlanBadge plan={account.plan} />
           <AccountAvatar
             src={account.avatarUrl}
             name={account.name ?? account.email}
@@ -207,24 +217,16 @@ function MobileAccount({
         <DropdownMenuLabel className="truncate">
           {account.name ?? account.email}
         </DropdownMenuLabel>
-        {NAV_FOOTER.map((item) => {
-          const Icon = item.icon;
-          return (
-            <DropdownMenuItem key={item.label} asChild={!!item.href}>
-              {item.href ? (
-                <Link href={item.href}>
-                  <Icon />
-                  {item.label}
-                </Link>
-              ) : (
-                <>
-                  <Icon />
-                  {item.label}
-                </>
-              )}
-            </DropdownMenuItem>
-          );
-        })}
+        <DropdownMenuItem asChild>
+          <Link href="/profile">
+            <UserIcon />
+            Account and plan
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onFeedback}>
+          <BulbIcon />
+          Send feedback
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={onSignOut}>
           <LogoutIcon />
           Sign out

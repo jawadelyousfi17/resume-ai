@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore, useTransition } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import type { Resume, ResumeData } from "@/lib/types";
@@ -19,11 +25,13 @@ import {
 import { ResumeCard } from "@/components/dashboard/ResumeCard";
 import { GuestImport } from "@/components/dashboard/GuestImport";
 import { NewResumeDialog } from "@/components/dashboard/NewResumeDialog";
+import { usePlan } from "@/components/plan/PlanProvider";
 import {
   ConfirmDeleteDialog,
   RenameDialog,
 } from "@/components/ui/prompt-dialogs";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
+import { reachedMilestone } from "@/lib/feedback-nudge";
 import { setPendingTemplate } from "@/lib/pending-resume";
 import type { Template } from "@/lib/templates";
 import {
@@ -61,6 +69,15 @@ export function Dashboard({
   const [deleting, setDeleting] = useState<Resume | null>(null);
 
   const guest = account === null;
+  const plan = usePlan();
+
+  // Someone keeping a second resume is someone using this for a real search —
+  // a fairer moment to ask how it's going than the middle of writing one. The
+  // nudge decides whether to say anything; this only says when.
+  const many = !guest && resumes.length >= 2;
+  useEffect(() => {
+    if (many) reachedMilestone("second-resume");
+  }, [many]);
 
   // A guest's one resume lives in this browser, so it isn't in what the server
   // rendered. Subscribing picks it up after hydration and again whenever it
@@ -97,6 +114,10 @@ export function Dashboard({
       auth.open("signup");
       return;
     }
+    // How many they have is already on this page, so a full plan is answered
+    // here — with the plans — rather than by a server action refusing after
+    // the gallery has been opened and a template chosen.
+    if (!guest && !plan.askRoomFor("resumes", list.length)) return;
     setAdding(true);
   };
 
@@ -258,11 +279,10 @@ export function Dashboard({
         onScratchOpen={beginScratch}
         onScratchCancel={abandonScratch}
         onImported={openImported}
-        canImport={!guest}
-        onImportBlocked={() => {
-          setAdding(false);
-          auth.open("signup");
-        }}
+        // The dialog turns the file away itself — plan or no account — and
+        // puts the right card up. All that's left here is to get out of its
+        // way, so the answer isn't behind this one.
+        onImportBlocked={() => setAdding(false)}
       />
 
       {/* A page-shaped placeholder is a lot of a phone screen to spend on

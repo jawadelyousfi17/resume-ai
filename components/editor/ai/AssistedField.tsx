@@ -11,7 +11,8 @@
 import { useResume } from "@/lib/store";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
 import { useGeneration } from "@/lib/ai/use-generation";
-import type { AIRequest } from "@/lib/ai/tasks";
+import { usePlan } from "@/components/plan/PlanProvider";
+import { TASK_GATE, type AIRequest } from "@/lib/ai/tasks";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { CheckIcon } from "@/components/ui/icons";
 import {
@@ -46,6 +47,7 @@ export function AssistedField({
   const { data, guest } = useResume();
   const auth = useAuthDialog();
   const gen = useGeneration();
+  const plan = usePlan();
 
   const reviewing =
     !gen.busy && gen.status === "done" && Boolean(gen.text.trim());
@@ -53,7 +55,12 @@ export function AssistedField({
   // document's own text otherwise.
   const showing = gen.busy || reviewing ? gen.text : value;
 
-  const start = () => gen.run({ ...request(), data });
+  // Asked on the press, before a request goes anywhere: the inline assist is
+  // the same writing tool the panel runs, and it's priced the same way.
+  const start = () => {
+    if (!plan.ask(TASK_GATE.polish)) return;
+    gen.run({ ...request(), data });
+  };
 
   // The assistant costs money per call, so it needs an account. Say so where
   // the button is rather than letting the request come back a 401.

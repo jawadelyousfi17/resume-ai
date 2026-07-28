@@ -6,7 +6,8 @@
 import { useMemo, useState } from "react";
 import { useResume } from "@/lib/store";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
-import { AI_TASKS, PANEL_TASKS, type AITaskId } from "@/lib/ai/tasks";
+import { AI_TASKS, PANEL_TASKS, TASK_GATE, type AITaskId } from "@/lib/ai/tasks";
+import { usePlan } from "@/components/plan/PlanProvider";
 import { timelineEntries } from "@/lib/ai/entries";
 import { AITaskDialog } from "./AITaskDialog";
 import {
@@ -37,6 +38,7 @@ const TASK_ICONS: Record<
 export function AIPanel() {
   const { data, guest } = useResume();
   const auth = useAuthDialog();
+  const plan = usePlan();
   const [task, setTask] = useState<AITaskId | null>(null);
 
   const entries = useMemo(() => timelineEntries(data), [data]);
@@ -103,7 +105,10 @@ export function AIPanel() {
             key={which}
             task={which}
             reason={blocked(which)}
-            onOpen={() => setTask(which)}
+            // The card opens only if the plan covers it. Asked on the click
+            // rather than drawn as a locked row: what it does is worth seeing
+            // either way, and the answer arrives the moment it's wanted.
+            onOpen={() => plan.ask(TASK_GATE[which]) && setTask(which)}
           />
         ))}
       </div>

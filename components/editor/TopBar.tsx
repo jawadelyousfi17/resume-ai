@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Logo, LogoLockup } from "@/components/ui/logo";
 import {
   AwardIcon,
-  DownloadIcon,
-  DocumentIcon as FileTextIcon,
   ChipIcon,
+  DownloadIcon,
+  FileTextIcon,
   TargetIcon,
-  DesignIcon as WandIcon,
-} from "@/components/ui/svg-icons";
+  WandIcon,
+} from "@/components/ui/icons";
 import { useDownloadPdf } from "./use-download-pdf";
 
 export type EditorTab = "content" | "customize" | "ai" | "review" | "tailor";

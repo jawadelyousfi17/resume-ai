@@ -20,10 +20,9 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  // Open to guests: a visitor who builds a resume signed out still needs to
-  // walk away with the PDF. That does mean an anonymous caller can start a
-  // browser render, so this route wants a rate limit in front of it before it
-  // faces real traffic.
+  // The proxy turns away anyone without a session before this runs, so every
+  // render is on behalf of an account. It still wants a rate limit in front of
+  // it before real traffic: one call starts a headless browser.
 
   let body: { data?: unknown; format?: unknown };
   try {

@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import { MailIcon } from "@/components/ui/icons";
 
-import { SOCIALS, SocialIcon, Wordmark } from "./marks";
+import { CONTACT, SOCIAL_LINKS } from "@/lib/site-contact";
+
+import { Wordmark } from "./marks";
 import { btnPrimary, btnQuiet } from "./ui";
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
@@ -36,6 +38,24 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
       { label: "Applying abroad", href: "/guides/translate-your-resume" },
     ],
   },
+  {
+    title: "Company",
+    links: [
+      { label: "About us", href: "/about" },
+      { label: "Contact us", href: "/contact" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+    ],
+  },
+];
+
+/** Repeated along the bottom as well as in the sitemap above: these are the
+ *  four people look for at the foot of a page, and they shouldn't have to
+ *  find the right column first. */
+const LEGAL_LINKS = [
+  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+  { label: "Contact", href: "/contact" },
 ];
 
 function PhoneIcon({ className }: { className?: string }) {
@@ -63,8 +83,8 @@ export function SiteFooter() {
           Your first resume is free. Start writing it now.
         </h2>
         <p className="mx-auto mt-4 max-w-[52ch] text-[16px] leading-[1.7] text-ink-soft lg:text-[18px]">
-          No account needed to begin, no watermark on the way out, and no credit
-          card at any point.
+          Free to start, no watermark on the way out, and no credit card at any
+          point.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/dashboard" className={btnPrimary}>
@@ -89,23 +109,23 @@ export function SiteFooter() {
               </p>
               <div className="mt-6 space-y-3 text-[13.5px] text-white/55">
                 <a
-                  href="mailto:hello@meniacv.com"
+                  href={`mailto:${CONTACT.email}`}
                   className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
                   <MailIcon className="h-4 w-4" />
-                  hello@meniacv.com
+                  {CONTACT.email}
                 </a>
                 <a
-                  href="tel:+14155550134"
+                  href={`tel:${CONTACT.phoneHref}`}
                   className="flex items-center gap-2.5 transition-colors hover:text-white"
                 >
                   <PhoneIcon className="h-4 w-4" />
-                  +1 (415) 555-0134
+                  {CONTACT.phone}
                 </a>
               </div>
             </div>
 
-            <nav className="grid w-full grid-cols-2 gap-8 sm:grid-cols-3 lg:w-[55%]">
+            <nav className="grid w-full grid-cols-2 gap-8 sm:grid-cols-4 lg:w-[55%]">
               {COLUMNS.map((col) => (
                 <div key={col.title}>
                   <h3 className="text-[13px] font-bold tracking-[0.5px] text-white uppercase">
@@ -128,14 +148,34 @@ export function SiteFooter() {
             </nav>
           </div>
 
-          {/* Legal */}
-          <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-6 sm:flex-row">
+          {/* Legal. No social icons: there are no accounts to link to yet,
+              and a row of dead links is worse than a row without them. Fill in
+              SOCIAL_LINKS and they appear. */}
+          {/* Both halves keep to the left: the theme switcher floats in the
+              bottom-right corner of every page, and links parked underneath it
+              are links nobody can press. */}
+          <div className="mt-12 flex flex-col items-center gap-x-6 gap-y-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-start">
             <p className="text-[12.5px] text-white/40">
               © 2026 meniacv. All rights reserved.
             </p>
-            <div className="flex items-center gap-5">
-              {SOCIALS.map((s) => (
-                <SocialIcon key={s.label} {...s} />
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              {LEGAL_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-[12.5px] text-white/40 transition-colors hover:text-white"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {SOCIAL_LINKS.map((social) => (
+                <a
+                  key={social.href}
+                  href={social.href}
+                  className="text-[12.5px] text-white/40 transition-colors hover:text-white"
+                >
+                  {social.label}
+                </a>
               ))}
             </div>
           </div>

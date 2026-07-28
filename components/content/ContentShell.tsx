@@ -156,7 +156,7 @@ export function FaqAccordion({
 /** Closing call to action, identical across the written pages. */
 export function ContentCta({
   heading = "Build it in the editor",
-  body = "Live preview, AI writing help, and an ATS-ready PDF. No account needed to start.",
+  body = "Live preview, AI writing help, and an ATS-ready PDF. Free to start, and no card at any point.",
 }: {
   heading?: string;
   body?: string;

@@ -21,6 +21,7 @@ import { EyeIcon, PencilIcon } from "@/components/ui/svg-icons";
 import { cn } from "@/lib/utils";
 import { CoverLetterPreview } from "./CoverLetterPreview";
 import { LetterContent, LetterCustomize } from "./LetterForm";
+import { usePlan } from "@/components/plan/PlanProvider";
 import { RewriteDialog } from "./RewriteDialog";
 import { useDownloadLetter } from "./use-download-letter";
 
@@ -68,7 +69,8 @@ function Shell({ resume }: { resume: Resume | null }) {
     setPreviewing(false);
   };
 
-  const openRewrite = () => setRewriting(true);
+  const plan = usePlan();
+  const openRewrite = () => plan.ask("coverLetters") && setRewriting(true);
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col pb-16 lg:h-dvh lg:pb-0">

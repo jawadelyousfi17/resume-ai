@@ -15,14 +15,14 @@ import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
 import { ResumePreview } from "@/components/preview/ResumePreview";
 import {
   AwardIcon,
-  DownloadIcon,
-  DocumentIcon as FileTextIcon,
-  EyeIcon,
-  PencilIcon,
   ChipIcon,
+  DownloadIcon,
+  EyeIcon,
+  FileTextIcon,
+  PencilIcon,
   TargetIcon,
-  DesignIcon as WandIcon,
-} from "@/components/ui/svg-icons";
+  WandIcon,
+} from "@/components/ui/icons";
 import { Logo } from "@/components/ui/logo";
 import { useResume } from "@/lib/store";
 import { cn } from "@/lib/utils";

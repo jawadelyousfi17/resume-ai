@@ -3,7 +3,7 @@
 // owns the schema it must answer in and the mapping into our own shape.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { getAuthUser } from "@/lib/auth";
+import { requireFeature } from "@/lib/subscription";
 import {
   EXTRACTION_SCHEMA,
   EXTRACTION_SYSTEM,
@@ -30,9 +30,10 @@ const MAX_BYTES = 12 * 1024 * 1024;
 let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
-  // Reading a file costs a model call, so it needs an account — same rule as
-  // the writing tools.
-  if (!(await getAuthUser())) return jsonError("Not signed in", 401);
+  // Reading a file costs a model call, so it needs an account and a plan that
+  // includes it — same rule as the writing tools.
+  const denied = await requireFeature("import");
+  if (denied) return denied;
 
   let form: FormData;
   try {
