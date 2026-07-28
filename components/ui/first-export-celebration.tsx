@@ -18,6 +18,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { reachedMilestone } from "@/lib/feedback-nudge";
 import { FIRST_EXPORT_EVENT } from "@/lib/first-export";
 
 export function FirstExportCelebration() {
@@ -29,11 +30,27 @@ export function FirstExportCelebration() {
     return () => window.removeEventListener(FIRST_EXPORT_EVENT, show);
   }, []);
 
+  /**
+   * Closing this is what asks how it went.
+   *
+   * The first download is the one worth asking about — they've just seen the
+   * whole thing work — but not while the confetti is still falling. The
+   * milestone is announced on the way out instead, and the nudge takes its own
+   * beat after that, so the question lands on a quiet screen. Later downloads
+   * announce themselves from lib/export, where there's no celebration in the
+   * way. Whether anything is shown at all is the nudge's business: it may be
+   * "not now" week, or they may have said never.
+   */
+  const close = () => {
+    setOpen(false);
+    reachedMilestone("export");
+  };
+
   return (
     <>
       {open && <Confetti />}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(next) => !next && close()}>
         <DialogContent className="overflow-hidden text-center sm:max-w-md">
           <div className="plan-shell -m-4 mb-0 px-6 pt-9 pb-8">
             <p className="text-[13px] font-bold tracking-[0.14em] text-white/70 uppercase">
@@ -67,7 +84,7 @@ export function FirstExportCelebration() {
 
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={close}
               className="mt-6 h-12 w-full rounded-xl bg-navy text-[15px] font-bold text-white transition hover:opacity-90"
             >
               Back to it
@@ -75,7 +92,7 @@ export function FirstExportCelebration() {
 
             <Link
               href="/jobs"
-              onClick={() => setOpen(false)}
+              onClick={close}
               className="mt-2 flex h-11 w-full items-center justify-center rounded-xl text-[14px] font-bold text-ink-soft transition hover:text-ink"
             >
               Track where you sent it
