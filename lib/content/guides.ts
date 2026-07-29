@@ -248,7 +248,193 @@ export const GUIDES: Guide[] = [
           "No. It's detectable, it's read as deception, and it will get your application discarded outright.",
       },
     ],
-    related: ["resume-format", "resume-templates", "resume-mistakes"],
+    related: ["ats-resume-keywords", "ats-resume-checklist", "resume-format"],
+  },
+
+  {
+    slug: "ats-resume-keywords",
+    title: "Finding the keywords that actually matter",
+    metaTitle: "ATS Resume Keywords — How to Find and Use Them | meniacv",
+    description:
+      "How to pull the real keywords out of a job posting, where to put them so they count, and why stuffing a skills section does nothing.",
+    eyebrow: "ATS",
+    updated: "2026-07-29",
+    intro:
+      "Keyword advice is where ATS folklore does the most damage. The instruction people hear is \"add more keywords\", so they append forty terms to a skills section and wonder why nothing changes. Matching vocabulary does matter — but only certain words, and only in certain places.",
+    sections: [
+      {
+        heading: "Only some words are keywords",
+        body: [
+          "A recruiter searching a database searches for things a candidate either has or hasn't: a tool, a platform, a certification, a methodology, a job title, a language, a licence. Those are keywords. \"Detail-oriented\", \"team player\" and \"results-driven\" are not searched for by anyone, ever.",
+          "So read a posting looking specifically for nouns. Named technologies, named frameworks, named qualifications, named systems. Everything else in the posting is context for how to write, not vocabulary to match.",
+        ],
+        list: [
+          "Tools and platforms — Salesforce, Kubernetes, NetSuite, Epic",
+          "Methodologies — Agile, Lean, MEDDICC, BPMN",
+          "Certifications and licences — PMP, CPA, RN, Security+",
+          "Domain terms — incident response, revenue recognition, TUPE",
+          "Job titles, including the ones you'd call something else",
+        ],
+      },
+      {
+        heading: "Read the posting twice, for two different things",
+        body: [
+          "The first read is for the requirements list, which is where the hard filters live — years of experience, a specific certification, a named system. If you match those, the words should appear on your page in the posting's own form.",
+          "The second read is for repetition. Whatever a posting says three times is what the role is actually about, regardless of what the requirements section claims. If \"stakeholder management\" appears in the summary, the responsibilities and the requirements, that's the job, and your resume should answer it in the top third rather than in a skills list at the bottom.",
+        ],
+      },
+      {
+        heading: "Where a keyword counts, and where it's wasted",
+        body: [
+          "A term in a skills section proves nothing except that you know the word. The same term inside a bullet, attached to something you did with it, is evidence. Both get parsed; only one survives the human read that follows.",
+          "So the pattern that works is both: the term in your skills block so it's findable, and the term in a bullet so it's credible. \"Kubernetes\" in a list, and \"migrated 14 services to EKS with no unplanned downtime\" in the experience section. One matches the search, the other answers the interview question the search leads to.",
+        ],
+      },
+      {
+        heading: "Match the posting's exact form, then the variant",
+        body: [
+          "Recruiters search for strings, and strings don't reason. If the posting says \"Search Engine Optimisation\" and you wrote \"SEO\", a literal search may miss you. Write the acronym with its expansion once — \"SEO (search engine optimisation)\" — and both forms are on the page without repetition.",
+          "The same applies to titles. If your internal title was \"Growth Ninja\" and the market calls it \"Performance Marketing Manager\", put the recognisable title on the page. Nobody searches for a job title that only exists inside one company.",
+        ],
+      },
+      {
+        heading: "The honesty constraint is the whole limit",
+        body: [
+          "Every keyword on your resume is a question you've agreed to answer. That's the real ceiling on this technique, and it's why stuffing fails even when it works: you get the interview and then spend it being found out on a tool you used once.",
+          "The test is simple. For each term, could you talk for two minutes about something you did with it? If not, take it off. A resume with eight defensible keywords beats one with forty that collapse under a follow-up question.",
+        ],
+      },
+      {
+        heading: "What not to do",
+        body: [
+          "White text, hidden layers, keyword blocks behind images, and pasted chunks of the job description are all detectable, and all read as deception rather than as optimisation. The cost when found is not a lower ranking — it's a discarded application.",
+          "Repeating the same term eight times doesn't help either. Most systems don't weight frequency the way the folklore assumes, and the human reading afterwards notices immediately.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "How many keywords should a resume have?",
+        answer:
+          "There's no target number. Match the requirements you genuinely meet, use the posting's wording for those, and stop. A resume that reads naturally with ten accurate terms outperforms one carrying forty, because the second one has spent the space it needed for results.",
+      },
+      {
+        question: "Should I copy phrases from the job description?",
+        answer:
+          "Copy the vocabulary — tool names, methodologies, titles. Don't copy whole responsibility sentences into your experience section. A recruiter who has read the posting a hundred times recognises its own phrasing instantly, and it reads as mimicry rather than as a match.",
+      },
+      {
+        question: "Do keywords in a skills section count?",
+        answer:
+          "For the parse, yes. For the human, barely. Put the term in your skills block so it's findable and in a bullet so it's believable; the combination is what converts a match into an interview.",
+      },
+      {
+        question: "What if I don't have the keywords the posting asks for?",
+        answer:
+          "Don't invent them. Name the nearest thing you have honestly — an adjacent tool, a transferable method — and put your effort into the requirements you do meet. Applications where you match most of the list and are clearly strong beat applications where you claimed everything and can defend little.",
+      },
+    ],
+    related: ["ats-friendly-resume", "ats-resume-checklist", "resume-bullet-points"],
+  },
+
+  {
+    slug: "ats-resume-checklist",
+    title: "The checklist to run before you submit",
+    metaTitle: "ATS Resume Checklist — Check Before You Apply | meniacv",
+    description:
+      "A concrete pre-submit checklist: how to test that your resume parses, what to verify on the page, and the five-minute tailoring pass worth doing every time.",
+    eyebrow: "ATS",
+    updated: "2026-07-29",
+    intro:
+      "Everything else about ATS advice is theory. This is the part you actually run, on the file you're about to attach, in about ten minutes. It catches the failures that silently cost people interviews — an unreadable PDF, a missing phone number, a resume tailored to the last job you applied for.",
+    sections: [
+      {
+        heading: "First, test the parse yourself",
+        body: [
+          "Open your exported PDF, select all the text, and paste it into a plain text editor. What survives is approximately what a parser extracts, and this single test catches most structural problems in thirty seconds.",
+          "You're checking four things, and any failure here matters more than anything else on this page — because content a parser can't read is content that doesn't exist.",
+        ],
+        list: [
+          "Nothing is missing entirely — anything absent is trapped inside an image",
+          "The order is sensible, with no skills interleaved into a job description",
+          "Every job has its title, employer and dates together and intact",
+          "Your name, email and phone are in the text, not in a document header",
+        ],
+      },
+      {
+        heading: "Then check the page as a document",
+        body: [
+          "These are the failures that survive parsing but lose the human read. Work down the list on the rendered page, not on the text you just extracted.",
+        ],
+        list: [
+          "Standard section headings: Experience, Education, Skills",
+          "One column for the content that carries your history",
+          "Dates formatted identically in every entry, with no gaps left unexplained",
+          "A file name that identifies you — \"jane-okoro-resume.pdf\", not \"resume-final-v3.pdf\"",
+          "Contact details correct, and an email address you actually check",
+          "Links that resolve, and aren't pointing at a private repository",
+          "One page unless you've genuinely outgrown it, two at most",
+        ],
+      },
+      {
+        heading: "The five-minute tailoring pass",
+        body: [
+          "This is the highest-return work available per minute spent, and most applicants skip it. You are not rewriting the resume — you are reordering it so the first things a reader meets are the things this posting asks for.",
+          "Read the posting, then make three changes: adjust the summary's first sentence to name the role and its central requirement, reorder your skills so the posting's priorities come first, and promote the two bullets in your recent roles that most directly answer it.",
+        ],
+        list: [
+          "Summary names the role you're applying for",
+          "Skills reordered to match the posting's emphasis",
+          "The two most relevant bullets moved to the top of their roles",
+          "The posting's own words used for tools and titles you genuinely have",
+          "Anything irrelevant to this application cut or demoted",
+        ],
+      },
+      {
+        heading: "The last read, out loud",
+        body: [
+          "Read the whole page aloud before attaching it. It's slow, it feels silly, and it catches things silent reading never does: a tense that shifts halfway through a bullet, a sentence that needs two attempts, a word you'd never say in an interview.",
+          "That last one is the important one. Every line on the page is something you've agreed to discuss in your own voice, and anything that sounds unlike you when spoken will sound worse when a stranger asks you about it.",
+        ],
+      },
+      {
+        heading: "Common failures this catches",
+        body: [
+          "The pattern in almost every one of these is the same: the resume was fine, and the file wasn't. A layout that looked good and extracted as nonsense, a phone number in a header nobody parsed, a version tailored to a different company still naming that company in the summary.",
+          "None of these are writing problems, which is why they survive so many drafts. They're the last ten minutes of work, and they're the ten minutes most applications don't get.",
+        ],
+        list: [
+          "A scanned or image-based PDF that extracts as nothing at all",
+          "Contact details in a header, making a good application unreachable",
+          "A summary still naming the previous company you applied to",
+          "A two-column layout interleaving skills into your job history",
+          "A portfolio or GitHub link that 404s or requires access",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "How do I know if my resume is ATS-readable?",
+        answer:
+          "Copy all the text out of your PDF and paste it into a plain text file. If everything is present, in a sensible order, with job titles and dates intact, it parses. That test is free and more reliable than most scoring tools, because it shows you the actual extraction rather than a guess about it.",
+      },
+      {
+        question: "Does the file name matter?",
+        answer:
+          "Not to the parser, but it matters to the person who downloads forty of them. \"jane-okoro-resume.pdf\" is findable in a folder; \"resume-final-v3.pdf\" is one of a dozen identical files and reads as careless.",
+      },
+      {
+        question: "Should I really tailor for every application?",
+        answer:
+          "For every application you actually care about, yes — and it's fifteen minutes, not an hour, because you're reordering rather than rewriting. If you're applying to fifty roles, tailor the ten that matter and send the master version to the rest.",
+      },
+      {
+        question: "Is it worth checking my resume more than once?",
+        answer:
+          "Check the parse once per export, since that's when it can break, and run the tailoring pass once per application. The full review is worth repeating after any substantial edit — the useful rhythm is review, fix the top two things, review again.",
+      },
+    ],
+    related: ["ats-friendly-resume", "ats-resume-keywords", "resume-mistakes"],
   },
 
   {
@@ -442,7 +628,7 @@ export const GUIDES: Guide[] = [
           "Yes, if the text still extracts in a sensible order. Copy the text out of your exported PDF and read it — if it interleaves the columns, use a single column instead.",
       },
     ],
-    related: ["ats-friendly-resume", "resume-templates", "how-to-write-a-resume"],
+    related: ["ats-friendly-resume", "ats-resume-checklist", "how-to-write-a-resume"],
   },
 
   {

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { GUIDES } from "@/lib/content/guides";
+import { RESUME_EXAMPLES } from "@/lib/content/resume-examples";
 import { TEMPLATES } from "@/lib/templates";
 import { siteOrigin } from "@/lib/site-url";
 
@@ -12,9 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const fixed: { path: string; priority: number }[] = [
     { path: "/", priority: 1 },
+    { path: "/resume-examples", priority: 0.9 },
     { path: "/resume-templates", priority: 0.9 },
     { path: "/pricing", priority: 0.9 },
     { path: "/guides", priority: 0.8 },
+    { path: "/resume-ats-score", priority: 0.8 },
+    { path: "/resume-review", priority: 0.8 },
     { path: "/faq", priority: 0.7 },
     { path: "/about", priority: 0.5 },
     { path: "/contact", priority: 0.5 },
@@ -28,6 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: page.priority,
+    })),
+    ...RESUME_EXAMPLES.map((example) => ({
+      url: `${origin}/resume-examples/${example.slug}`,
+      lastModified: new Date(`${example.updated}T00:00:00Z`),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
     })),
     ...TEMPLATES.map((template) => ({
       url: `${origin}/resume-templates/${template.id}`,

@@ -13,29 +13,31 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
     links: [
       { label: "Resume builder", href: "/dashboard" },
       { label: "Templates", href: "/resume-templates" },
+      { label: "Resume review", href: "/resume-review" },
+      { label: "ATS score", href: "/resume-ats-score" },
       { label: "Pricing", href: "/pricing" },
-      { label: "AI writing", href: "/guides/ai-resume-builder" },
-      { label: "Translate a resume", href: "/guides/translate-your-resume" },
       { label: "FAQ", href: "/faq" },
+    ],
+  },
+  {
+    title: "Examples",
+    links: [
+      { label: "Software developer", href: "/resume-examples/software-engineer" },
+      { label: "Product manager", href: "/resume-examples/product-manager" },
+      { label: "Data analyst", href: "/resume-examples/data-analyst" },
+      { label: "Registered nurse", href: "/resume-examples/registered-nurse" },
+      { label: "All examples", href: "/resume-examples" },
     ],
   },
   {
     title: "Guides",
     links: [
       { label: "How to write a resume", href: "/guides/how-to-write-a-resume" },
-      { label: "Bullet points", href: "/guides/resume-bullet-points" },
-      { label: "Resume summary", href: "/guides/resume-summary-examples" },
-      { label: "Resume format", href: "/guides/resume-format" },
-      { label: "All guides", href: "/guides" },
-    ],
-  },
-  {
-    title: "Situations",
-    links: [
       { label: "ATS-friendly resumes", href: "/guides/ats-friendly-resume" },
+      { label: "ATS keywords", href: "/guides/ats-resume-keywords" },
+      { label: "Bullet points", href: "/guides/resume-bullet-points" },
       { label: "Career change", href: "/guides/career-change-resume" },
-      { label: "Common mistakes", href: "/guides/resume-mistakes" },
-      { label: "Applying abroad", href: "/guides/translate-your-resume" },
+      { label: "All guides", href: "/guides" },
     ],
   },
   {

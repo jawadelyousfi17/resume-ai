@@ -6,8 +6,8 @@ import { useSyncExternalStore } from "react";
 import { Wordmark } from "./marks";
 
 const LINKS = [
-  { label: "Features", href: "/#features" },
   { label: "Templates", href: "/resume-templates" },
+  { label: "Examples", href: "/resume-examples" },
   { label: "Pricing", href: "/pricing" },
   { label: "Guides", href: "/guides" },
   { label: "FAQ", href: "/faq" },
@@ -60,12 +60,17 @@ export function SiteNav() {
           : "border-transparent bg-transparent"
       }`}
     >
-      <div className="flex h-[76px] items-center gap-8 px-5 sm:px-8 lg:h-[96px] lg:gap-10 lg:px-10">
+      <div className="flex h-[76px] items-center gap-5 px-5 sm:px-8 lg:h-[96px] lg:gap-10 lg:px-10">
         <Link href="/" aria-label="meniacv home" className="shrink-0">
           <Wordmark className="h-10 lg:h-12" />
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex lg:gap-9">
+        {/* The links appear at md, where the bar is at its tightest: wordmark,
+            five links and two buttons only fit if the gaps stay small until
+            there's room for them. At lg they open back up to the designed
+            spacing. Widening these without checking 768px puts the primary
+            button off the edge of the page. */}
+        <nav className="hidden items-center gap-4 md:flex lg:gap-9">
           {LINKS.map((link) => (
             <Link
               key={link.label}

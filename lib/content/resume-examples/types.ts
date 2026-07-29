@@ -193,12 +193,13 @@ export function toResumeData(example: ResumeExample): ResumeData {
         id: `${slug}-skills`,
         type: "skills",
         title: "Skills",
+        // No levels. These pages argue against rating your own skills out of
+        // five — an example that printed "Go (Expert)" would contradict the
+        // advice beside it. Absent levels print the name alone, and the
+        // templates that draw a meter fall back to their own default.
         items: sample.skills.map((name, i) => ({
           id: `${slug}-k${i}`,
           name,
-          // The strongest skills lead, so the templates that draw a meter
-          // don't render a wall of identical bars.
-          level: i < 4 ? 4 : 3,
         })),
       },
       ...(sample.certifications && sample.certifications.length > 0
@@ -207,12 +208,15 @@ export function toResumeData(example: ResumeExample): ResumeData {
               id: `${slug}-certs`,
               type: "certifications" as const,
               title: "Certifications",
+              // A certification is awarded on a date, not held over a range —
+              // an empty start prints the one date instead of "May 2023 – May
+              // 2023".
               items: sample.certifications.map((credential, i) => ({
                 id: `${slug}-c${i}`,
                 degree: credential.name,
                 school: credential.issuer,
                 location: "",
-                startDate: credential.date,
+                startDate: "",
                 endDate: credential.date,
                 description: "",
               })),
