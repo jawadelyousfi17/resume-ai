@@ -2,10 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { supabaseAnonKey, supabaseUrl } from "./env";
 
-/** API routes a signed-out visitor may call. There are none: writing a resume
- *  needs an account, so every route under /api does too. The marketing and
- *  guide pages stay public and crawlable — this list is only about /api. */
-const PUBLIC_API_PATHS: string[] = [];
+/** API routes a signed-out visitor may call. Writing a resume needs an
+ *  account, so nearly every route under /api does too. The exception is the
+ *  public extractor, which authenticates callers with an API key of its own
+ *  and would never have a session cookie. The marketing and guide pages stay
+ *  public and crawlable — this list is only about /api. */
+const PUBLIC_API_PATHS: string[] = ["/api/v1/extract"];
 
 /** Exact matches only. A prefix match would have let `/api/compile/cover-letter`
  *  in behind `/api/compile`, and a route nested under a public one is not
