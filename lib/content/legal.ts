@@ -16,7 +16,7 @@ export interface LegalSection {
 }
 
 export interface LegalPage {
-  slug: "about" | "privacy" | "terms";
+  slug: "about" | "privacy" | "terms" | "refund-policy";
   title: string;
   /** The <title> and meta description for the page. */
   metaTitle: string;
@@ -171,7 +171,7 @@ export const TERMS: LegalPage = {
       heading: "Plans and payment",
       body: [
         "Paid plans are described on the pricing page but cannot be bought yet, so nothing here charges you anything today. The first hundred accounts have been given the top plan free for a year; that's a gift, not a contract, and it ends on the date shown on your account page.",
-        "When checkout opens, prices, renewal and refunds will be set out here before anybody is asked for a card.",
+        "When checkout opens, prices and renewal will be set out here before anybody is asked for a card. Refunds have their own page — the refund policy — and it already says what will apply: fourteen days to change your mind, no reason needed.",
       ],
     },
     {
@@ -190,4 +190,82 @@ export const TERMS: LegalPage = {
   ],
 };
 
-export const LEGAL_PAGES = [ABOUT, PRIVACY, TERMS];
+// Written against CHECKOUT_ENABLED being false in lib/plans.ts: nothing here
+// can take a payment yet, so the policy says so plainly and then sets out what
+// will apply the day it can. When checkout opens, the dates and the cancelling
+// section are what need re-reading.
+export const REFUND: LegalPage = {
+  slug: "refund-policy",
+  title: "Refund policy",
+  metaTitle: "Refund policy — meniacv",
+  metaDescription:
+    "How refunds work at meniacv: nothing is charged today, and when paid plans open there's a 14-day refund, no questions asked, plus cancellation at any time.",
+  intro:
+    "Nothing here charges you anything today. When it does, this is the deal: fourteen days to change your mind, and no reason needed.",
+  updated: UPDATED,
+  sections: [
+    {
+      heading: "Nothing is being charged yet",
+      body: [
+        "There is no checkout on meniacv at the moment. The paid plans are described on the pricing page, but they cannot be bought, no card details are collected anywhere in the app, and no payment has been taken from anybody.",
+        "The first hundred accounts have been given the top plan free for a year. That costs nothing, so there is nothing to refund on it — if it ends and you would rather not continue, you simply drop back to the free plan.",
+      ],
+    },
+    {
+      heading: "The free plan is the trial",
+      body: [
+        "You can write a resume, pick any template, and export a real PDF without paying and without giving a card. There is no watermark on the way out and no time limit on the account.",
+        "That is deliberate: the point at which you decide whether this is worth money should come after you've seen what it produces, not before.",
+      ],
+    },
+    {
+      heading: "Fourteen days, no reason needed",
+      body: [
+        "When paid plans open, any first payment on a plan — monthly or yearly — can be refunded in full within 14 days of the charge. You don't have to explain why, and you won't be asked to sit through an offer to stay.",
+        "The refund goes back to the card or account it came from, through the payment provider, and usually lands within five to ten working days depending on your bank.",
+      ],
+      list: [
+        "Applies to the first payment on a plan, monthly or yearly.",
+        "Requested within 14 days of the charge appearing.",
+        "Refunded in full — not prorated, not as credit.",
+        "Access to the paid features ends when the refund is issued.",
+      ],
+    },
+    {
+      heading: "After the fourteen days",
+      body: [
+        "Renewals are not automatically refundable, because at that point you've had a full period of the thing you paid for. Cancel before the renewal date and you are not charged again; cancel after it and the plan runs to the end of the period you've paid for rather than stopping dead.",
+        "That said, this is a one-person project rather than a billing department. If you were charged for a year you didn't use, if a renewal caught you by surprise, or if something was broken for the stretch you paid for, write in and say so. Those get sorted out rather than argued about.",
+      ],
+    },
+    {
+      heading: "When a refund is refused",
+      body: [
+        "There are two cases. The first is an account closed for the things the terms rule out — fraud, impersonation, or attacking the service. The second is a pattern of subscribing, refunding and subscribing again, which is a way of using the paid features for free rather than a change of mind.",
+        "Both are rare, and neither is decided by a script.",
+      ],
+    },
+    {
+      heading: "Cancelling",
+      body: [
+        "You can cancel a paid plan at any time from your account page, without writing to anybody. Cancelling stops the next charge; it doesn't delete your documents, and everything you've written stays available on the free plan.",
+        `To delete the account itself and everything in it, write to ${CONTACT.email} from the address you signed up with — that's covered in the privacy policy.`,
+      ],
+    },
+    {
+      heading: "How to ask for one",
+      body: [
+        `Email ${CONTACT.email} from the address on the account and say you'd like a refund. ${CONTACT.responseTime}, and a person reads it — there is no form and no ticket queue.`,
+        "It helps if you include the date of the charge, but it isn't required. Please write in before opening a dispute with your bank: a chargeback takes weeks and closes the account automatically, where an email usually settles it the same day.",
+      ],
+    },
+    {
+      heading: "Changes and contact",
+      body: [
+        `This policy may change as the service does; the date at the top says when it last did. Whatever it said on the day you paid is what applies to that payment. Questions about any of it: ${CONTACT.email}.`,
+      ],
+    },
+  ],
+};
+
+export const LEGAL_PAGES = [ABOUT, PRIVACY, TERMS, REFUND];

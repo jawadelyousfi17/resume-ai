@@ -78,6 +78,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
       { label: "Contact us", href: "/contact" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
+      { label: "Refund policy", href: "/refund-policy" },
     ],
   },
 ];
@@ -88,6 +89,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
 const LEGAL_LINKS = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
+  { label: "Refunds", href: "/refund-policy" },
   { label: "Contact", href: "/contact" },
 ];
 
