@@ -8,7 +8,7 @@ export const TECH_OPS_EXAMPLES: ResumeExample[] = [
     role: "DevOps Engineer",
     aka: ["Site Reliability Engineer", "Platform Engineer", "Cloud Engineer"],
     category: "engineering",
-    metaTitle: "DevOps Engineer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "DevOps Engineer Resume Example & Guide ({year}) | meniacv",
     description:
       "A DevOps and SRE resume example built on reliability, deploy frequency and cost, with the cloud keywords and certifications hiring teams screen for.",
     updated: "2026-07-29",
@@ -251,7 +251,7 @@ export const TECH_OPS_EXAMPLES: ResumeExample[] = [
     role: "QA Engineer",
     aka: ["Software Tester", "QA Automation Engineer", "SDET"],
     category: "engineering",
-    metaTitle: "QA Engineer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "QA Engineer Resume Example & Guide ({year}) | meniacv",
     description:
       "A QA engineer resume example that shows automation coverage, escaped defects and release confidence, plus the testing keywords ATS filters look for.",
     updated: "2026-07-29",
@@ -478,7 +478,7 @@ export const TECH_OPS_EXAMPLES: ResumeExample[] = [
     role: "Mobile Developer",
     aka: ["iOS Developer", "Android Developer", "React Native Developer"],
     category: "engineering",
-    metaTitle: "Mobile Developer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Mobile Developer Resume Example & Guide ({year}) | meniacv",
     description:
       "An iOS and Android developer resume example with App Store evidence, crash-rate metrics and the mobile keywords hiring teams screen for.",
     updated: "2026-07-29",
@@ -687,7 +687,7 @@ export const TECH_OPS_EXAMPLES: ResumeExample[] = [
     role: "Machine Learning Engineer",
     aka: ["MLOps Engineer", "AI Engineer", "ML Platform Engineer"],
     category: "engineering",
-    metaTitle: "Machine Learning Engineer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Machine Learning Engineer Resume Example & Guide ({year}) | meniacv",
     description:
       "An ML engineer resume example focused on models in production — serving latency, pipelines and evaluation — with the MLOps keywords hiring teams screen for.",
     updated: "2026-07-29",
@@ -914,7 +914,7 @@ export const TECH_OPS_EXAMPLES: ResumeExample[] = [
     role: "Cybersecurity Analyst",
     aka: ["Security Analyst", "SOC Analyst", "Information Security Analyst"],
     category: "engineering",
-    metaTitle: "Cybersecurity Analyst Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Cybersecurity Analyst Resume Example & Guide ({year}) | meniacv",
     description:
       "A cybersecurity analyst resume example with incident response, detection engineering and compliance work, plus the certifications and keywords that pass screening.",
     updated: "2026-07-29",
@@ -1149,7 +1149,7 @@ export const TECH_OPS_EXAMPLES: ResumeExample[] = [
     role: "IT Support Specialist",
     aka: ["Help Desk Technician", "Desktop Support Analyst", "IT Technician"],
     category: "engineering",
-    metaTitle: "IT Support Specialist Resume Example & Guide (2026) | meniacv",
+    metaTitle: "IT Support Specialist Resume Example & Guide ({year}) | meniacv",
     description:
       "An IT support and help desk resume example with ticket volumes, resolution times and the certifications and keywords that get past ATS screening.",
     updated: "2026-07-29",

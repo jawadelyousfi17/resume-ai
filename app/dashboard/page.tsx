@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { requireUser } from "@/lib/auth";
 import { listResumes } from "@/lib/resumes";
 import { pendingCelebration } from "@/lib/early-supporter";
@@ -5,6 +7,13 @@ import { planFor } from "@/lib/subscription";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { PlanProvider } from "@/components/plan/PlanProvider";
 import { SupporterCelebration } from "@/components/dashboard/SupporterCelebration";
+
+export const metadata: Metadata = {
+  // Per-user and behind a sign-in — nothing here should rank. See the note on
+  // /login: noindex rather than a robots.txt block, so the directive is
+  // actually readable.
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardPage() {
   // Resumes belong to an account, so this page needs one: `requireUser()`

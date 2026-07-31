@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -12,6 +13,7 @@ import {
 } from "@/components/content/ContentShell";
 import { ALL_FAQS, FAQ_GROUPS } from "@/lib/content/faq";
 import { GUIDES } from "@/lib/content/guides";
+import { HOME, breadcrumbList, faqPage } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   title: "FAQ — meniacv",
@@ -20,6 +22,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/faq" },
 };
 
+const TRAIL = [HOME, { name: "FAQ", path: "/faq" }];
+
 export default function FaqPage() {
   return (
     <ContentPage>
@@ -27,16 +31,12 @@ export default function FaqPage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: ALL_FAQS.map((faq) => ({
-            "@type": "Question",
-            name: faq.question,
-            acceptedAnswer: { "@type": "Answer", text: faq.answer },
-          })),
+          "@graph": [faqPage(ALL_FAQS), breadcrumbList(TRAIL)],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Frequently asked questions"
           intro="What meniacv does, what it costs, what happens to your data, and what the AI will and won't do to your resume."

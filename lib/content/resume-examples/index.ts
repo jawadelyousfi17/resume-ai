@@ -7,6 +7,7 @@
 import { BUSINESS_EXAMPLES } from "./business";
 import { ENGINEERING_EXAMPLES } from "./engineering";
 import { PEOPLE_EXAMPLES } from "./people";
+import { STUDENT_EXAMPLES } from "./student";
 import { TECH_OPS_EXAMPLES } from "./tech-ops";
 import { EXAMPLE_CATEGORIES, type ExampleCategoryId, type ResumeExample } from "./types";
 
@@ -24,6 +25,7 @@ export const RESUME_EXAMPLES: ResumeExample[] = [
   ...TECH_OPS_EXAMPLES,
   ...BUSINESS_EXAMPLES,
   ...PEOPLE_EXAMPLES,
+  ...STUDENT_EXAMPLES,
 ];
 
 export const EXAMPLE_SLUGS = RESUME_EXAMPLES.map((example) => example.slug);

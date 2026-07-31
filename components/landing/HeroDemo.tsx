@@ -512,10 +512,35 @@ export function HeroDemo() {
   return (
     <div
       ref={shellRef}
-      className="w-full"
-      style={{ height: STAGE_H * scale }}
+      className="relative w-full"
+      // The measured height is width × (STAGE_H / STAGE_W) once `scale` is
+      // width / STAGE_W, so an aspect ratio gives exactly the same box without
+      // waiting for JS — and `scale` is capped at 1, which is what maxHeight
+      // reproduces. Before this the shell was 0px tall until hydration and the
+      // whole hero jumped down when it mounted.
+      style={{ aspectRatio: `${STAGE_W} / ${STAGE_H}`, maxHeight: STAGE_H }}
       aria-label="A resume being built in meniacv, step by step"
     >
+      {/* First paint, before the demo has measured itself. The animation starts
+          from a blank sheet, so without this the largest element on the page is
+          an empty rectangle that only fills in once JS has run. A finished
+          resume is both the honest preview and a real LCP candidate. */}
+      {!scale && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src="/templates/ledger.png"
+          alt="A finished resume built in meniacv"
+          width={1588}
+          height={2256}
+          fetchPriority="high"
+          className="absolute top-0 left-0 rounded-2xl shadow-[0_34px_68px_-16px_rgba(15,23,42,0.28)] ring-1 ring-black/5"
+          style={{
+            width: `${(PAPER_W / STAGE_W) * 100}%`,
+            objectFit: "cover",
+            objectPosition: "top",
+          }}
+        />
+      )}
       <div
         ref={stageRef}
         className="relative origin-top-left"

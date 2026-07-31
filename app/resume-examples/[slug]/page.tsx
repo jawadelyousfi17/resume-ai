@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -13,12 +14,21 @@ import {
 import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
 import { ResumePreview } from "@/components/preview/ResumePreview";
 import { PAGE_SIZES } from "@/lib/defaults";
+import { coverLetterForResume } from "@/lib/content/cover-letters";
 import { getGuide } from "@/lib/content/guides";
 import {
   RESUME_EXAMPLES,
   getExample,
   toResumeData,
 } from "@/lib/content/resume-examples";
+import {
+  HOME,
+  ORGANIZATION,
+  abs,
+  breadcrumbList,
+  faqPage,
+} from "@/lib/seo/schema";
+import { withYear } from "@/lib/seo/year";
 import { getTemplate } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
@@ -42,8 +52,10 @@ export async function generateMetadata(
   if (!example) return {};
 
   const url = `/resume-examples/${example.slug}`;
+  // Titles carry a "{year}" token rather than a typed-in year — see lib/seo/year.ts.
+  const title = withYear(example.metaTitle);
   return {
-    title: example.metaTitle,
+    title,
     description: example.description,
     // The alternate titles are the same job under a different name, which is
     // what people actually search. They belong in the keywords rather than
@@ -57,7 +69,7 @@ export async function generateMetadata(
     alternates: { canonical: url },
     openGraph: {
       type: "article",
-      title: example.metaTitle,
+      title,
       description: example.description,
       url,
       publishedTime: example.updated,
@@ -65,7 +77,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: example.metaTitle,
+      title,
       description: example.description,
     },
   };
@@ -87,6 +99,13 @@ export default async function ResumeExamplePage(
   const guides = example.guides
     .map(getGuide)
     .filter((item) => item !== undefined);
+  const letter = coverLetterForResume(example.slug);
+
+  const trail = [
+    HOME,
+    { name: "Resume examples", path: "/resume-examples" },
+    { name: example.role, path: `/resume-examples/${example.slug}` },
+  ];
 
   return (
     <ContentPage>
@@ -101,41 +120,18 @@ export default async function ResumeExamplePage(
               description: example.description,
               datePublished: example.updated,
               dateModified: example.updated,
-              author: { "@type": "Organization", name: "meniacv" },
-              publisher: { "@type": "Organization", name: "meniacv" },
-              mainEntityOfPage: `/resume-examples/${example.slug}`,
+              author: ORGANIZATION,
+              publisher: ORGANIZATION,
+              mainEntityOfPage: abs(`/resume-examples/${example.slug}`),
             },
-            {
-              "@type": "FAQPage",
-              mainEntity: example.faqs.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
-            },
-            {
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Resume examples",
-                  item: "/resume-examples",
-                },
-                {
-                  "@type": "ListItem",
-                  position: 3,
-                  name: `${example.role} resume example`,
-                  item: `/resume-examples/${example.slug}`,
-                },
-              ],
-            },
+            faqPage(example.faqs),
+            breadcrumbList(trail),
           ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={trail} />
         <PageHeader
           title={`${example.role} resume example`}
           intro={example.intro}
@@ -340,6 +336,39 @@ export default async function ResumeExamplePage(
                 </div>
               </section>
             )}
+
+            {/* Half the roles here have a written letter; the rest get the hub,
+                which teaches the same four paragraphs. Either way every role
+                page links into the cover letter pillar. */}
+            <section className="mt-4">
+              <p className="px-5 text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+                Cover letter
+              </p>
+              <div className="mt-3">
+                <Link
+                  href={
+                    letter
+                      ? `/cover-letter/examples#${letter.id}`
+                      : "/cover-letter"
+                  }
+                  className={cn(
+                    panel,
+                    "block px-5 py-4 transition hover:ring-ink/15",
+                  )}
+                >
+                  <span className="block text-[15px] font-extrabold text-ink">
+                    {letter
+                      ? `${example.role} cover letter example`
+                      : "How to write a cover letter"}
+                  </span>
+                  <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+                    {letter
+                      ? letter.note
+                      : "The four paragraphs that work, when a letter is worth writing at all, and what to do when your situation isn't the standard one."}
+                  </span>
+                </Link>
+              </div>
+            </section>
           </aside>
         </div>
 

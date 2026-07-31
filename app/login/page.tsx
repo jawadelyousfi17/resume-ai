@@ -3,6 +3,11 @@ import { AuthCard } from "@/components/auth/AuthCard";
 
 export const metadata: Metadata = {
   title: "Sign in — meniacv",
+  // App routes shouldn't compete with the marketing pages for the brand query.
+  // `follow` so the links out of here still pass value; robots.txt no longer
+  // blocks the path, because a page Google can't fetch is a page it can't see
+  // this tag on — and a blocked URL can still be indexed, bare, from links.
+  robots: { index: false, follow: true },
 };
 
 export default async function LoginPage(props: PageProps<"/login">) {

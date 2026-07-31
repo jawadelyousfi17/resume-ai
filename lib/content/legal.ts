@@ -73,6 +73,16 @@ export const PRIVACY: LegalPage = {
     "What's kept, where it lives, and who else sees it. In short: your resumes, your email, and nothing sold to anybody.",
   updated: UPDATED,
   sections: [
+    // First, and on its own, because it's the question people actually arrive
+    // with and the one thing that most distinguishes this from the incumbents.
+    // It's also answered in the FAQ; this is the copy that should rank.
+    {
+      heading: "Your resume is never used to train a model",
+      body: [
+        "Nothing you write here — resume, cover letter or feedback — is used to train an AI model, ours or anybody else's. When you ask the assistant to write, review, tailor or translate something, that document is sent to Anthropic to produce the answer you asked for, and it is not retained for training.",
+        "This is not a setting you have to find and switch off. It is how the product works, and there is no version of it where your employment history becomes training data.",
+      ],
+    },
     {
       heading: "What's stored",
       body: [

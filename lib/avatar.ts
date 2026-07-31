@@ -9,6 +9,11 @@
 // time: the same person gets the same avatar on every render, which matters
 // because this renders on the server as well as the client, and a value that
 // differed between the two would blow up hydration.
+//
+// These are served from /api/avatar rather than api.dicebear.com. Same
+// library, same illustrations — but they render inside every template preview,
+// so an external request would put the landing page's largest paint behind
+// somebody else's uptime and rate limit.
 
 /** Illustration styles that read as a portrait rather than a cartoon. */
 const STYLES = [
@@ -19,6 +24,15 @@ const STYLES = [
   "adventurer",
   "avataaars",
 ] as const;
+
+/** Every style the avatar route will generate — the portrait styles above plus
+ *  the neutral one accounts use. */
+export type AvatarStyle = (typeof STYLES)[number] | "adventurer-neutral";
+
+/** A neutral wash behind the illustration so it reads as a portrait frame
+ *  rather than a sticker floating on the page. Shared with the route so both
+ *  sides of the URL agree on what it means. */
+export const AVATAR_BACKGROUNDS = ["e9edf2", "dfe5ec", "eef1f5"];
 
 /** FNV-1a. Small, stable, and no dependency — all this needs is to spread
  *  names across the style list without clustering. */
@@ -41,15 +55,7 @@ export function avatarUrl(seed: string): string {
   const key = seed.trim() || "resume";
   const style = STYLES[hash(key) % STYLES.length];
 
-  const params = new URLSearchParams({
-    seed: key,
-    // A neutral wash behind the illustration so it reads as a portrait frame
-    // rather than a sticker floating on the page.
-    backgroundColor: "e9edf2,dfe5ec,eef1f5",
-    radius: "50",
-  });
-
-  return `https://api.dicebear.com/9.x/${style}/svg?${params}`;
+  return `/api/avatar?${new URLSearchParams({ style, seed: key })}`;
 }
 
 /* ---------------------------------------------------------------------------
@@ -68,13 +74,10 @@ const ACCOUNT_STYLE = "adventurer-neutral";
 
 /** A DiceBear `adventurer-neutral` portrait for the given seed. */
 export function accountAvatarUrl(seed: string): string {
-  const params = new URLSearchParams({
+  return `/api/avatar?${new URLSearchParams({
+    style: ACCOUNT_STYLE,
     seed: seed.trim() || "meniacv",
-    backgroundColor: "e9edf2,dfe5ec,eef1f5",
-    radius: "50",
-  });
-
-  return `https://api.dicebear.com/9.x/${ACCOUNT_STYLE}/svg?${params}`;
+  })}`;
 }
 
 /** A fresh portrait, picked at random.
@@ -87,7 +90,15 @@ export function randomAccountAvatarUrl(): string {
 }
 
 /** Whether a stored avatar is one we generated. Lets a provider photo take
- *  precedence without a second column to record where the URL came from. */
+ *  precedence without a second column to record where the URL came from.
+ *
+ *  Both forms count: accounts created before avatars moved in-house have the
+ *  api.dicebear.com URL on their row, and they are just as much ours as the
+ *  local ones. Treating them as a provider photo would pin those accounts to a
+ *  third-party image forever. */
 export function isGeneratedAvatar(url: string | null): boolean {
-  return Boolean(url?.startsWith("https://api.dicebear.com/"));
+  return Boolean(
+    url?.startsWith("/api/avatar") ||
+      url?.startsWith("https://api.dicebear.com/"),
+  );
 }

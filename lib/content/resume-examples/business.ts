@@ -8,7 +8,7 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     role: "Product Manager",
     aka: ["Senior Product Manager", "Technical Product Manager", "Product Owner"],
     category: "product-design",
-    metaTitle: "Product Manager Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Product Manager Resume Example & Guide ({year}) | meniacv",
     description:
       "A product manager resume example built on outcomes rather than features shipped, with the metrics, keywords and structure hiring teams screen for.",
     updated: "2026-07-29",
@@ -233,7 +233,7 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     role: "Project Manager",
     aka: ["Programme Manager", "Delivery Manager", "PMO Lead"],
     category: "business",
-    metaTitle: "Project Manager Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Project Manager Resume Example & Guide ({year}) | meniacv",
     description:
       "A project manager resume example with budgets, timelines and delivery outcomes, plus the PMP keywords and structure that pass ATS screening.",
     updated: "2026-07-29",
@@ -479,7 +479,7 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     role: "Business Analyst",
     aka: ["Systems Analyst", "Product Analyst", "Process Analyst"],
     category: "business",
-    metaTitle: "Business Analyst Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Business Analyst Resume Example & Guide ({year}) | meniacv",
     description:
       "A business analyst resume example that shows process improvement and requirements work with real numbers, plus the ATS keywords hiring teams filter on.",
     updated: "2026-07-29",
@@ -704,7 +704,7 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     role: "Accountant",
     aka: ["Staff Accountant", "Senior Accountant", "Management Accountant"],
     category: "business",
-    metaTitle: "Accountant Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Accountant Resume Example & Guide ({year}) | meniacv",
     description:
       "An accountant resume example with close cycles, audit outcomes and systems experience, plus the CPA keywords and structure that pass ATS screening.",
     updated: "2026-07-29",
@@ -939,7 +939,7 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     role: "Financial Analyst",
     aka: ["FP&A Analyst", "Investment Analyst", "Corporate Finance Analyst"],
     category: "business",
-    metaTitle: "Financial Analyst Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Financial Analyst Resume Example & Guide ({year}) | meniacv",
     description:
       "A financial analyst resume example with forecast accuracy, modelling scope and decisions influenced, plus the FP&A keywords that pass ATS screening.",
     updated: "2026-07-29",
@@ -1163,7 +1163,7 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     role: "Operations Manager",
     aka: ["Head of Operations", "Business Operations Manager", "Site Manager"],
     category: "business",
-    metaTitle: "Operations Manager Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Operations Manager Resume Example & Guide ({year}) | meniacv",
     description:
       "An operations manager resume example built on throughput, cost per unit and team leadership, with the keywords and structure that pass ATS screening.",
     updated: "2026-07-29",

@@ -10,7 +10,7 @@
 // anything below changes that document too.
 
 import { authenticate, isEnabled } from "@/lib/api/keys";
-import { rateLimit, rateLimitHeaders } from "@/lib/api/rate-limit";
+import { clientIp, rateLimit, rateLimitHeaders } from "@/lib/api/rate-limit";
 import {
   MAX_BYTES,
   ReadError,
@@ -50,11 +50,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const limit = rateLimit(caller.id);
+  // Counted per address, not per key: a key used from several of your own
+  // servers shouldn't throttle itself, and one machine in a loop should.
+  const limit = rateLimit(clientIp(req.headers));
   if (!limit.ok) {
     return fail(
       "rate_limited",
-      `Too many requests — this key allows ${limit.limit} per minute.`,
+      `Too many requests — ${limit.limit} per minute from one address.`,
       429,
       { ...rateLimitHeaders(limit), "Retry-After": String(limit.retryAfter) },
     );
@@ -65,14 +67,14 @@ export async function POST(req: Request) {
   try {
     input = await readInput(req);
   } catch (err) {
-    return failure(err, headers);
+    return failure(err, headers, caller.label);
   }
 
   let reading: ResumeReading;
   try {
     reading = await readResume(input.content, req.signal);
   } catch (err) {
-    return failure(err, headers);
+    return failure(err, headers, caller.label);
   }
 
   const body =
@@ -262,12 +264,13 @@ class RequestError extends Error {
 }
 
 /** Both error types carry a code, a sentence and a status; anything else is
- *  ours to own and says so without leaking a stack trace. */
-function failure(err: unknown, headers: Record<string, string> = {}) {
+ *  ours to own and says so without leaking a stack trace. The caller's label
+ *  goes in the log line — never their key. */
+function failure(err: unknown, headers: Record<string, string>, caller: string) {
   if (err instanceof RequestError || err instanceof ReadError) {
     return fail(err.code, err.message, err.status, headers);
   }
-  console.error("[api/v1/extract]", err);
+  console.error(`[api/v1/extract] ${caller}:`, err);
   return fail("internal_error", "Something went wrong reading that file.", 500);
 }
 

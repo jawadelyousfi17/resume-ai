@@ -106,7 +106,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "how-to-write-a-resume",
     title: "How to write a resume, step by step",
-    metaTitle: "How to Write a Resume in 2026 — Step-by-Step Guide | meniacv",
+    metaTitle: "How to Write a Resume in {year} — Step-by-Step Guide | meniacv",
     description:
       "A practical order of operations for writing a resume from nothing: what goes on the page, what to cut, and how to make each line earn its space.",
     eyebrow: "Guide",
@@ -828,6 +828,374 @@ export const GUIDES: Guide[] = [
       },
     ],
     related: ["resume-summary-examples", "resume-format", "how-to-write-a-resume"],
+  },
+  {
+    slug: "chronological-resume-format",
+    title: "The chronological resume format",
+    metaTitle: "Chronological Resume Format — Template, Example and When to Use It | meniacv",
+    description:
+      "The reverse-chronological resume: what it is, why it's the default for almost everyone, how to lay one out, and the two situations where it works against you.",
+    eyebrow: "Formatting",
+    updated: "2026-07-31",
+    intro:
+      "Reverse-chronological is the format nine out of ten people should use and roughly ten out of ten actually do. That makes it worth understanding properly rather than defaulting into — because the format is not the interesting decision, but a few of the choices inside it are.",
+    sections: [
+      {
+        heading: "What it is",
+        body: [
+          "Your most recent role first, then the one before it, working backwards. Each entry carries a title, an employer, a location, a date range and a handful of bullet points. Education goes underneath unless you graduated within the last year or two.",
+          "That is the whole format. Its dominance is not a matter of fashion: it answers the reader's first question — what are you doing now, and at what level — in the first two lines, and it gives an applicant tracking system exactly the shape it expects to parse.",
+        ],
+      },
+      {
+        heading: "Getting the details right",
+        body: [
+          "Within the format, a few decisions do real work. These are the ones that separate a chronological resume that reads well from one that is merely correctly ordered.",
+        ],
+        list: [
+          "Lead each bullet with what you owned and end it with what changed. \"Responsible for\" is the phrase to search for and delete.",
+          "Use a consistent date format throughout — \"Mar 2022 – Present\" parses reliably, seasons and graphical timelines do not.",
+          "Put the strongest bullet first within each role. Readers skim the top of every block and skip the bottom of most of them.",
+          "Give your current role three to five bullets and older roles two. Space should follow relevance, not seniority at the time.",
+          "Compress anything older than about ten years to a single line, or drop it. Nobody is assessing you on a 2013 internship.",
+          "Do not leave a role's dates off because the tenure was short. A missing date reads worse than a short one, and some parsers drop the entry entirely.",
+        ],
+      },
+      {
+        heading: "When it works against you",
+        body: [
+          "Two situations, and the honest answer in both is that the alternatives are worse rather than that chronological is fine.",
+          "The first is a genuinely fragmented history — a decade of short unrelated contracts, where a strict list is noise rather than narrative. The second is a career change where your most recent role is the least relevant thing on the page, so the format leads with your weakest argument.",
+          "For the first, a hybrid opening with a skills summary above the timeline usually solves it. For the second, the summary does the work: one sentence naming the direction, then the chronology beneath it. What neither case justifies is a fully functional resume, which recruiters read as concealment even when it is not.",
+        ],
+      },
+      {
+        heading: "Handling gaps",
+        body: [
+          "The format makes gaps visible, which people treat as a reason to avoid it. It is not. Gaps are far more common than the advice industry pretends, and an unexplained one is only a problem because the reader fills it in themselves.",
+          "Use years rather than months if the gap is short and you would rather not draw the eye to it — that is presentation, not deception. For anything longer, one line naming it plainly is enough: caring responsibilities, study, illness, redundancy in a bad market. A named gap stops being a question.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "What is a chronological resume?",
+        answer:
+          "A resume that lists your employment history from most recent to oldest, with each role carrying a title, employer, dates and bullet points. Strictly it is reverse-chronological; the two terms are used interchangeably and mean the same document.",
+      },
+      {
+        question: "Is the chronological format best for ATS?",
+        answer:
+          "Yes. It is the shape parsers are built around — they are looking for title, employer and date range records, and this format supplies exactly that. Functional resumes, which bury or omit the timeline, are the ones that parse badly.",
+      },
+      {
+        question: "How far back should a chronological resume go?",
+        answer:
+          "About ten to fifteen years of detail, and a single line or nothing for anything older. Relevance beats completeness: three well-described recent roles serve you better than eight thin ones stretching back to 2009.",
+      },
+      {
+        question: "Should education go at the top or the bottom?",
+        answer:
+          "Bottom, unless you graduated in the last year or two, or you are in a field where the qualification is the entry ticket — medicine, law, academia. Otherwise your work is more interesting than your degree and should come first.",
+      },
+    ],
+    related: ["resume-format", "functional-resume-format", "resume-length"],
+  },
+  {
+    slug: "functional-resume-format",
+    title: "The functional resume format, and why to be careful with it",
+    metaTitle: "Functional Resume Format — When It Helps and When It Hurts | meniacv",
+    description:
+      "The skills-based resume format: how it's built, why recruiters distrust it, the narrow cases where it genuinely helps, and the hybrid that usually works better.",
+    eyebrow: "Formatting",
+    updated: "2026-07-31",
+    intro:
+      "The functional resume organises by skill instead of by job, with employment history reduced to a list at the bottom. It is recommended constantly to career changers and people with gaps, and it is usually the wrong advice. Here is what it actually does to a reader — and the narrow set of cases where it earns its place.",
+    sections: [
+      {
+        heading: "How it is built",
+        body: [
+          "Instead of roles in reverse-chronological order, the body of the page is three or four skill headings — Project Management, Client Relationships, Data Analysis — each with bullet points drawn from anywhere in your history. Employers and dates appear once, compressed into a short list near the bottom.",
+          "The theory is sound: it lets you lead with capability rather than with chronology, which is genuinely useful if your job titles undersell you.",
+        ],
+      },
+      {
+        heading: "Why recruiters distrust it",
+        body: [
+          "The problem is not that the format is ugly. It is that it removes the single thing a reader uses to calibrate everything else: when, and for how long, and in what context.",
+          "A bullet that says \"led a team of twelve\" means something different if it was last year than if it was in 2016, and different again if it lasted three months rather than three years. Strip the timeline out and every claim floats free of the context that would let someone judge it. Recruiters know this, which is why the format is read as concealment — and the reader's guess about what is being concealed is almost always worse than the truth.",
+          "There is a practical cost too. Applicant tracking systems parse into title/employer/date records. A functional resume gives them very little to work with, so it tends to rank poorly even before a human forms an opinion.",
+        ],
+      },
+      {
+        heading: "The cases where it genuinely helps",
+        body: [
+          "They exist and they are narrower than the advice suggests.",
+        ],
+        list: [
+          "A portfolio career of many short, unrelated contracts, where a strict chronology is a wall of noise rather than a narrative.",
+          "Military or public-sector transitions where the job titles are meaningless outside the institution and the skills need translating before anything else.",
+          "Academic or research work being pitched into industry, where the relevant experience is spread across projects rather than jobs.",
+          "Very early career, where you have coursework, projects and part-time work but no employment history that a chronological format could organise.",
+        ],
+      },
+      {
+        heading: "The hybrid, which is usually the right answer",
+        body: [
+          "If you reached this page because someone recommended a functional resume for a career change or a gap, the format you actually want is the hybrid — and it solves the same problem without the cost.",
+          "A hybrid keeps the reverse-chronological history intact and puts a short skills section above it: three or four grouped capabilities with a line of evidence each, then the timeline underneath. The reader gets your argument first and the context immediately after, and the parser still finds the records it needs.",
+          "That combination is what most people mean when they say a functional resume helped them. It is worth being precise about, because the fully functional version is the one that costs you interviews.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "What is a functional resume?",
+        answer:
+          "A resume organised by skill category rather than by job, with employment history compressed into a short list at the bottom. It is also called a skills-based resume, and the two terms mean the same thing.",
+      },
+      {
+        question: "Do recruiters hate functional resumes?",
+        answer:
+          "Many actively dislike them, and the reason is specific rather than aesthetic: removing the timeline removes the context that makes any individual claim assessable. The format is read as hiding something, which is a costly assumption to invite even when there is nothing to hide.",
+      },
+      {
+        question: "Is a functional resume good for career changers?",
+        answer:
+          "Usually not, despite being the standard recommendation. A hybrid — a short skills section above an intact chronological history — makes the same argument without triggering the same suspicion, and parses far better. Use the fully functional version only when your history is genuinely too fragmented to order.",
+      },
+      {
+        question: "Do functional resumes work with ATS?",
+        answer:
+          "Poorly. Parsers are built to extract title, employer and date range records, and a functional resume deliberately supplies very few of them. Expect to rank low enough that a human may never reach your application.",
+      },
+    ],
+    related: ["resume-format", "chronological-resume-format", "career-change-resume"],
+  },
+  {
+    slug: "resume-length",
+    title: "How long should a resume be?",
+    metaTitle: "How Long Should a Resume Be? One Page vs Two ({year}) | meniacv",
+    description:
+      "One page or two, when a second page is justified, which fields expect longer, and what to cut when you're over — with the rule that actually decides it.",
+    eyebrow: "Formatting",
+    updated: "2026-07-31",
+    intro:
+      "One page for most people, two once the second page carries substance rather than padding. That is the whole answer, and the rest of this page is about the part people actually get stuck on: deciding which of your material is substance.",
+    sections: [
+      {
+        heading: "The rule, and the real rule",
+        body: [
+          "The conventional rule is one page up to about eight to ten years of experience, two beyond that. It is a decent approximation and it is not what actually decides the question.",
+          "The real rule is that every line has to earn its place. A two-page resume where the second page is a 2011 internship, a list of hobbies and \"references available on request\" is worse than a one-page resume, because you have asked for twice the attention and returned less per line. A two-page resume where both pages are dense with recent, relevant, quantified work is better than cramming the same content onto one page at eight-point type.",
+          "So the question is never \"am I allowed two pages\". It is \"is my weakest line better than nothing\". If it is not, cut it, and see what length you land on.",
+        ],
+      },
+      {
+        heading: "Where the conventions differ",
+        body: [
+          "Length expectations vary more by field and country than most advice admits.",
+        ],
+        list: [
+          "US and Canada: one page is a genuine norm for early and mid-career, and going to two is noticed. Two is fine and expected at senior level.",
+          "UK, Ireland, Australia: two pages is the standard CV length at essentially any level. A one-page UK CV can read as thin.",
+          "Continental Europe: two pages, plus a photo and personal details.",
+          "Nursing and healthcare: routinely two pages, because licensure, certifications and clinical settings all have to be listed and none of it is optional.",
+          "Academia and research: no limit. An academic CV is a complete record and can run to fifteen pages or more — a different document entirely.",
+          "Senior technical and executive roles: two pages, occasionally three, where the scope genuinely requires it.",
+        ],
+      },
+      {
+        heading: "What to cut first",
+        body: [
+          "In order, because doing this in the wrong order wastes an evening. Work down the list and stop when you fit.",
+        ],
+        list: [
+          "\"References available on request.\" It is assumed, it has been assumed for thirty years, and it costs you a line.",
+          "An objective statement. Replace it with a summary that says what you do, or delete it — an objective tells the employer what you want, which is not the question they are asking.",
+          "Interests and hobbies, unless one is genuinely relevant to the role or the employer is known to care.",
+          "Anything older than fifteen years, compressed to one line or removed.",
+          "The fourth and fifth bullets on your oldest roles. Nobody reads that far into a 2016 job.",
+          "Skills you cannot discuss for two minutes. These are liabilities as well as filler.",
+          "Only then: tighten wording, reduce margins slightly, and consider a denser template.",
+        ],
+      },
+      {
+        heading: "If you are just over",
+        body: [
+          "The worst outcome is a second page holding three lines. It reads as a mistake rather than as a document, and it is the one length that looks careless at a glance.",
+          "If you are two or three lines over, cut them — the material at the very bottom of a resume is by definition your weakest. If you are half a page over, take the whole second page and fill it properly, or cut back to one. Do not shrink the type to nine point and squeeze the margins to a quarter inch: a cramped one-page resume is harder to read than a comfortable two-page one, and readability is the thing you were protecting in the first place.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Should a resume be one page or two?",
+        answer:
+          "One page for most people up to roughly eight to ten years of experience, two once the second page carries real content rather than padding. The deciding question is whether your weakest line is better than nothing — cut everything that fails that test and take whatever length remains.",
+      },
+      {
+        question: "Is a two-page resume acceptable?",
+        answer:
+          "Entirely, at mid-level and above, and it is the standard length in the UK, Ireland, Australia and continental Europe at any level. What is not acceptable is a second page created by padding, or one holding three orphaned lines.",
+      },
+      {
+        question: "Can a resume be three pages?",
+        answer:
+          "Rarely, and only for genuinely senior roles, some technical positions with substantial publication or patent records, and healthcare where certifications are extensive. Academic CVs are the exception that proves the rule — they have no limit because they are a different document.",
+      },
+      {
+        question: "Does a longer resume hurt my chances with an ATS?",
+        answer:
+          "No. Parsers do not penalise length and a longer document can match more keywords. The cost of length is entirely human: a recruiter's attention per line drops as the page count rises, so padding dilutes your strong material rather than adding to it.",
+      },
+    ],
+    related: ["resume-format", "resume-mistakes", "resume-bullet-points"],
+  },
+  {
+    slug: "linkedin-to-resume",
+    title: "Turning your LinkedIn profile into a resume",
+    metaTitle: "LinkedIn to Resume — How to Convert It Properly ({year}) | meniacv",
+    description:
+      "How to turn a LinkedIn profile into a real resume, why LinkedIn's own PDF export is a poor starting point, and what has to change between the two documents.",
+    eyebrow: "Practical",
+    updated: "2026-07-31",
+    intro:
+      "Your LinkedIn profile is the closest thing most people have to a written record of their career, which makes it the obvious place to start a resume. It is also a different document with a different job, and converting one to the other is more than a copy and paste.",
+    sections: [
+      {
+        heading: "Why LinkedIn's own PDF export is not enough",
+        body: [
+          "LinkedIn will generate a PDF of your profile in two clicks, and it is worth understanding what you get. The export is a dump of profile fields in profile order — headline, about, experience, education, skills, and whatever else you have filled in — with LinkedIn's own typography and no editorial judgement applied.",
+          "That produces three problems. It is untailored, so every application gets the same document. It is often far too long, because a profile has no length pressure and a resume does. And it carries profile-specific furniture — endorsements, recommendations, the full skills list — that has no place on a resume and dilutes the parts that do.",
+          "It is a reasonable raw material and a poor finished product. Use it as the source, not as the output.",
+        ],
+      },
+      {
+        heading: "What has to change",
+        body: [
+          "The two documents answer different questions. A profile answers \"who is this person, generally\". A resume answers \"should we interview this person, for this job\". Almost everything that differs between them follows from that.",
+        ],
+        list: [
+          "Cut to two pages at most. A profile listing every role since 2009 becomes a resume with ten to fifteen years of detail and a line for the rest.",
+          "Rewrite the About section into a three-sentence summary aimed at one job, not at everyone who might look you up.",
+          "Add numbers. LinkedIn descriptions are usually written in responsibility language; a resume needs outcomes, and this is where most of the work is.",
+          "Drop the skills list down to the ten or twelve that are true and relevant. LinkedIn's fifty-skill list exists for search, not for reading.",
+          "Remove endorsements, recommendations, follower counts and the profile photo unless you are applying somewhere a photo is conventional.",
+          "Reorder for the posting. A profile has one fixed order; a resume should lead with whichever half of your experience the job actually asks for.",
+        ],
+      },
+      {
+        heading: "The fastest route",
+        body: [
+          "Export the PDF from LinkedIn — More, then Save to PDF, on your own profile — and import it here. The assistant reads it into structured fields, so your roles, dates, education and skills arrive as data rather than as a block of text to retype. From there the work is editorial rather than clerical.",
+          "Then do the part that matters: go through each role and rewrite the bullets so they end in a result. That single pass is the whole difference between a profile printed out and a resume, and it is not something the export can do for you.",
+        ],
+      },
+      {
+        heading: "Keeping them in sync",
+        body: [
+          "They should not be identical, and trying to keep them so is wasted effort. The profile is your permanent, public, general record; the resume is a tailored argument for one job. It is entirely normal for the profile to be longer and broader.",
+          "What should stay consistent is the facts — job titles, employers and dates. A recruiter will have both open, and a discrepancy in a date range is the kind of small thing that becomes a large thing.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can I download my LinkedIn profile as a resume?",
+        answer:
+          "You can — More, then Save to PDF, on your own profile — but the result is a profile dump rather than a resume: untailored, usually too long, and full of profile furniture like endorsements. Treat it as raw material to import and edit, not as a finished document to send.",
+      },
+      {
+        question: "Should my resume match my LinkedIn profile exactly?",
+        answer:
+          "No, and it shouldn't. A profile is a general, permanent record; a resume is a tailored argument for one role and should be shorter and sharper. What must match is the factual layer — titles, employers and date ranges — because recruiters check.",
+      },
+      {
+        question: "How do I convert LinkedIn to a resume quickly?",
+        answer:
+          "Export the PDF from LinkedIn and import it here; the assistant reads it into structured fields so nothing is retyped. Then do one pass rewriting each bullet to end in a result, and cut to two pages. The import takes a minute, the rewrite is the real work, and it is the part that decides the outcome.",
+      },
+      {
+        question: "Should I put my LinkedIn URL on my resume?",
+        answer:
+          "Yes, if the profile is current and complete — it is the one link recruiters reliably click. Customise the URL first so it isn't a string of digits, and make sure what they find is consistent with what you sent.",
+      },
+    ],
+    related: ["how-to-write-a-resume", "resume-bullet-points", "resume-length"],
+  },
+  {
+    slug: "chatgpt-resume",
+    title: "Using ChatGPT to write your resume",
+    metaTitle: "ChatGPT Resume — Prompts That Work and Traps to Avoid | meniacv",
+    description:
+      "How to use ChatGPT on a resume without producing something generic: what to ask it, what never to trust it with, and the tells recruiters actually notice.",
+    eyebrow: "AI writing",
+    updated: "2026-07-31",
+    intro:
+      "ChatGPT is genuinely useful on a resume and genuinely dangerous on one, and the difference is entirely in what you ask it to do. Asked to write a resume, it produces a fluent description of a person who does not exist. Asked to improve one, it is a better editor than most people have access to.",
+    sections: [
+      {
+        heading: "The one rule",
+        body: [
+          "Never ask it to generate content. Always ask it to transform content you supply.",
+          "That distinction sounds pedantic and it decides everything. \"Write me a resume for a marketing manager\" returns industry-standard filler with plausible numbers attached — and those numbers are invented, which means you either send a resume with fabricated metrics on it or spend longer correcting them than writing would have taken. \"Here is what I did; rewrite this bullet so it leads with ownership and ends with the result\" returns something true and better written.",
+          "Everything below is a variation on that one rule.",
+        ],
+      },
+      {
+        heading: "Prompts that actually work",
+        body: [
+          "These assume you paste your own material in first. Each one asks for a transformation rather than an invention.",
+        ],
+        list: [
+          "\"Rewrite this bullet so it starts with what I owned and ends with the measurable result. Do not add any numbers I haven't given you.\"",
+          "\"Here are my three most recent roles. Draft a three-sentence summary aimed at this job posting: [paste]. Use only facts present above.\"",
+          "\"Read this job posting and my resume. List the requirements the posting emphasises that my resume doesn't currently address.\"",
+          "\"Which of these bullets have no outcome in them? Just list them — don't rewrite yet.\"",
+          "\"Rewrite this to be about 25% shorter without losing any specific detail.\"",
+          "\"What questions would an interviewer ask about the claims on this resume?\" — the fastest way to find the lines you can't defend.",
+        ],
+      },
+      {
+        heading: "What it gets wrong",
+        body: [
+          "Invented specifics are the serious failure. Asked for impressive bullets, a model will supply percentages, team sizes and revenue figures that look exactly like real ones. If any of those reach an interview, you are answering questions about work you did not do — and that is a much worse outcome than a plain resume.",
+          "Uniformity is the subtler failure, and it is the actual tell recruiters notice. Not vocabulary — every bullet arriving at the same length, the same rhythm, the same verb-first construction, with no line that sounds like a particular person wrote it. A resume where every bullet is equally polished reads as processed. Keep the ones that sound like you.",
+          "It also has no idea what your industry values, what your target company is like, or whether a claim that reads as impressive in one field reads as routine in another. It is editing prose, not advising you on a market.",
+        ],
+      },
+      {
+        heading: "The privacy question nobody asks",
+        body: [
+          "A resume contains your full name, contact details, employment history and often your address. Pasting it into a general-purpose chatbot means it goes wherever that service's data policy says it goes, and for consumer tiers that has historically included model training unless you found and changed a setting.",
+          "This is worth thirty seconds of attention rather than none. Check the setting, or use a tool that states plainly what it does — the assistant here works from your resume to produce the response you asked for and does not use it for training, which is the answer you want from anything you hand your employment history to.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can ChatGPT write a good resume?",
+        answer:
+          "It can write a good-sounding resume for a person who does not exist. Given your real material, it is an excellent editor — it turns responsibility language into outcomes, tightens what runs long, and spots bullets with no result in them. Ask for transformation, never generation.",
+      },
+      {
+        question: "Can recruiters tell if ChatGPT wrote my resume?",
+        answer:
+          "Often, when it is used unedited, and the tell is uniformity rather than vocabulary — every bullet the same length and rhythm, with no specifics that could only be yours. Used to sharpen your own material it does not read that way, because the substance underneath is real.",
+      },
+      {
+        question: "What's the best ChatGPT prompt for a resume?",
+        answer:
+          "Any prompt that hands it your content and asks for a specific transformation, with an explicit instruction not to invent facts. \"Rewrite this bullet to lead with ownership and end with the result; do not add numbers I haven't given you\" outperforms every generate-me-a-resume prompt ever written.",
+      },
+      {
+        question: "Is it safe to paste my resume into ChatGPT?",
+        answer:
+          "Check the data controls first. A resume carries your full employment history and contact details, and consumer chatbot tiers have historically used conversations for training by default. Either turn that off or use a tool that states its position plainly.",
+      },
+    ],
+    related: ["ai-resume-builder", "resume-bullet-points", "resume-summary-examples"],
   },
 ];
 

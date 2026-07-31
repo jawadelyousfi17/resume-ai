@@ -8,6 +8,7 @@ import { SiteNav } from "@/components/landing/SiteNav";
 import { btnPrimary, panel } from "@/components/landing/ui";
 import { cn } from "@/lib/utils";
 import type { FaqEntry } from "@/lib/content/guides";
+import type { Crumb } from "@/lib/seo/schema";
 
 /** Emits structured data. Search engines read this; nothing renders. */
 export function JsonLd({ data }: { data: object }) {
@@ -50,6 +51,53 @@ export function Column({
 
 /** Running prose is held to a readable measure even where the page is wide. */
 export const measure = "max-w-[68ch]";
+
+/**
+ * The visible trail, fed by the same `Crumb[]` that builds the page's
+ * BreadcrumbList. The last crumb is the current page, so it renders as text
+ * rather than a link that goes nowhere.
+ *
+ * The separators are decorative and hidden from screen readers, which get the
+ * list structure and the `aria-current` instead.
+ */
+export function Breadcrumbs({
+  trail,
+  className,
+}: {
+  trail: Crumb[];
+  className?: string;
+}) {
+  return (
+    <nav aria-label="Breadcrumb" className={cn("mt-2", className)}>
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-ink-faint">
+        {trail.map((crumb, i) => {
+          const last = i === trail.length - 1;
+          return (
+            <li key={crumb.path} className="flex items-center gap-x-2">
+              {i > 0 && (
+                <span aria-hidden="true" className="text-ink-faint/50">
+                  /
+                </span>
+              )}
+              {last ? (
+                <span aria-current="page" className="text-ink-soft">
+                  {crumb.name}
+                </span>
+              ) : (
+                <Link
+                  href={crumb.path}
+                  className="transition hover:text-brand hover:underline hover:underline-offset-4"
+                >
+                  {crumb.name}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
 
 export function PageHeader({
   title,

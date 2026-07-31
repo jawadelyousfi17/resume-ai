@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { JsonLd } from "@/components/content/ContentShell";
 import { Faq } from "@/components/landing/Faq";
 import { FreePlan } from "@/components/landing/FreePlan";
 import { Hero } from "@/components/landing/Hero";
@@ -10,11 +11,16 @@ import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
 import { Templates } from "@/components/landing/Templates";
 import { Testimonials } from "@/components/landing/Testimonials";
+import { LANDING_FAQS } from "@/lib/content/faq";
+import { abs, faqPage, softwareApplication } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
-  title: "meniacv — Build a job-winning resume for free",
+  // "CV" earns its place in the title: the domain is meniacv, and the UK,
+  // Irish, Australian and European markets search for a CV rather than a
+  // resume. Without the word here the site ranked for it only by accident.
+  title: "meniacv — Free Resume & CV Builder, Job-Winning in Minutes",
   description:
-    "Free online resume builder. Your first resume is free forever, with unlimited watermark-free PDF downloads, AI writing help and ATS-ready templates.",
+    "Free online resume and CV builder. Your first document is free forever, with unlimited watermark-free PDF downloads, AI writing help and ATS-ready templates.",
   alternates: { canonical: "/" },
 };
 
@@ -28,6 +34,23 @@ export default function LandingPage() {
     // this box, which never scrolls — so the header quietly stopped sticking.
     // `clip` trims the same overflow without becoming one.
     <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-cream">
+      {/* The product, its prices, and the questions actually rendered below.
+          No BreadcrumbList — this is the root, and a one-item trail is noise. */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            softwareApplication(),
+            faqPage(LANDING_FAQS),
+            {
+              "@type": "WebSite",
+              name: "meniacv",
+              url: abs("/"),
+            },
+          ],
+        }}
+      />
+
       <SiteNav />
       <main className="grow">
         <Hero />

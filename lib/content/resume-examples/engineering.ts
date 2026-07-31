@@ -9,7 +9,7 @@ export const ENGINEERING_EXAMPLES: ResumeExample[] = [
     aka: ["Software Developer", "Programmer", "SDE"],
     category: "engineering",
     metaTitle:
-      "Software Developer Resume Examples & Templates (2026) | meniacv",
+      "Software Developer Resume Examples & Templates ({year}) | meniacv",
     description:
       "A full software engineer resume example you can copy, plus the bullet points, skills and ATS keywords that get a developer past the screen and into an interview.",
     updated: "2026-07-29",
@@ -249,7 +249,7 @@ export const ENGINEERING_EXAMPLES: ResumeExample[] = [
     role: "Frontend Developer",
     aka: ["Front End Engineer", "UI Developer", "React Developer"],
     category: "engineering",
-    metaTitle: "Frontend Developer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Frontend Developer Resume Example & Guide ({year}) | meniacv",
     description:
       "A frontend developer resume example with React bullet points that show performance and accessibility work, plus the skills and keywords hiring teams screen for.",
     updated: "2026-07-29",
@@ -469,7 +469,7 @@ export const ENGINEERING_EXAMPLES: ResumeExample[] = [
     role: "Backend Developer",
     aka: ["Backend Engineer", "Server-Side Developer", "API Developer"],
     category: "engineering",
-    metaTitle: "Backend Developer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Backend Developer Resume Example & Guide ({year}) | meniacv",
     description:
       "A backend engineer resume example built around scale, reliability and data — with the bullet points, skills and ATS keywords that get past the screen.",
     updated: "2026-07-29",
@@ -688,7 +688,7 @@ export const ENGINEERING_EXAMPLES: ResumeExample[] = [
     role: "Full Stack Developer",
     aka: ["Full Stack Engineer", "Web Developer", "Generalist Engineer"],
     category: "engineering",
-    metaTitle: "Full Stack Developer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Full Stack Developer Resume Example & Guide ({year}) | meniacv",
     description:
       "A full stack developer resume example that shows range without looking shallow, plus the skills, keywords and structure hiring teams expect.",
     updated: "2026-07-29",
@@ -896,7 +896,7 @@ export const ENGINEERING_EXAMPLES: ResumeExample[] = [
     role: "Data Scientist",
     aka: ["Machine Learning Scientist", "Applied Scientist", "Research Scientist"],
     category: "engineering",
-    metaTitle: "Data Scientist Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Data Scientist Resume Example & Guide ({year}) | meniacv",
     description:
       "A data scientist resume example that connects models to business outcomes, with the skills, keywords and structure hiring managers screen for.",
     updated: "2026-07-29",
@@ -1120,7 +1120,7 @@ export const ENGINEERING_EXAMPLES: ResumeExample[] = [
     role: "Data Analyst",
     aka: ["Business Intelligence Analyst", "BI Analyst", "Reporting Analyst"],
     category: "engineering",
-    metaTitle: "Data Analyst Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Data Analyst Resume Example & Guide ({year}) | meniacv",
     description:
       "A data analyst resume example built on decisions influenced rather than tools listed, with SQL, dashboards and the ATS keywords hiring teams look for.",
     updated: "2026-07-29",

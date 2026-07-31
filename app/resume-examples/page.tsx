@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -15,10 +16,21 @@ import {
   EXAMPLES_BY_CATEGORY,
   RESUME_EXAMPLES,
 } from "@/lib/content/resume-examples";
+import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
 import { cn } from "@/lib/utils";
 
+/** The year the title advertises.
+ *
+ *  Derived rather than typed, because a hardcoded "(2026)" is still sitting
+ *  there in March 2027 telling everyone the page is a year stale — and the
+ *  count beside it went wrong the moment an example was added. Both now come
+ *  from the source. This is evaluated at build time, so a redeploy rolls the
+ *  year over; the content is rebuilt often enough that this is the right
+ *  tradeoff against making the page dynamic. */
+const YEAR = new Date().getUTCFullYear();
+
 export const metadata: Metadata = {
-  title: "Resume Examples & Templates for 26 Jobs (2026) | meniacv",
+  title: `Resume Examples & Templates for ${RESUME_EXAMPLES.length} Jobs (${YEAR}) | meniacv`,
   description:
     "Full resume examples for software developers, nurses, marketers, analysts and more — each with sample bullet points, ATS keywords and the mistakes that cost interviews.",
   alternates: { canonical: "/resume-examples" },
@@ -78,6 +90,8 @@ const FAQS: FaqEntry[] = [
   },
 ];
 
+const TRAIL = [HOME, { name: "Resume examples", path: "/resume-examples" }];
+
 export default function ResumeExamplesIndexPage() {
   return (
     <ContentPage>
@@ -89,38 +103,22 @@ export default function ResumeExamplesIndexPage() {
               "@type": "CollectionPage",
               name: "Resume examples",
               description: metadata.description,
+              url: abs("/resume-examples"),
               hasPart: RESUME_EXAMPLES.map((example) => ({
                 "@type": "Article",
                 headline: `${example.role} resume example`,
                 description: example.description,
-                url: `/resume-examples/${example.slug}`,
+                url: abs(`/resume-examples/${example.slug}`),
               })),
             },
-            {
-              "@type": "FAQPage",
-              mainEntity: FAQS.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
-            },
-            {
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Resume examples",
-                  item: "/resume-examples",
-                },
-              ],
-            },
+            faqPage(FAQS),
+            breadcrumbList(TRAIL),
           ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Resume examples"
           intro="A complete, rendered resume for each of these jobs — not a fragment, and not a stock photo of one. Each page also carries the bullet-point patterns that work in that field, the keywords an applicant tracking system is matching against, and the mistakes that quietly cost people interviews."

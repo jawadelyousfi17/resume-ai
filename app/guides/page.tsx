@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -10,6 +11,7 @@ import {
 } from "@/components/content/ContentShell";
 import { panel } from "@/components/landing/ui";
 import { GUIDES } from "@/lib/content/guides";
+import { HOME, abs, breadcrumbList } from "@/lib/seo/schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -19,25 +21,34 @@ export const metadata: Metadata = {
   alternates: { canonical: "/guides" },
 };
 
+const TRAIL = [HOME, { name: "Guides", path: "/guides" }];
+
 export default function GuidesIndexPage() {
   return (
     <ContentPage>
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "Resume guides",
-          description: metadata.description,
-          hasPart: GUIDES.map((guide) => ({
-            "@type": "Article",
-            headline: guide.title,
-            description: guide.description,
-            url: `/guides/${guide.slug}`,
-          })),
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              name: "Resume guides",
+              description: metadata.description,
+              url: abs("/guides"),
+              hasPart: GUIDES.map((guide) => ({
+                "@type": "Article",
+                headline: guide.title,
+                description: guide.description,
+                url: abs(`/guides/${guide.slug}`),
+              })),
+            },
+            breadcrumbList(TRAIL),
+          ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Resume guides"
           intro="How to write the thing, not how to decorate it. Each guide is the advice we'd give someone sitting next to us — specific, opinionated, and free of the filler that makes most resume advice useless."

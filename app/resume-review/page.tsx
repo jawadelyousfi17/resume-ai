@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -11,10 +12,18 @@ import {
 } from "@/components/content/ContentShell";
 import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
 import type { FaqEntry } from "@/lib/content/guides";
+import {
+  HOME,
+  ORGANIZATION,
+  abs,
+  breadcrumbList,
+  faqPage,
+} from "@/lib/seo/schema";
+import { CURRENT_YEAR } from "@/lib/seo/year";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Resume Review — Get Your Resume Checked & Scored (2026) | meniacv",
+  title: `Resume Review — Get Your Resume Checked & Scored (${CURRENT_YEAR}) | meniacv`,
   description:
     "What a useful resume review actually covers, a self-review checklist you can run in ten minutes, and how to act on feedback without rewriting the whole page.",
   keywords: [
@@ -133,6 +142,8 @@ const FAQS: FaqEntry[] = [
   },
 ];
 
+const TRAIL = [HOME, { name: "Resume review", path: "/resume-review" }];
+
 export default function ResumeReviewPage() {
   return (
     <ContentPage>
@@ -146,35 +157,18 @@ export default function ResumeReviewPage() {
               description: metadata.description,
               datePublished: "2026-07-29",
               dateModified: "2026-07-29",
-              author: { "@type": "Organization", name: "meniacv" },
-              publisher: { "@type": "Organization", name: "meniacv" },
-              mainEntityOfPage: "/resume-review",
+              author: ORGANIZATION,
+              publisher: ORGANIZATION,
+              mainEntityOfPage: abs("/resume-review"),
             },
-            {
-              "@type": "FAQPage",
-              mainEntity: FAQS.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
-            },
-            {
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Resume review",
-                  item: "/resume-review",
-                },
-              ],
-            },
+            faqPage(FAQS),
+            breadcrumbList(TRAIL),
           ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Resume review"
           intro="Nobody can read their own resume properly — you know what you meant, so you can't see what's actually on the page. This is how to get around that: six passes you can run yourself in ten minutes, what to ask of a human reviewer, and where an AI review genuinely helps."

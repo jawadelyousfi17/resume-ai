@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { FaqAccordion, JsonLd } from "@/components/content/ContentShell";
+import {
+  Breadcrumbs,
+  FaqAccordion,
+  JsonLd,
+} from "@/components/content/ContentShell";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
 import { PlanComparison } from "@/components/landing/PlanComparison";
 import { PlanGrid } from "@/components/landing/Pricing";
 import { btnPrimary } from "@/components/landing/ui";
+import {
+  HOME,
+  breadcrumbList,
+  faqPage,
+  softwareApplication,
+} from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   title: "Pricing — meniacv",
@@ -43,6 +53,8 @@ const FAQS = [
   },
 ];
 
+const TRAIL = [HOME, { name: "Pricing", path: "/pricing" }];
+
 export default function PricingPage() {
   return (
     // The site's cream page, not a scene of its own: the plan cards bring all
@@ -57,17 +69,21 @@ export default function PricingPage() {
 
       <main className="px-5 pt-6 sm:px-8 lg:px-10">
         <div className="mx-auto w-full max-w-site">
+          {/* The plans themselves belong on the page that lists them, which is
+              this one — the landing page carries the same graph because it also
+              shows the cards. */}
           <JsonLd
             data={{
               "@context": "https://schema.org",
-              "@type": "FAQPage",
-              mainEntity: FAQS.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
+              "@graph": [
+                softwareApplication(),
+                faqPage(FAQS),
+                breadcrumbList(TRAIL),
+              ],
             }}
           />
+
+          <Breadcrumbs trail={TRAIL} />
 
           {/* The heading runs the full width; only the prose is held to a
               readable measure. */}

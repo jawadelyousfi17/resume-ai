@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -10,9 +11,11 @@ import {
   PageHeader,
 } from "@/components/content/ContentShell";
 import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
-import { sampleWithTemplate } from "@/components/landing/sample-resume";
+import { sampleForTemplate } from "@/components/landing/sample-resume";
 import { ResumePreview } from "@/components/preview/ResumePreview";
+import { getTemplateNote } from "@/lib/content/template-notes";
 import { PAGE_SIZES } from "@/lib/defaults";
+import { HOME, abs, breadcrumbList } from "@/lib/seo/schema";
 import { TEMPLATES, getTemplate } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
@@ -79,21 +82,39 @@ export default async function TemplateDetailPage(
   if (!template) notFound();
 
   const others = TEMPLATES.filter((t) => t.id !== template.id).slice(0, 6);
+  const note = getTemplateNote(template.id);
+
+  const trail = [
+    HOME,
+    { name: "Resume templates", path: "/resume-templates" },
+    { name: template.name, path: `/resume-templates/${template.id}` },
+  ];
 
   return (
     <ContentPage>
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: `${template.name} resume template`,
-          description: template.description,
-          image: `/templates/${template.id}.png`,
-          isPartOf: { "@type": "ItemList", name: "meniacv resume templates" },
+          "@graph": [
+            {
+              "@type": "CreativeWork",
+              name: `${template.name} resume template`,
+              description: template.description,
+              url: abs(`/resume-templates/${template.id}`),
+              image: abs(`/templates/${template.id}.png`),
+              isPartOf: {
+                "@type": "ItemList",
+                name: "meniacv resume templates",
+                url: abs("/resume-templates"),
+              },
+            },
+            breadcrumbList(trail),
+          ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={trail} />
         <PageHeader
           title={`${template.name} resume template`}
           intro={template.description}
@@ -116,7 +137,7 @@ export default async function TemplateDetailPage(
             className="resume-page overflow-hidden rounded-xl bg-white shadow-[var(--shadow-paper)] ring-1 ring-black/5"
             style={{ width: PAGE_SIZES.A4.width, maxWidth: "100%" }}
           >
-            <ResumePreview data={sampleWithTemplate(template.id)} />
+            <ResumePreview data={sampleForTemplate(template.id)} />
           </div>
         </div>
 
@@ -144,6 +165,33 @@ export default async function TemplateDetailPage(
             switching template later re-renders what you&rsquo;ve written rather
             than starting it over.
           </p>
+        </section>
+
+        {/* The part that makes this page its own rather than one of thirty-two
+            renders of the same document. */}
+        <section className="mt-14">
+          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            Is {template.name} the right choice?
+          </h2>
+          <div className="mt-5 space-y-6">
+            {(
+              [
+                ["Who it suits", note.suits],
+                ["What it does to ATS parsing", note.parsing],
+                ["At two pages", note.twoPages],
+                ["Use something else if", note.instead],
+              ] as const
+            ).map(([heading, body]) => (
+              <div key={heading}>
+                <h3 className="text-[16.5px] font-extrabold text-ink">
+                  {heading}
+                </h3>
+                <p className="mt-2 max-w-[68ch] text-[16px] leading-[1.75] text-ink-soft">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-12">

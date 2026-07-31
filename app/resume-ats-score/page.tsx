@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -12,10 +13,18 @@ import {
 import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
 import { REVIEW_CATEGORIES } from "@/lib/ai/review";
 import type { FaqEntry } from "@/lib/content/guides";
+import {
+  HOME,
+  ORGANIZATION,
+  abs,
+  breadcrumbList,
+  faqPage,
+} from "@/lib/seo/schema";
+import { CURRENT_YEAR } from "@/lib/seo/year";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Resume ATS Score — Check How Your Resume Scores (2026) | meniacv",
+  title: `Resume ATS Score — Check How Your Resume Scores (${CURRENT_YEAR}) | meniacv`,
   description:
     "What an ATS score actually measures, what applicant tracking systems really do with your resume, and how to raise your score on formatting, keywords and impact.",
   keywords: [
@@ -148,6 +157,8 @@ const FAQS: FaqEntry[] = [
   },
 ];
 
+const TRAIL = [HOME, { name: "Resume ATS score", path: "/resume-ats-score" }];
+
 export default function ResumeAtsScorePage() {
   return (
     <ContentPage>
@@ -161,35 +172,18 @@ export default function ResumeAtsScorePage() {
               description: metadata.description,
               datePublished: "2026-07-29",
               dateModified: "2026-07-29",
-              author: { "@type": "Organization", name: "meniacv" },
-              publisher: { "@type": "Organization", name: "meniacv" },
-              mainEntityOfPage: "/resume-ats-score",
+              author: ORGANIZATION,
+              publisher: ORGANIZATION,
+              mainEntityOfPage: abs("/resume-ats-score"),
             },
-            {
-              "@type": "FAQPage",
-              mainEntity: FAQS.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
-            },
-            {
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Resume ATS score",
-                  item: "/resume-ats-score",
-                },
-              ],
-            },
+            faqPage(FAQS),
+            breadcrumbList(TRAIL),
           ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Resume ATS score"
           intro="Most of what's written about applicant tracking systems is wrong, and the wrong parts make people anxious about things that don't matter while ignoring the one that does. Here's what these systems actually do to your resume, what a score is really measuring, and how to raise yours."

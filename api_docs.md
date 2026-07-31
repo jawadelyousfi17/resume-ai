@@ -281,7 +281,9 @@ Retry `429`, `500`, `502` and `upstream_*` with a backoff. Don't retry `400`,
 
 ## Rate limits
 
-**20 requests per minute per key** by default. Every answer carries the count:
+**20 requests per minute per IP address** by default — not per key, so the
+same key used from several of your servers gets a window each. Every answer
+carries the count:
 
 ```
 X-RateLimit-Limit: 20
@@ -371,13 +373,15 @@ Two environment variables, on the deployment serving this app:
 | Variable                  | Required | Description                                                                                                        |
 | ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
 | `MENIACV_API_KEYS`        | yes      | Comma-separated keys allowed to call the endpoint. Unset means the endpoint is off (`503`). Prefix a key with a label and a colon — `myapp:mcv_live_…` — to name the caller in logs. |
-| `MENIACV_API_RATE_LIMIT`  | no       | Requests per minute per key. Defaults to 20.                                                                       |
+| `MENIACV_API_RATE_LIMIT`  | no       | Requests per minute per client IP. Defaults to 20.                                                                 |
 
 `ANTHROPIC_API_KEY` must be set too — it's what pays for the read.
 
 Mint a key with `openssl rand -hex 24`. Rotate by listing the new key
 alongside the old, moving callers over, then dropping the old one.
 
-The rate limit is counted per server instance, in memory. Across several
-instances the real ceiling is the limit times however many are warm; it's a
-guard against a runaway loop, not a billing quota.
+The rate limit is counted per server instance, in memory, and bucketed by the
+address in `X-Forwarded-For`. Across several instances the real ceiling is the
+limit times however many are warm; it's a guard against a runaway loop, not a
+billing quota. Make sure whatever sits in front of the app sets that header —
+without it every caller shares one bucket.

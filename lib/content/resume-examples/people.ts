@@ -8,7 +8,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Digital Marketing Manager",
     aka: ["Growth Marketing Manager", "Performance Marketing Manager", "Marketing Manager"],
     category: "commercial",
-    metaTitle: "Digital Marketing Manager Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Digital Marketing Manager Resume Example & Guide ({year}) | meniacv",
     description:
       "A digital marketing manager resume example built on CAC, ROAS and pipeline rather than campaigns run, with the keywords hiring teams screen for.",
     updated: "2026-07-29",
@@ -224,7 +224,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Sales Representative",
     aka: ["Account Executive", "Business Development Manager", "Sales Consultant"],
     category: "commercial",
-    metaTitle: "Sales Representative Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Sales Representative Resume Example & Guide ({year}) | meniacv",
     description:
       "A sales resume example built on quota attainment, deal size and pipeline, with the account executive keywords that pass ATS screening.",
     updated: "2026-07-29",
@@ -452,7 +452,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Customer Service Representative",
     aka: ["Customer Support Specialist", "Client Services Associate", "Contact Centre Agent"],
     category: "commercial",
-    metaTitle: "Customer Service Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Customer Service Resume Example & Guide ({year}) | meniacv",
     description:
       "A customer service resume example with ticket volumes, CSAT and resolution rates, plus the support keywords and structure that pass ATS screening.",
     updated: "2026-07-29",
@@ -665,7 +665,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Human Resources Manager",
     aka: ["HR Business Partner", "People Manager", "Talent Manager"],
     category: "commercial",
-    metaTitle: "HR Manager Resume Example & Guide (2026) | meniacv",
+    metaTitle: "HR Manager Resume Example & Guide ({year}) | meniacv",
     description:
       "An HR manager resume example with retention, hiring and employee relations outcomes, plus the SHRM keywords and structure that pass ATS screening.",
     updated: "2026-07-29",
@@ -892,7 +892,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "UX Designer",
     aka: ["Product Designer", "UI/UX Designer", "Interaction Designer"],
     category: "product-design",
-    metaTitle: "UX Designer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "UX Designer Resume Example & Guide ({year}) | meniacv",
     description:
       "A UX and product designer resume example that shows research, outcomes and craft, plus the portfolio expectations and keywords hiring teams screen for.",
     updated: "2026-07-29",
@@ -1125,7 +1125,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Graphic Designer",
     aka: ["Visual Designer", "Brand Designer", "Marketing Designer"],
     category: "product-design",
-    metaTitle: "Graphic Designer Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Graphic Designer Resume Example & Guide ({year}) | meniacv",
     description:
       "A graphic designer resume example with brand work, production volume and commercial results, plus portfolio guidance and ATS-safe formatting advice.",
     updated: "2026-07-29",
@@ -1344,7 +1344,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Registered Nurse",
     aka: ["RN", "Staff Nurse", "Clinical Nurse"],
     category: "public",
-    metaTitle: "Registered Nurse Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Registered Nurse Resume Example & Guide ({year}) | meniacv",
     description:
       "A registered nurse resume example with licensure, specialty, patient ratios and quality outcomes, formatted to pass hospital ATS screening.",
     updated: "2026-07-29",
@@ -1587,7 +1587,7 @@ export const PEOPLE_EXAMPLES: ResumeExample[] = [
     role: "Teacher",
     aka: ["Elementary Teacher", "Secondary Teacher", "Classroom Educator"],
     category: "public",
-    metaTitle: "Teacher Resume Example & Guide (2026) | meniacv",
+    metaTitle: "Teacher Resume Example & Guide ({year}) | meniacv",
     description:
       "A teacher resume example with certification, subject and grade detail, student outcomes and the education keywords that pass district ATS screening.",
     updated: "2026-07-29",

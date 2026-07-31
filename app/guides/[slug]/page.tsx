@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -12,6 +13,15 @@ import {
 } from "@/components/content/ContentShell";
 import { panel } from "@/components/landing/ui";
 import { GUIDES, getGuide } from "@/lib/content/guides";
+import { RESUME_EXAMPLES } from "@/lib/content/resume-examples";
+import {
+  HOME,
+  ORGANIZATION,
+  abs,
+  breadcrumbList,
+  faqPage,
+} from "@/lib/seo/schema";
+import { withYear } from "@/lib/seo/year";
 import { cn } from "@/lib/utils";
 
 /** Section headings double as anchors for the rail beside the article. */
@@ -34,13 +44,15 @@ export async function generateMetadata(
   if (!guide) return {};
 
   const url = `/guides/${guide.slug}`;
+  // Titles carry a "{year}" token rather than a typed-in year — see lib/seo/year.ts.
+  const title = withYear(guide.metaTitle);
   return {
-    title: guide.metaTitle,
+    title,
     description: guide.description,
     alternates: { canonical: url },
     openGraph: {
       type: "article",
-      title: guide.metaTitle,
+      title,
       description: guide.description,
       url,
       publishedTime: guide.updated,
@@ -48,7 +60,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: guide.metaTitle,
+      title,
       description: guide.description,
     },
   };
@@ -63,6 +75,39 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
     .map(getGuide)
     .filter((item) => item !== undefined);
 
+  const trail = [
+    HOME,
+    { name: "Guides", path: "/guides" },
+    { name: guide.title, path: `/guides/${guide.slug}` },
+  ];
+
+  // A template view and a role example for every guide. The example rotates by
+  // slug rather than being the same one on all sixteen pages — a link every
+  // guide shares is a link none of them recommends.
+  const example =
+    RESUME_EXAMPLES[
+      Math.abs(
+        [...guide.slug].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7),
+      ) % RESUME_EXAMPLES.length
+    ];
+  const practiceLinks = [
+    {
+      label: "ATS-friendly templates",
+      href: "/ats-friendly-resume-templates",
+      note: "The single-column layouts that parse cleanly, free to use.",
+    },
+    {
+      label: `${example.role} resume example`,
+      href: `/resume-examples/${example.slug}`,
+      note: example.description,
+    },
+    {
+      label: "Write a cover letter",
+      href: "/cover-letter",
+      note: "The four paragraphs that work, and when one is worth writing.",
+    },
+  ];
+
   return (
     <ContentPage>
       {/* Three graphs: the article itself, its questions, and where it sits. */}
@@ -76,41 +121,18 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               description: guide.description,
               datePublished: guide.updated,
               dateModified: guide.updated,
-              author: { "@type": "Organization", name: "meniacv" },
-              publisher: { "@type": "Organization", name: "meniacv" },
-              mainEntityOfPage: `/guides/${guide.slug}`,
+              author: ORGANIZATION,
+              publisher: ORGANIZATION,
+              mainEntityOfPage: abs(`/guides/${guide.slug}`),
             },
-            {
-              "@type": "FAQPage",
-              mainEntity: guide.faqs.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
-            },
-            {
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Guides",
-                  item: "/guides",
-                },
-                {
-                  "@type": "ListItem",
-                  position: 3,
-                  name: guide.title,
-                  item: `/guides/${guide.slug}`,
-                },
-              ],
-            },
+            faqPage(guide.faqs),
+            breadcrumbList(trail),
           ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={trail} />
         <PageHeader
           title={guide.title}
           intro={guide.intro}
@@ -210,6 +232,32 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             Common questions
           </h2>
           <FaqList entries={guide.faqs} />
+        </section>
+
+        {/* Guides used to link only sideways, to other guides — so the whole
+            /guides subtree pointed at itself and never down into the pages that
+            convert. Every guide now reaches a template collection and a role
+            example, which is the pass the internal-linking audit asked for. */}
+        <section className="mt-14">
+          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            Put it into practice
+          </h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {practiceLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(panel, "px-5 py-4 transition hover:ring-ink/15")}
+              >
+                <span className="block text-[15px] font-extrabold text-ink">
+                  {link.label}
+                </span>
+                <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+                  {link.note}
+                </span>
+              </Link>
+            ))}
+          </div>
         </section>
 
         <ContentCta />

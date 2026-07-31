@@ -13,10 +13,33 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
     links: [
       { label: "Resume builder", href: "/dashboard" },
       { label: "Templates", href: "/resume-templates" },
+      { label: "Cover letters", href: "/cover-letter" },
       { label: "Resume review", href: "/resume-review" },
       { label: "ATS score", href: "/resume-ats-score" },
       { label: "Pricing", href: "/pricing" },
       { label: "FAQ", href: "/faq" },
+    ],
+  },
+  {
+    title: "Collections",
+    links: [
+      { label: "ATS-friendly templates", href: "/ats-friendly-resume-templates" },
+      { label: "Simple templates", href: "/simple-resume-templates" },
+      { label: "Modern templates", href: "/modern-resume-templates" },
+      { label: "Professional templates", href: "/professional-resume-templates" },
+      { label: "Two-column templates", href: "/two-column-resume-templates" },
+      { label: "With a photo", href: "/resume-templates-with-photo" },
+    ],
+  },
+  {
+    title: "CVs",
+    links: [
+      { label: "CV maker", href: "/cv-maker" },
+      { label: "CV templates", href: "/cv-templates" },
+      { label: "CV examples", href: "/cv-examples" },
+      { label: "AI resume builder", href: "/ai-resume-builder" },
+      { label: "Canva templates", href: "/canva-resume-templates" },
+      { label: "Google Docs templates", href: "/google-docs-resume-templates" },
     ],
   },
   {
@@ -38,6 +61,14 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
       { label: "Bullet points", href: "/guides/resume-bullet-points" },
       { label: "Career change", href: "/guides/career-change-resume" },
       { label: "All guides", href: "/guides" },
+    ],
+  },
+  {
+    title: "Cover letters",
+    links: [
+      { label: "How to write one", href: "/cover-letter" },
+      { label: "Cover letter templates", href: "/cover-letter/templates" },
+      { label: "Cover letter examples", href: "/cover-letter/examples" },
     ],
   },
   {
@@ -127,7 +158,7 @@ export function SiteFooter() {
               </div>
             </div>
 
-            <nav className="grid w-full grid-cols-2 gap-8 sm:grid-cols-4 lg:w-[55%]">
+            <nav className="grid w-full grid-cols-2 gap-8 sm:grid-cols-3 lg:w-[74%] lg:grid-cols-6">
               {COLUMNS.map((col) => (
                 <div key={col.title}>
                   <h3 className="text-[13px] font-bold tracking-[0.5px] text-white uppercase">

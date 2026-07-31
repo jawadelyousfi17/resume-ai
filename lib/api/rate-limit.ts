@@ -1,6 +1,10 @@
 import "server-only";
 
-// A fixed-window rate limit, per key, held in this process's memory.
+// A fixed-window rate limit, per client IP, held in this process's memory.
+//
+// Counting by address rather than by key means one key shared across a fleet
+// of your own machines isn't throttled as if it were one caller, while a
+// single box stuck in a loop still is.
 //
 // Deliberately modest: it exists so a loop with a bug can't spend a month of
 // model budget in an afternoon, not to enforce a quota to the request. Each
@@ -9,7 +13,7 @@ import "server-only";
 // storage, and that is a change to make when there are enough callers to
 // justify it rather than now.
 
-/** Requests per window, per key. */
+/** Requests per window, per address. */
 const DEFAULT_LIMIT = 20;
 const WINDOW_MS = 60_000;
 
@@ -36,6 +40,27 @@ function limit(): number {
   return Number.isFinite(configured) && configured > 0
     ? Math.floor(configured)
     : DEFAULT_LIMIT;
+}
+
+/**
+ * The address a request came from.
+ *
+ * Behind a proxy — which is every deployment of this app — the socket belongs
+ * to the proxy, so the client is whatever it forwarded. The first entry in
+ * `X-Forwarded-For` is the original client; the ones after it are the hops.
+ *
+ * A caller can put anything in that header, so this is not an identity: it is
+ * a bucket key. Authentication is the API key's job, and it has already
+ * happened by the time anything here is counted. With no header at all
+ * everyone shares one bucket, which is the safe way to be wrong.
+ */
+export function clientIp(headers: Headers): string {
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return headers.get("x-real-ip")?.trim() || "unknown";
 }
 
 /** Counts one request against `id` and says whether it may proceed. */

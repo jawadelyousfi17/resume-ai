@@ -7,7 +7,14 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
  *  public extractor, which authenticates callers with an API key of its own
  *  and would never have a session cookie. The marketing and guide pages stay
  *  public and crawlable — this list is only about /api. */
-const PUBLIC_API_PATHS: string[] = ["/api/v1/extract"];
+const PUBLIC_API_PATHS: string[] = [
+  "/api/v1/extract",
+  // Stand-in avatars. These render inside the template previews on the landing
+  // page and on all 32 template detail pages, so a signed-out visitor — and
+  // every crawler — has to be able to fetch them. The route takes a style and
+  // a seed, reads nothing and stores nothing.
+  "/api/avatar",
+];
 
 /** Exact matches only. A prefix match would have let `/api/compile/cover-letter`
  *  in behind `/api/compile`, and a route nested under a public one is not

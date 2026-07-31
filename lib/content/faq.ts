@@ -95,3 +95,9 @@ export const FAQ_GROUPS: FaqGroup[] = [
 export const ALL_FAQS: FaqEntry[] = FAQ_GROUPS.flatMap(
   (group) => group.entries,
 );
+
+/** The questions people ask before signing up, which is as many as the landing
+ *  page has room for. Named here rather than sliced in the component so the
+ *  landing page's FAQPage graph describes exactly what's rendered — structured
+ *  data for answers that aren't on the page is a manual-action risk. */
+export const LANDING_FAQS: FaqEntry[] = ALL_FAQS.slice(0, 8);

@@ -7,6 +7,7 @@
 
 import type { ResumeData } from "@/lib/types";
 import { avatarUrl } from "@/lib/avatar";
+import { personFor } from "@/lib/content/sample-people";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import type { TemplateId } from "@/lib/types";
 import { getTemplate } from "@/lib/templates";
@@ -154,19 +155,40 @@ export const SAMPLE_RESUME: ResumeData = {
   settings: { ...DEFAULT_SETTINGS },
 };
 
-/** The same document, laid out with one of the templates. */
-export function sampleWithTemplate(id: TemplateId): ResumeData {
+/** Applies a template's look to a document without touching its content. */
+function withTemplate(data: ResumeData, id: TemplateId): ResumeData {
   const template = getTemplate(id);
   return {
-    ...SAMPLE_RESUME,
+    ...data,
     settings: {
-      ...SAMPLE_RESUME.settings,
+      ...data.settings,
       template: id,
       fontFamily: template.presets.fontFamily,
       headingStyle: template.presets.headingStyle,
       // Each template was designed around an accent; without this they'd all
       // render in the default blue and half of them would lose their identity.
-      accent: template.accent ?? SAMPLE_RESUME.settings.accent,
+      accent: template.accent ?? data.settings.accent,
     },
   };
+}
+
+/**
+ * Amara's document, laid out with one of the templates.
+ *
+ * For the places whose whole point is that it is *the same document* — the
+ * hero demo flicking between looks, where changing the person mid-take would
+ * read as the page being replaced rather than restyled.
+ */
+export function sampleWithTemplate(id: TemplateId): ResumeData {
+  return withTemplate(SAMPLE_RESUME, id);
+}
+
+/**
+ * A template shown with whichever of the five sample people it was assigned.
+ *
+ * For the gallery and the detail pages, where thirty-two renders of one
+ * document was a duplicate-content problem — see lib/content/sample-people.ts.
+ */
+export function sampleForTemplate(id: TemplateId): ResumeData {
+  return withTemplate(personFor(id), id);
 }

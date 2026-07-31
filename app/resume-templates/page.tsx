@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
+  Breadcrumbs,
   Column,
   ContentCta,
   ContentPage,
@@ -11,7 +12,11 @@ import {
   measure,
 } from "@/components/content/ContentShell";
 import { TemplateGallery } from "@/components/content/TemplateGallery";
-import { TEMPLATES } from "@/lib/templates";
+import { panel } from "@/components/landing/ui";
+import { TEMPLATE_COLLECTIONS } from "@/lib/content/template-collections";
+import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
+import { TEMPLATES, templatesIn } from "@/lib/templates";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Resume Templates — Free, ATS-Ready Layouts | meniacv",
@@ -43,6 +48,8 @@ const FAQS = [
   },
 ];
 
+const TRAIL = [HOME, { name: "Resume templates", path: "/resume-templates" }];
+
 export default function ResumeTemplatesPage() {
   return (
     <ContentPage>
@@ -58,27 +65,48 @@ export default function ResumeTemplatesPage() {
                 position: i + 1,
                 name: `${template.name} resume template`,
                 description: template.description,
+                url: abs(`/resume-templates/${template.id}`),
               })),
             },
-            {
-              "@type": "FAQPage",
-              mainEntity: FAQS.map((faq) => ({
-                "@type": "Question",
-                name: faq.question,
-                acceptedAnswer: { "@type": "Answer", text: faq.answer },
-              })),
-            },
+            faqPage(FAQS),
+            breadcrumbList(TRAIL),
           ],
         }}
       />
 
       <Column>
+        <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Resume templates"
-          intro="Every one is a render of the same document, so you can compare them like for like. Pick one now and change your mind later — switching template re-renders what you've written rather than starting it over."
+          intro="Every one is a live render rather than a mock-up, shown with the kind of history it was designed for — a nurse's page and an engineer's page put different pressure on a layout. Pick one now and change your mind later: switching template re-renders what you've written rather than starting it over."
         />
 
         <TemplateGallery />
+
+        {/* The filter buttons above are client state and can't be linked to or
+            crawled. These are the same cuts as real pages, each with its own
+            copy about when that style is the right call. */}
+        <section className="mt-14">
+          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            Browse by style
+          </h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {TEMPLATE_COLLECTIONS.map((collection) => (
+              <Link
+                key={collection.slug}
+                href={`/${collection.slug}`}
+                className={cn(panel, "px-5 py-4 transition hover:ring-ink/15")}
+              >
+                <span className="block text-[15px] font-extrabold text-ink">
+                  {collection.title}
+                </span>
+                <span className="mt-1 block text-[13px] font-semibold text-ink-faint">
+                  {templatesIn(collection.category).length} templates
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-12">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">

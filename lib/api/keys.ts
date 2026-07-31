@@ -10,15 +10,13 @@ import "server-only";
 //
 // Nothing here logs a key. The label a key carries is what gets logged.
 
-import { createHash, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
 
 /** A caller, once their key checked out. `label` is the part of a key before
  *  the first colon, if it has one — `partner-app:sk_live_…` identifies who is
  *  calling in a log line without putting the secret in it. */
 export interface ApiCaller {
   label: string;
-  /** Stable, non-secret handle for this key: what rate limits count against. */
-  id: string;
 }
 
 /** The configured keys, parsed once. Empty means the API is switched off —
@@ -70,12 +68,5 @@ export function authenticate(headers: Headers): ApiCaller | null {
 
   if (!matched) return null;
 
-  const label = matched.includes(":") ? matched.split(":")[0]! : "default";
-  return { label, id: fingerprint(matched) };
-}
-
-/** Enough of a key to tell two apart in a rate-limit map, and nothing that
- *  could be turned back into one. */
-function fingerprint(key: string): string {
-  return createHash("sha256").update(key).digest("hex").slice(0, 16);
+  return { label: matched.includes(":") ? matched.split(":")[0]! : "default" };
 }
