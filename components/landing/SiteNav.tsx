@@ -91,7 +91,7 @@ export function SiteNav() {
           </Link>
           <Link
             href="/dashboard"
-            className="btn-gradient inline-flex h-11 items-center rounded-xl px-5 text-[14.5px] font-bold transition hover:opacity-90 lg:h-12 lg:px-6 lg:text-[15px]"
+            className="btn-fill inline-flex h-11 items-center rounded-xl px-5 text-[14.5px] font-bold transition hover:opacity-90 lg:h-12 lg:px-6 lg:text-[15px]"
           >
             Start Now
           </Link>

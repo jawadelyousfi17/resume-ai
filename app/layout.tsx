@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { fontVariables } from "./fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toast";
 import { FirstExportCelebration } from "@/components/ui/first-export-celebration";
+import { NavProgress } from "@/components/ui/nav-progress";
 import { FeedbackNudge } from "@/components/feedback/FeedbackNudge";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
@@ -45,6 +47,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full">
+        {/* Reads `useSearchParams`, which without a boundary would opt every
+            static page into client rendering. Nothing renders until a
+            navigation is slow enough to be worth a bar, so the fallback is
+            nothing. */}
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
         {/* Nothing is capped here. The signed-in app is centred and held to
             `--container-app` by its own shells, and the public pages run edge
             to edge — a cap at this level put the marketing header's border and

@@ -24,9 +24,9 @@ import { CURRENT_YEAR } from "@/lib/seo/year";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: `Resume ATS Score — Check How Your Resume Scores (${CURRENT_YEAR}) | meniacv`,
+  title: `Resume & CV ATS Score — Check How Yours Scores (${CURRENT_YEAR}) | meniacv`,
   description:
-    "What an ATS score actually measures, what applicant tracking systems really do with your resume, and how to raise your score on formatting, keywords and impact.",
+    "What an ATS score actually measures, what applicant tracking systems really do with your resume or CV, and how to raise your score on formatting, keywords and impact.",
   keywords: [
     "resume ats score",
     "ats score checker",

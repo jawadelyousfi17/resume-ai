@@ -52,10 +52,11 @@ export function landingMetadata(landing: Landing) {
 }
 
 export function EditorialLanding({ landing }: { landing: Landing }) {
+  const count = landing.templateCount ?? 9;
   const templates = landing.showTemplates
     ? landing.showTemplates === "all"
-      ? TEMPLATES.slice(0, 9)
-      : templatesIn(landing.showTemplates).slice(0, 9)
+      ? TEMPLATES.slice(0, count)
+      : templatesIn(landing.showTemplates).slice(0, count)
     : [];
 
   const trail = [HOME, { name: landing.title, path: `/${landing.slug}` }];

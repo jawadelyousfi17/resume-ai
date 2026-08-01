@@ -25,8 +25,13 @@ export interface Landing {
   updated: string;
   cta: string;
   secondary?: { label: string; href: string };
-  /** Show a grid of templates: a category, or the first nine of everything. */
+  /** Show a grid of templates: a category, or everything. */
   showTemplates?: TemplateCategory | "all";
+  /** How many of them to show. Nine by default — enough to make the point
+   *  without pushing the prose off the page. /cv-templates overrides it,
+   *  because a CV reader arriving from a British or continental search is
+   *  choosing a document, not sampling the range. */
+  templateCount?: number;
   sections: { heading: string; body: string[]; list?: string[] }[];
   linksHeading?: string;
   links?: { label: string; href: string; note: string }[];
@@ -56,6 +61,7 @@ export const LANDINGS: Landing[] = [
     cta: "Build your CV",
     secondary: { label: "CV examples", href: "/cv-examples" },
     showTemplates: "all",
+    templateCount: 59,
     sections: [
       {
         heading: "Three documents, one word",

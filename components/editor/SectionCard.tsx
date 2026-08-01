@@ -269,7 +269,7 @@ export function DoneButton({
       <button
         type="button"
         onClick={onClick}
-        className="btn-gradient flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold shadow-sm transition active:scale-[0.995]"
+        className="btn-fill flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold transition active:scale-[0.995]"
       >
         ✓ Done
       </button>
@@ -281,7 +281,7 @@ export function DoneButton({
       <button
         type="button"
         onClick={onClick}
-        className="btn-gradient flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold shadow-sm transition hover:brightness-[1.03] active:scale-[0.995]"
+        className="btn-fill flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold transition hover:brightness-[1.03] active:scale-[0.995]"
       >
         ✓ Done
       </button>

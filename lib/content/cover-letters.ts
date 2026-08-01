@@ -6,9 +6,10 @@
 // apart means the marketing pages can prerender and stay crawlable while the
 // editor stays behind `requireUser`.
 //
-// The letter builder has three header styles rather than a gallery of designs,
-// so "templates" here means the structural patterns a letter follows. Saying
-// otherwise would promise a picker that doesn't exist.
+// "Templates" here means the structural patterns a letter follows — the shape
+// of the argument, not the shape of the page. The designs the builder actually
+// renders live in lib/letter-templates, and /cover-letter/templates lists both:
+// what to write, and what it can look like.
 
 import type { FaqEntry } from "@/lib/content/guides";
 

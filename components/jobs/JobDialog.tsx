@@ -136,7 +136,7 @@ export function JobDialog({
           <div className="flex items-center gap-2 pt-1">
             <button
               type="submit"
-              className="btn-gradient h-12 flex-1 rounded-xl text-[15px] font-bold"
+              className="btn-fill h-12 flex-1 rounded-xl text-[15px] font-bold"
             >
               {job ? "Save changes" : "Add to the board"}
             </button>

@@ -178,7 +178,7 @@ export function SetupFlow({
           <button
             type="button"
             onClick={next}
-            className="btn-gradient h-12 flex-1 rounded-xl text-[15.5px] font-bold transition active:scale-[0.99]"
+            className="btn-fill h-12 flex-1 rounded-xl text-[15.5px] font-bold transition active:scale-[0.99]"
           >
             {last ? "See my resume" : "Continue"}
           </button>

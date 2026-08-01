@@ -57,14 +57,14 @@ const TRAIL = [HOME, { name: "Pricing", path: "/pricing" }];
 
 export default function PricingPage() {
   return (
-    // The site's cream page, not a scene of its own: the plan cards bring all
-    // the colour this page needs, and everything around them is the same white
-    // panel the rest of meniacv uses.
+    // White, like the rest of the marketing pages: the plan cards bring all
+    // the colour this page needs, and a tint behind them was one surface too
+    // many.
     //
     // Composed directly rather than through <ContentPage> because the written
     // pages sit in a 760px reading column and three plan cards need the full
     // width. The gutters match the nav's, so the page lines up with it.
-    <div className="min-h-dvh bg-cream">
+    <div className="min-h-dvh bg-panel">
       <SiteNav />
 
       <main className="px-5 pt-6 sm:px-8 lg:px-10">

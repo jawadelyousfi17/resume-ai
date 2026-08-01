@@ -26,14 +26,15 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    // Same cream page and floating white panels as the rest of the app, so
-    // arriving here and arriving in the editor feel like one product.
+    // White, like /resume-templates and /resume-examples — the marketing pages
+    // read as one surface, and the panels that need separating draw a ring
+    // rather than floating on a tint.
     //
     // `overflow-x-clip`, not `overflow-x-hidden`: `hidden` makes this a scroll
     // container, and a sticky child sticks to its scroll container — which is
     // this box, which never scrolls — so the header quietly stopped sticking.
     // `clip` trims the same overflow without becoming one.
-    <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-cream">
+    <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-panel">
       {/* The product, its prices, and the questions actually rendered below.
           No BreadcrumbList — this is the root, and a one-item trail is noise. */}
       <JsonLd

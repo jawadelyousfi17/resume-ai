@@ -49,12 +49,16 @@ import {
 export function Dashboard({
   resumes,
   account,
+  full = false,
 }: {
   /** Rendered on the server from this user's rows — no client fetch. */
   resumes: Resume[];
   /** Null for a guest, who gets an invitation to sign in where the account
    *  row would be. */
   account: Account;
+  /** Sent here by /start with no room on the plan for the resume that was
+   *  pressed for. The upgrade card opens on arrival, saying why. */
+  full?: boolean;
 }) {
   const router = useRouter();
   const auth = useAuthDialog();
@@ -90,6 +94,17 @@ export function Dashboard({
 
   const list = guest ? (guestResume ? [guestResume] : []) : resumes;
   const atGuestLimit = guest && list.length >= GUEST_RESUME_LIMIT;
+
+  // The refusal /start couldn't show: it has no screen of its own, so it sends
+  // them here and the card comes up on arrival. The parameter is dropped once
+  // it has, so a refresh — or the back button — doesn't ask again.
+  const explainedLimit = useRef(false);
+  useEffect(() => {
+    if (!full || explainedLimit.current) return;
+    explainedLimit.current = true;
+    plan.askRoomFor("resumes", list.length);
+    router.replace("/dashboard");
+  }, [full, list.length, plan, router]);
 
   const run = (
     id: string | null,

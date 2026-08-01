@@ -828,7 +828,7 @@ export function HeroDemo() {
                     takeOver();
                     replace(suggestion);
                   }}
-                  className="btn-gradient h-10 rounded-xl px-5 text-[13.5px] font-bold"
+                  className="btn-fill h-10 rounded-xl px-5 text-[13.5px] font-bold"
                 >
                   Replace
                 </button>

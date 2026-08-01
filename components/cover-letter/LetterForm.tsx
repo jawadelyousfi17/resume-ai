@@ -9,11 +9,19 @@
 // a stack of open cards — because these are settings you scan and adjust, not
 // long forms you work through once.
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Field, Input, Label, Textarea } from "@/components/ui/fields";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { StepperSlider } from "@/components/ui/stepper-slider";
 import { FontPicker } from "@/components/editor/FontPicker";
+import {
+  Dialog,
+  DialogBack,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CheckIcon, SearchIcon } from "@/components/ui/icons";
 import {
   BuildingIcon,
   ChevronDownIcon,
@@ -23,12 +31,18 @@ import {
 } from "@/components/ui/svg-icons";
 import { useLetter } from "@/lib/letter-store";
 import { DEFAULT_GREETING, DEFAULT_CLOSING } from "@/lib/cover-letter";
+import {
+  LETTER_CATEGORIES,
+  LETTER_TEMPLATES,
+  applyLetterTemplate,
+  inLetterCategory,
+  letterTemplate,
+  letterTemplatesIn,
+  type LetterCategory,
+  type LetterTemplate,
+} from "@/lib/letter-templates";
 import { LANGUAGES } from "@/lib/i18n";
-import type {
-  CoverLetterSettings,
-  LetterHeaderStyle,
-  PageFormat,
-} from "@/lib/types";
+import type { CoverLetterSettings, PageFormat } from "@/lib/types";
 import { SignaturePad } from "./SignaturePad";
 
 const ACCENTS = [
@@ -42,12 +56,6 @@ const ACCENTS = [
   "#0f172a",
 ];
 
-const HEADERS: { value: LetterHeaderStyle; label: string }[] = [
-  { value: "stacked", label: "Stacked" },
-  { value: "banner", label: "Banner" },
-  { value: "minimal", label: "One line" },
-];
-
 const PAGE_FORMATS: { value: PageFormat; label: string }[] = [
   { value: "A4", label: "A4" },
   { value: "Letter", label: "US Letter" },
@@ -55,8 +63,8 @@ const PAGE_FORMATS: { value: PageFormat; label: string }[] = [
 
 /** The rail down the side of Customize, in the order the cards appear. */
 const CZ_GROUPS = [
+  { id: "lc-template", label: "Template" },
   { id: "lc-document", label: "Document" },
-  { id: "lc-header", label: "Header" },
   { id: "lc-size", label: "Font Size" },
   { id: "lc-spacing", label: "Spacing" },
   { id: "lc-font", label: "Font" },
@@ -230,7 +238,9 @@ export function LetterContent() {
 export function LetterCustomize() {
   const { data, update, format, setFormat } = useLetter();
   const s = data.settings;
+  const current = letterTemplate(s);
   const [active, setActive] = useState(CZ_GROUPS[0].id);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const set = <K extends keyof CoverLetterSettings>(
     key: K,
@@ -267,6 +277,43 @@ export function LetterCustomize() {
       </nav>
 
       <div className="min-w-0 flex-1 space-y-4">
+        <Panel id="lc-template" title="Template">
+          {/* The pages themselves are the button: three of them behind a
+              single call to action, the one in use first. */}
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className="group relative block w-full overflow-hidden rounded-xl border border-field-border transition hover:border-ink/30"
+          >
+            <span className="grid grid-cols-3 gap-2 p-2">
+              {previewTemplates(current).map((t) => (
+                <span
+                  key={t.id}
+                  className="block overflow-hidden rounded-lg border border-field-border"
+                >
+                  <LetterTemplateThumb template={t} />
+                </span>
+              ))}
+            </span>
+
+            <span className="absolute inset-0 flex items-center justify-center bg-ink/45 transition group-hover:bg-ink/55">
+              <span className="rounded-xl bg-white px-5 py-2.5 text-[14.5px] font-bold text-ink shadow-lg">
+                Browse templates
+              </span>
+            </span>
+          </button>
+
+          <LetterTemplatePicker
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            selectedId={current.id}
+            onPick={(t) => {
+              update((d) => applyLetterTemplate(d.settings, t));
+              setPickerOpen(false);
+            }}
+          />
+        </Panel>
+
         <Panel id="lc-document" title="Document">
           <div className="space-y-5">
             <div>
@@ -318,14 +365,6 @@ export function LetterCustomize() {
               </span>
             </label>
           </div>
-        </Panel>
-
-        <Panel id="lc-header" title="Header">
-          <Segmented
-            value={s.headerStyle}
-            options={HEADERS}
-            onChange={(v) => set("headerStyle", v)}
-          />
         </Panel>
 
         <Panel id="lc-size" title="Font Size">
@@ -480,6 +519,228 @@ function Panel({
       </h3>
       {children}
     </section>
+  );
+}
+
+/** The one in use, then whatever comes next — enough to say "there are more". */
+function previewTemplates(active: LetterTemplate): LetterTemplate[] {
+  const at = LETTER_TEMPLATES.findIndex((t) => t.id === active.id);
+  return [0, 1, 2].map(
+    (i) => LETTER_TEMPLATES[(at + i) % LETTER_TEMPLATES.length],
+  );
+}
+
+function LetterTemplateThumb({ template }: { template: LetterTemplate }) {
+  // A screenshot of the real render, produced by
+  // scripts/shoot-letter-templates.mjs. A drawn approximation would be one
+  // more thing that can disagree with what the editor actually outputs — and
+  // a hundred and forty-eight live renders would cost more than the panel is
+  // worth.
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/letter-templates/${template.id}.png`}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      className="block w-full bg-white"
+      style={{
+        aspectRatio: "210 / 297",
+        objectFit: "cover",
+        objectPosition: "top",
+      }}
+    />
+  );
+}
+
+/** The gallery, in a dialog — the resume editor's template picker, pointed at
+ *  the letter designs. Search reads the description too: people arrive looking
+ *  for "serif" or "dark" rather than for Copperplate, and the words that
+ *  describe a design are the ones they would type. */
+function LetterTemplatePicker({
+  open,
+  onOpenChange,
+  selectedId,
+  onPick,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedId: LetterTemplate["id"];
+  onPick: (template: LetterTemplate) => void;
+}) {
+  // Null is "All".
+  const [category, setCategory] = useState<LetterCategory | null>(null);
+  const [query, setQuery] = useState("");
+
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return LETTER_TEMPLATES.filter(
+      (t) =>
+        (!category || inLetterCategory(t, category)) &&
+        (!q ||
+          t.name.toLowerCase().includes(q) ||
+          t.short.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q)),
+    );
+  }, [category, query]);
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        // Reopening should start from the whole set, not the last search.
+        if (!next) {
+          setCategory(null);
+          setQuery("");
+        }
+        onOpenChange(next);
+      }}
+    >
+      {/* The whole window on a desktop. A design is judged by how the page
+          looks, and the more of them that fit side by side at a size worth
+          reading, the less this is a list and the more it is a shelf. */}
+      <DialogContent
+        fullScreen
+        showBack={false}
+        aria-describedby={undefined}
+        className="scroll-slim gap-6 overflow-y-auto p-7 pt-0 max-sm:content-start max-sm:px-4 max-sm:pt-0 sm:top-0 sm:left-0 sm:h-dvh sm:max-h-none sm:w-screen sm:max-w-none sm:translate-x-0 sm:translate-y-0 sm:rounded-none"
+      >
+        {/* Back and the filters ride together at the top; only the grid
+            underneath them moves. */}
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl border-b border-black/5 bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:border-0 max-sm:px-4 max-sm:pt-3 sm:rounded-none">
+          <DialogBack className="mb-3 sm:hidden" />
+
+          <div className="flex items-center gap-4 max-sm:hidden">
+            <DialogHeader>
+              {/* The Back button says what this is on a phone. */}
+              <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">
+                Choose a template
+              </DialogTitle>
+            </DialogHeader>
+
+            <label className="relative ml-auto block w-[300px] shrink-0">
+              <span className="sr-only">Search templates</span>
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-3.5 h-4.5 w-4.5 -translate-y-1/2 text-ink-faint" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search — serif, banner, dark…"
+                className="h-11 w-full rounded-xl bg-field pr-4 pl-10 text-[14.5px] font-semibold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:ring-2 focus:ring-ink/80"
+              />
+            </label>
+          </div>
+
+          <DialogHeader className="sm:hidden">
+            <DialogTitle className="sr-only">Choose a template</DialogTitle>
+          </DialogHeader>
+
+          {/* Scrolls on a phone rather than stacking — the grid of designs is
+              what the dialog is for. */}
+          <div className="scroll-slim -mx-7 mt-5 flex min-w-0 gap-2.5 overflow-x-auto px-7 pb-1 max-sm:-mx-4 max-sm:mt-0 max-sm:px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+            <FilterChip
+              label="All"
+              count={LETTER_TEMPLATES.length}
+              active={category === null}
+              onClick={() => setCategory(null)}
+            />
+            {LETTER_CATEGORIES.map((c) => (
+              <FilterChip
+                key={c.id}
+                label={c.label}
+                count={letterTemplatesIn(c.id).length}
+                active={category === c.id}
+                onClick={() => setCategory(c.id)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {shown.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-[15px] font-bold text-ink">
+              Nothing matches that.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setCategory(null);
+              }}
+              className="mt-3 text-[14px] font-bold text-brand transition hover:opacity-80"
+            >
+              Show all {LETTER_TEMPLATES.length}
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+            {shown.map((t) => {
+              const selected = t.id === selectedId;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => onPick(t)}
+                  aria-pressed={selected}
+                  title={t.description}
+                  className={`group relative overflow-hidden rounded-2xl border-2 text-left transition ${
+                    selected
+                      ? "border-brand"
+                      : "border-field-border hover:border-ink/25"
+                  }`}
+                >
+                  <LetterTemplateThumb template={t} />
+                  <span className="flex items-center gap-1.5 px-4 py-3">
+                    <span className="text-[15px] font-bold text-ink">
+                      {t.name}
+                    </span>
+                    {selected && (
+                      <CheckIcon className="ml-auto h-4.5 w-4.5 shrink-0 text-brand" />
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** One filter button. The count is worth showing — it tells you whether a
+ *  group is worth opening before you open it. */
+function FilterChip({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`shrink-0 rounded-full px-5 py-3 text-[15.5px] font-bold whitespace-nowrap transition ${
+        active
+          ? "bg-navy text-white"
+          : "bg-field text-ink-soft hover:bg-black/[0.06] hover:text-ink"
+      }`}
+    >
+      {label}
+      <span
+        className={`ml-2 text-[13.5px] font-semibold ${
+          active ? "text-white/60" : "text-ink-faint"
+        }`}
+      >
+        {count}
+      </span>
+    </button>
   );
 }
 

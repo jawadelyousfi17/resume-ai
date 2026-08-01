@@ -2,7 +2,7 @@
 // class strings so they compose onto <a>, <button> and next/link alike.
 //
 // These mirror the app's own controls: the same radii, the same font weights,
-// and the blue→cyan `btn-gradient` the editor uses for its primary action.
+// and the flat `btn-fill` the editor uses for its primary action.
 
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,16 @@ export const sectionGap = "mt-20 md:mt-24 lg:mt-32";
 export const panel =
   "rounded-2xl bg-panel shadow-[var(--shadow-panel)] ring-1 ring-black/5";
 
+/**
+ * The same box with no lift: an outline, and nothing under it.
+ *
+ * For the pages that sit on white, where a white card casting a shadow is a
+ * card floating over nothing — the shadow is what says "this is a surface
+ * above the page", and on white there is no page to be above. The ring alone
+ * carries the grouping.
+ */
+export const panelFlat = "rounded-2xl bg-panel ring-1 ring-black/[0.09]";
+
 /* -------------------------------------------------------------------------- */
 /* Type                                                                       */
 /* -------------------------------------------------------------------------- */
@@ -41,25 +51,51 @@ export const lede =
 /* -------------------------------------------------------------------------- */
 
 const base =
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-6 text-[15px] font-bold transition lg:text-base";
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-6 text-center text-[15px] font-bold whitespace-nowrap transition lg:text-base";
 
-/** Primary action anywhere: the app's signature gradient. */
-export const btnPrimary = cn(base, "h-12 btn-gradient hover:opacity-90");
+/**
+ * The height every button in a row shares, and the reason it's here rather
+ * than on each one.
+ *
+ * These almost always appear in pairs — a filled action beside a quiet one —
+ * and the quiet one used to draw its edge with a 2px border. A border is part
+ * of the box: it took 4px off the inside of an equally tall button, which
+ * pulled the label in and left the second button reading as the smaller of the
+ * two. The outline is a ring now, which is painted rather than measured, so
+ * both buttons are the same box with the same room inside it.
+ */
+const row = "h-12 min-w-[9.5rem]";
+
+/** Primary action anywhere: the brand, flat. No gradient and no shadow —
+ *  a button is a shape with a colour, not a raised object. */
+export const btnPrimary = cn(base, row, "btn-fill hover:opacity-90");
 
 /** The oversized hero call to action. */
 export const btnHero = cn(
   base,
-  "h-14 px-8 text-base btn-gradient hover:opacity-90 lg:h-16 lg:px-9 lg:text-lg",
+  "h-14 px-8 text-base btn-fill hover:opacity-90 lg:h-16 lg:px-9 lg:text-lg",
 );
 
-/** Secondary action on cream or white. */
+/** Secondary action on cream or white. Same box as the primary, stated
+ *  quietly: a hairline ring instead of a fill. */
 export const btnQuiet = cn(
   base,
-  "h-12 border-2 border-black/10 bg-panel text-ink hover:border-ink/30",
+  row,
+  "bg-panel text-ink ring-1 ring-black/10 ring-inset hover:bg-black/[0.02] hover:ring-ink/25",
 );
 
+/**
+ * What a pair of buttons wears in a hero, so the two stay on one line.
+ *
+ * The minimum width and the roomy padding are what make a lone button look
+ * deliberate; side by side on a 360px screen they're what push the second one
+ * onto its own row. Here they give way: each takes half the row and the type
+ * comes down a step. Applied to the buttons, with `flex-nowrap` on the row.
+ */
+export const btnCompact = "max-sm:min-w-0 max-sm:flex-1 max-sm:px-3 max-sm:text-[13.5px]";
+
 /** Secondary action on a navy panel. */
-export const btnOnNavy = cn(base, "h-12 bg-white text-ink hover:bg-white/90");
+export const btnOnNavy = cn(base, row, "bg-white text-ink hover:bg-white/90");
 
 /** Small pill used inside the product mockups. */
 export const btnMini =

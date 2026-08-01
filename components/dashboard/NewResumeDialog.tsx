@@ -18,12 +18,13 @@ import { PlanBadge } from "@/components/ui/plan-badge";
 import { cheapestPlanWith } from "@/lib/plans";
 import { TemplatePicker } from "@/components/editor/CustomizePanel";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
+import {
+  IMPORT_ACCEPT,
+  importAccepts,
+  readResumeFile,
+} from "@/lib/import-resume";
 import type { Template } from "@/lib/templates";
 import type { ResumeData } from "@/lib/types";
-
-/** What the browser will offer in its file picker. Word documents are absent
- *  on purpose — nothing here can read one, and the API says so plainly. */
-const ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.txt,.md";
 
 export function NewResumeDialog({
   open,
@@ -100,29 +101,13 @@ export function NewResumeDialog({
     });
 
     try {
-      const form = new FormData();
-      form.set("file", file);
-      if (language) form.set("language", language);
-
-      const res = await fetch("/api/import", { method: "POST", body: form });
-      const payload = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        name?: string;
-        data?: ResumeData;
-      };
-
-      if (!res.ok || !payload.data) {
-        throw new Error(payload.error || `Server error ${res.status}`);
-      }
+      const imported = await readResumeFile(file, language);
 
       toast.success("Imported — check it over", {
         id: toastId,
         description: "Anything the AI misread is yours to fix.",
       });
-      onImported({
-        name: payload.name ?? "Imported Resume",
-        data: payload.data,
-      });
+      onImported(imported);
     } catch (err) {
       toast.error("Couldn't import that file", {
         id: toastId,
@@ -138,10 +123,6 @@ export function NewResumeDialog({
   const hasFiles = (e: React.DragEvent) =>
     e.dataTransfer.types.includes("Files");
 
-  /** The picker filters by `ACCEPT`; a drop has to be checked by hand. */
-  const accepted = (file: File) =>
-    ACCEPT.split(",").some((ext) => file.name.toLowerCase().endsWith(ext));
-
   const busy = Boolean(reading) || creating;
 
   const onDrop = (e: React.DragEvent) => {
@@ -153,7 +134,7 @@ export function NewResumeDialog({
     const file = e.dataTransfer.files[0];
     if (!file) return;
     if (!canImport) return refuseImport();
-    if (!accepted(file)) {
+    if (!importAccepts(file)) {
       return toast.error("Can't read that kind of file", {
         description: "A PDF, an image or a text file, please.",
       });
@@ -290,7 +271,7 @@ export function NewResumeDialog({
         <input
           ref={fileInput}
           type="file"
-          accept={ACCEPT}
+          accept={IMPORT_ACCEPT}
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

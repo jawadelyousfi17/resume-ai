@@ -9,6 +9,7 @@ import {
   ContentPage,
   JsonLd,
   PageHeader,
+  measure,
 } from "@/components/content/ContentShell";
 import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
 import { sampleForTemplate } from "@/components/landing/sample-resume";
@@ -30,10 +31,10 @@ export async function generateMetadata(
   const template = TEMPLATES.find((t) => t.id === id);
   if (!template) return {};
 
-  const title = `${template.name} Resume Template — Free and ATS-Ready | meniacv`;
+  const title = `${template.name} Resume & CV Template — Free, ATS-Ready | meniacv`;
   return {
     title,
-    description: template.description,
+    description: `${template.description} Free to edit and download as a PDF, as a resume or a CV.`,
     alternates: { canonical: `/resume-templates/${template.id}` },
     openGraph: {
       title,
@@ -74,6 +75,44 @@ function traits(id: string) {
   return list;
 }
 
+/** The same document is called a CV across most of the English-speaking world
+ *  outside North America, so every template here is also a CV template — but
+ *  which kind depends on the layout, and that is worth saying per template
+ *  rather than once. Derived from the descriptor for the same reason the
+ *  category filters are: a new template answers the question by existing. */
+function cvNote(id: string): string[] {
+  const t = getTemplate(id as never);
+  const lines: string[] = [];
+
+  if (t.photo !== "none") {
+    lines.push(
+      `${t.name} carries a photo, which is what a continental European CV expects alongside the personal details a British one leaves out. For the UK, Ireland or Australia, turn the photo off in Customize — the layout closes up around it and the rest of the page is unchanged.`,
+    );
+  } else if (t.sidebar === "none" && t.font === "serif") {
+    lines.push(
+      `${t.name} is a single serif column with no photo, which is the closest thing here to an academic CV: the format that runs to as many pages as your publications, grants and teaching need. It is equally a British CV as it stands, where the document is a two-page career summary rather than a complete record.`,
+    );
+  } else if (t.sidebar === "none") {
+    lines.push(
+      `${t.name} needs nothing changed to serve as a UK, Irish or Australian CV — those markets mean by "CV" exactly what the US means by "resume", and this is already that document. Add a photo and personal details only if you are applying into continental Europe.`,
+    );
+  } else {
+    lines.push(
+      `${t.name} works as a British or Australian CV as it stands, where CV and resume name the same two-page document. The second column is the thing to check before sending: copy the text out of the exported PDF and confirm it reads in a sensible order.`,
+    );
+  }
+
+  lines.push(
+    t.density < 1
+      ? `It is set tight, which helps on the two-page limit most non-academic CVs are read against.`
+      : t.density > 1.1
+        ? `It is set loose, so a CV running to the usual two pages will fill them comfortably — tighten the spacing in Customize if you need a third page's worth on two.`
+        : `It sits at a normal density, which lands most histories on the two pages a non-academic CV is expected to fit.`,
+  );
+
+  return lines;
+}
+
 export default async function TemplateDetailPage(
   props: PageProps<"/resume-templates/[id]">,
 ) {
@@ -86,7 +125,7 @@ export default async function TemplateDetailPage(
 
   const trail = [
     HOME,
-    { name: "Resume templates", path: "/resume-templates" },
+    { name: "Resume & CV templates", path: "/resume-templates" },
     { name: template.name, path: `/resume-templates/${template.id}` },
   ];
 
@@ -99,6 +138,7 @@ export default async function TemplateDetailPage(
             {
               "@type": "CreativeWork",
               name: `${template.name} resume template`,
+              alternateName: `${template.name} CV template`,
               description: template.description,
               url: abs(`/resume-templates/${template.id}`),
               image: abs(`/templates/${template.id}.png`),
@@ -116,12 +156,19 @@ export default async function TemplateDetailPage(
       <Column>
         <Breadcrumbs trail={trail} />
         <PageHeader
-          title={`${template.name} resume template`}
+          title={`${template.name} resume & CV template`}
           intro={template.description}
         />
 
+        {/* Opens a new resume already in this template rather than dropping
+            them on the dashboard to find it again. Not prefetched — /start
+            writes a row, so it runs on the press and nothing else. */}
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/dashboard" className={btnPrimary}>
+          <Link
+            href={`/start?template=${template.id}`}
+            prefetch={false}
+            className={btnPrimary}
+          >
             Use this template
           </Link>
           <Link href="/resume-templates" className={btnQuiet}>
@@ -132,12 +179,19 @@ export default async function TemplateDetailPage(
         {/* The live render, not a picture of one. This is also what the
             screenshot script captures for the gallery thumbnails. */}
         <div className="mt-10 flex justify-center">
-          <div
-            data-template-page
-            className="resume-page overflow-hidden rounded-xl bg-white shadow-[var(--shadow-paper)] ring-1 ring-black/5"
-            style={{ width: PAGE_SIZES.A4.width, maxWidth: "100%" }}
-          >
-            <ResumePreview data={sampleForTemplate(template.id)} />
+          {/* The frame is a wrapper, not the page: `data-template-page` is
+              what the screenshot script captures, and an edge drawn on it
+              would be baked into every thumbnail — where the gallery card
+              draws an edge of its own. */}
+          <div className="border border-black/[0.09] shadow-[var(--shadow-paper)]">
+            <div
+              data-template-page
+              // Square, like the paper it stands for.
+              className="resume-page overflow-hidden bg-white"
+              style={{ width: PAGE_SIZES.A4.width, maxWidth: "100%" }}
+            >
+              <ResumePreview data={sampleForTemplate(template.id)} />
+            </div>
           </div>
         </div>
 
@@ -167,8 +221,41 @@ export default async function TemplateDetailPage(
           </p>
         </section>
 
-        {/* The part that makes this page its own rather than one of thirty-two
-            renders of the same document. */}
+        {/* Outside North America this is a CV, not a resume. Which kind it
+            makes depends on the layout, so the answer is derived per template
+            rather than repeated. */}
+        <section className="mt-14">
+          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            Using {template.name} as a CV
+          </h2>
+          <div className="mt-5 space-y-4">
+            {cvNote(template.id).map((line) => (
+              <p
+                key={line.slice(0, 40)}
+                className={cn(
+                  "text-[16px] leading-[1.75] text-ink-soft",
+                  measure,
+                )}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+          <p className="mt-4 text-[14px] leading-relaxed text-ink-faint">
+            More on the differences:{" "}
+            <Link href="/cv-templates" className="underline hover:text-ink">
+              CV templates
+            </Link>{" "}
+            and{" "}
+            <Link href="/cv-examples" className="underline hover:text-ink">
+              CV examples
+            </Link>
+            .
+          </p>
+        </section>
+
+        {/* The part that makes this page its own rather than one more render
+            of the same document. */}
         <section className="mt-14">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
             Is {template.name} the right choice?

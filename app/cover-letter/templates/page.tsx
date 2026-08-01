@@ -6,24 +6,36 @@ import {
   Column,
   ContentCta,
   ContentPage,
-  FaqList,
+  FaqAccordion,
   JsonLd,
   PageHeader,
   measure,
 } from "@/components/content/ContentShell";
-import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
+import { LetterTemplateGallery } from "@/components/content/LetterTemplateGallery";
+import {
+  btnCompact,
+  btnPrimary,
+  btnQuiet,
+  panel,
+  panelFlat,
+} from "@/components/landing/ui";
 import {
   LETTER_PARTS,
   LETTER_PATTERNS,
   TEMPLATE_FAQS,
 } from "@/lib/content/cover-letters";
+import {
+  LETTER_FAMILIES,
+  LETTER_TEMPLATES,
+  letterFamily,
+} from "@/lib/letter-templates";
 import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Cover Letter Templates — Free Structures for Any Situation | meniacv",
+  title: "Cover Letter Templates — Free, Matching Designs | meniacv",
   description:
-    "Free cover letter templates: the standard application, career change, no experience, referral and speculative. The structure that works, with a written opening for each.",
+    "Free cover letter templates you can edit and export as a real PDF — plain, stationery, bold and decorated, in serif and sans. Plus the five arguments a letter has to make.",
   keywords: [
     "cover letter template",
     "free cover letter template",
@@ -40,30 +52,13 @@ const TRAIL = [
   { name: "Templates", path: "/cover-letter/templates" },
 ];
 
-/** The three header layouts the letter builder actually offers. Naming them
- *  honestly matters — a page promising a gallery of designs would be selling a
- *  picker that doesn't exist. */
-const HEADER_STYLES: { name: string; detail: string }[] = [
-  {
-    name: "Stacked",
-    detail:
-      "Your name and contact details in a block at the top left, the recipient beneath. The conventional business-letter arrangement, and the safest choice for formal fields.",
-  },
-  {
-    name: "Banner",
-    detail:
-      "Name across a tinted band in your accent colour, contact details beneath it. Matches the resume templates with banded headers, and pairs a letter to a resume visually.",
-  },
-  {
-    name: "Minimal",
-    detail:
-      "Name and a single contact line, nothing else. Best when the letter is going into a plain-text paste box, or when you want the first thing read to be the opening sentence.",
-  },
-];
+/** Read from the descriptors the builder actually renders, so this page can't
+ *  come to promise designs the picker doesn't have. */
+const DESIGNS = LETTER_TEMPLATES;
 
 export default function CoverLetterTemplatesPage() {
   return (
-    <ContentPage>
+    <ContentPage surface="white">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -75,12 +70,13 @@ export default function CoverLetterTemplatesPage() {
               url: abs("/cover-letter/templates"),
               mainEntity: {
                 "@type": "ItemList",
-                numberOfItems: LETTER_PATTERNS.length,
-                itemListElement: LETTER_PATTERNS.map((pattern, i) => ({
+                numberOfItems: LETTER_TEMPLATES.length,
+                itemListElement: LETTER_TEMPLATES.map((template, i) => ({
                   "@type": "ListItem",
                   position: i + 1,
-                  name: pattern.situation,
-                  description: pattern.when,
+                  name: `${template.name} cover letter template`,
+                  description: template.description,
+                  url: abs(`/cover-letter/templates/${template.id}`),
                 })),
               },
             },
@@ -94,17 +90,67 @@ export default function CoverLetterTemplatesPage() {
         <Breadcrumbs trail={TRAIL} />
         <PageHeader
           title="Cover letter templates"
-          intro="A cover letter has one layout and it has not changed in decades — which means a template's value isn't in its design, it's in the shape of the argument. These are the five situations that need a different argument, each with a written opening you can work from."
+          intro={`${DESIGNS.length} designs, every one a live render rather than a mock-up. Pick one now and change your mind later: switching design re-renders what you've written rather than starting it over. Then scroll past them — a letter is judged on the argument it makes, and the five that matter are written out below.`}
         />
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/dashboard" className={btnPrimary}>
+        <div className="mt-6 flex flex-nowrap gap-3 sm:mt-8 sm:flex-wrap">
+          <Link href="/cover-letters" className={cn(btnPrimary, btnCompact)}>
             Start a cover letter
           </Link>
-          <Link href="/cover-letter/examples" className={btnQuiet}>
+          <Link
+            href="/cover-letter/examples"
+            className={cn(btnQuiet, btnCompact)}
+          >
             See full examples
           </Link>
         </div>
+
+        <LetterTemplateGallery />
+
+        {/* The filter buttons above are client state and can't be linked to or
+            crawled. The families are the same set cut a different way, and
+            each design sits in exactly one of them. */}
+        <section className="mt-14">
+          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            Browse by set
+          </h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {LETTER_FAMILIES.map((family) => (
+              <div key={family.id} className={cn(panelFlat, "px-5 py-4")}>
+                <span className="block text-[15px] font-extrabold text-ink">
+                  {family.label}
+                </span>
+                <span className="mt-1 block text-[13px] font-semibold text-ink-faint">
+                  {letterFamily(family.id).length} designs
+                </span>
+                <span className="mt-2 block text-[13.5px] leading-relaxed text-ink-soft">
+                  {family.blurb}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            Choosing between them
+          </h2>
+          <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
+            The design is the smallest decision on this page. Nobody has been
+            hired for their letterhead, and the half-second a design buys you is
+            spent the moment the first sentence starts. What it can do is match
+            the resume behind it — the builder inherits your typeface, accent
+            colour and margins from whichever resume you draft against, so the
+            two arrive looking like one application.
+          </p>
+          <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
+            If the letter is going into a plain-text box rather than being
+            attached — which is how a lot of applications actually arrive — take
+            anything from the plain set and spend the time on the opening
+            paragraph instead. That is the part that survives losing all its
+            formatting.
+          </p>
+        </section>
 
         <section className="mt-14">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
@@ -190,38 +236,15 @@ export default function CoverLetterTemplatesPage() {
 
         <section className="mt-16">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
-            Header layouts
-          </h2>
-          <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
-            The letter builder offers three ways to set the top of the page.
-            Everything else — typeface, accent colour, size, spacing and margins
-            — is inherited from the resume you draft the letter against, so the
-            two documents match without any work.
-          </p>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {HEADER_STYLES.map((style) => (
-              <div key={style.name} className={cn(panel, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-extrabold text-ink">
-                  {style.name}
-                </h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-                  {style.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
             Common questions
           </h2>
-          <FaqList entries={TEMPLATE_FAQS} />
+          <FaqAccordion entries={TEMPLATE_FAQS} />
         </section>
 
         <ContentCta
+          flat
           heading="Write it in the editor"
-          body="Pick a header, draft from your resume, and export a real-text PDF that matches it."
+          body="Pick a design, draft from your resume, and export a real-text PDF that matches it."
         />
       </Column>
     </ContentPage>

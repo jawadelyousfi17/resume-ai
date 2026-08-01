@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -6,22 +7,27 @@ import {
   Column,
   ContentCta,
   ContentPage,
-  FaqList,
+  FaqAccordion,
   JsonLd,
   PageHeader,
   measure,
 } from "@/components/content/ContentShell";
 import { TemplateGallery } from "@/components/content/TemplateGallery";
-import { panel } from "@/components/landing/ui";
+import {
+  btnCompact,
+  btnPrimary,
+  btnQuiet,
+  panelFlat,
+} from "@/components/landing/ui";
 import { TEMPLATE_COLLECTIONS } from "@/lib/content/template-collections";
 import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
 import { TEMPLATES, templatesIn } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Resume Templates — Free, ATS-Ready Layouts | meniacv",
+  title: "Resume & CV Templates — Free, ATS-Ready Layouts | meniacv",
   description:
-    "Professional resume templates you can edit and export as a real PDF — serif and sans, single and two-column, with or without a photo. Every one is ATS-readable.",
+    "Professional resume and CV templates you can edit and export as a real PDF — serif and sans, single and two-column, with or without a photo. Every one is ATS-readable.",
   alternates: { canonical: "/resume-templates" },
 };
 
@@ -52,7 +58,7 @@ const TRAIL = [HOME, { name: "Resume templates", path: "/resume-templates" }];
 
 export default function ResumeTemplatesPage() {
   return (
-    <ContentPage>
+    <ContentPage surface="white">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -76,10 +82,59 @@ export default function ResumeTemplatesPage() {
 
       <Column>
         <Breadcrumbs trail={TRAIL} />
-        <PageHeader
-          title="Resume templates"
-          intro="Every one is a live render rather than a mock-up, shown with the kind of history it was designed for — a nurse's page and an engineer's page put different pressure on a layout. Pick one now and change your mind later: switching template re-renders what you've written rather than starting it over."
-        />
+        {/* The hero: what the page is on the left, what it looks like on the
+            right. One column on a phone, where the artwork follows the words
+            rather than pushing them off the screen. */}
+        <div className="grid items-center gap-6 lg:grid-cols-[1.45fr_1fr] lg:gap-12">
+          <div>
+            <PageHeader
+              title="Resume &amp; CV templates"
+              intro="Every one is a live render rather than a mock-up, shown with the kind of history it was designed for — a nurse's page and an engineer's page put different pressure on a layout. Pick one now and change your mind later: switching template re-renders what you've written rather than starting it over."
+            />
+
+            {/* For the visitor who already knows what they want: the gallery
+                is right below for everyone else, and every card in it starts
+                the same resume with that template applied. */}
+            <div className="mt-6 flex flex-nowrap gap-3 sm:mt-8 sm:flex-wrap">
+              <Link
+                href="/dashboard"
+                className={cn(btnPrimary, btnCompact)}
+              >
+                Create my resume
+              </Link>
+              <Link
+                href="/resume-examples"
+                className={cn(btnQuiet, btnCompact)}
+              >
+                See resume examples
+              </Link>
+            </div>
+          </div>
+
+          {/* Decorative, so no alt text: it says the same thing as the
+              thirty-two real renders below it. Sized against its own file so
+              the space is held before it loads, and `priority` because it's
+              the largest thing above the fold — left to lazy-load it arrives
+              after the reader. */}
+          <Image
+            src="/images/template-hero-1-1.png"
+            alt=""
+            width={1254}
+            height={1254}
+            priority
+            sizes="(min-width: 1024px) 330px, 60vw"
+            // The artwork's ground is a shade off white, so against the page
+            // it would read as a faint slab with four visible edges.
+            // Multiplying sinks most of it and the mask dissolves the rest at
+            // the borders — the pages float on the page rather than sitting
+            // in a box.
+            // Cropped to the middle 80% of its own height: the square left a
+            // band of empty ground above and below the pages, which made the
+            // artwork stand taller than the words beside it. Done here rather
+            // than in the file, so the source stays the square it was drawn as.
+            className="mx-auto aspect-[1254/1003] w-full max-w-[330px] max-lg:hidden object-cover object-center mix-blend-multiply [mask-composite:intersect] [mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent),linear-gradient(to_bottom,transparent,#000_10%,#000_90%,transparent)]"
+          />
+        </div>
 
         <TemplateGallery />
 
@@ -95,7 +150,7 @@ export default function ResumeTemplatesPage() {
               <Link
                 key={collection.slug}
                 href={`/${collection.slug}`}
-                className={cn(panel, "px-5 py-4 transition hover:ring-ink/15")}
+                className={cn(panelFlat, "px-5 py-4 transition hover:ring-ink/15")}
               >
                 <span className="block text-[15px] font-extrabold text-ink">
                   {collection.title}
@@ -147,10 +202,11 @@ export default function ResumeTemplatesPage() {
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
             Common questions
           </h2>
-          <FaqList entries={FAQS} />
+          <FaqAccordion entries={FAQS} />
         </section>
 
         <ContentCta
+          flat
           heading="Try a template"
           body="Open the editor, write one entry, and switch between them to see the difference."
         />

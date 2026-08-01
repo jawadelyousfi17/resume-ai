@@ -13,6 +13,7 @@ import type {
 const uid = () => crypto.randomUUID();
 
 export const DEFAULT_LETTER_SETTINGS: CoverLetterSettings = {
+  template: "classic",
   language: DEFAULT_SETTINGS.language,
   accent: DEFAULT_SETTINGS.accent,
   fontFamily: DEFAULT_SETTINGS.fontFamily,
@@ -22,7 +23,6 @@ export const DEFAULT_LETTER_SETTINGS: CoverLetterSettings = {
   lineHeight: 1.5,
   marginX: 20,
   marginY: 20,
-  headerStyle: "stacked",
   showDate: true,
 };
 

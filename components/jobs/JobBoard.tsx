@@ -276,7 +276,7 @@ function Toolbar({
       <button
         type="button"
         onClick={onAdd}
-        className="btn-gradient ml-auto hidden h-10 items-center gap-2 rounded-full px-5 text-[14px] font-bold sm:inline-flex"
+        className="btn-fill ml-auto hidden h-10 items-center gap-2 rounded-full px-5 text-[14px] font-bold sm:inline-flex"
       >
         <PlusIcon className="h-[18px] w-[18px]" />
         Add a job
@@ -380,7 +380,7 @@ function MobileBoard({
       <button
         type="button"
         onClick={() => onAdd(selected)}
-        className="btn-gradient mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold"
+        className="btn-fill mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold"
       >
         <PlusIcon className="h-5 w-5" />
         Add to {current.label}

@@ -246,7 +246,7 @@ function PostingForm({
           type="button"
           onClick={onRun}
           disabled={!ready || !canRun}
-          className="btn-gradient mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45"
+          className="btn-fill mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45"
         >
           <MagicIcon className="h-5 w-5" />
           Check my resume
@@ -455,7 +455,7 @@ function Report({ onChange }: { onChange: () => void }) {
       <button
         type="button"
         onClick={() => setStage("choose")}
-        className="btn-gradient sticky bottom-3 z-10 flex h-14 w-full items-center justify-center gap-2 rounded-2xl text-[16px] font-bold shadow-lg"
+        className="btn-fill sticky bottom-3 z-10 flex h-14 w-full items-center justify-center gap-2 rounded-2xl text-[16px] font-bold"
       >
         <MagicIcon className="h-5 w-5" />
         Start tailoring
@@ -774,7 +774,7 @@ function Option({
         className={cn(
           "mt-4 flex h-12 w-full items-center justify-center rounded-xl text-[15px] font-bold transition",
           recommended
-            ? "btn-gradient"
+            ? "btn-fill"
             : "bg-field text-ink hover:bg-black/[0.06]",
         )}
       >
@@ -896,7 +896,7 @@ function Interview() {
           type="button"
           onClick={submit}
           disabled={confirmed === 0}
-          className="btn-gradient mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45"
+          className="btn-fill mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-45"
         >
           <MagicIcon className="h-5 w-5" />
           Tailor my resume

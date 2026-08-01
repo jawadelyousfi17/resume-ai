@@ -23,7 +23,7 @@ import { CURRENT_YEAR } from "@/lib/seo/year";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: `Resume Review — Get Your Resume Checked & Scored (${CURRENT_YEAR}) | meniacv`,
+  title: `Resume & CV Review — Get Yours Checked & Scored (${CURRENT_YEAR}) | meniacv`,
   description:
     "What a useful resume review actually covers, a self-review checklist you can run in ten minutes, and how to act on feedback without rewriting the whole page.",
   keywords: [

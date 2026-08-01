@@ -7,7 +7,7 @@ import {
 import { TEMPLATES } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
-import { h2, lede, panel, sectionGap, shell } from "./ui";
+import { h2, lede, panelFlat, sectionGap, shell } from "./ui";
 
 // Four steps, read left to right. No mockups: the copy is the content, and an
 // icon per step is enough to tell them apart at a glance.
@@ -50,7 +50,7 @@ export function HowItWorks() {
           structure itself. */}
       <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-5">
         {STEPS.map(({ Icon, title, copy }, i) => (
-          <li key={title} className={cn(panel, "relative overflow-hidden p-6")}>
+          <li key={title} className={cn(panelFlat, "relative overflow-hidden p-6")}>
             {/* The step number, as a watermark behind its own card. */}
             <span
               aria-hidden="true"

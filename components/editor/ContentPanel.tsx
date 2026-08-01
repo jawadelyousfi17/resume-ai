@@ -19,6 +19,7 @@ import { SectionCard, SectionFooter, DoneButton } from "./SectionCard";
 import { useListDrag } from "./reorder";
 import { PersonalIcon, SECTION_ICONS } from "./section-icons";
 import { AddContentModal } from "./AddContentModal";
+import { ImportResume } from "./ImportResume";
 import { PersonalDetailsForm } from "./forms/PersonalDetailsForm";
 import { SummaryForm } from "./forms/SummaryForm";
 import { ExperienceForm } from "./forms/ExperienceForm";
@@ -123,6 +124,10 @@ export function ContentPanel({
   return (
     <EntryEditProvider value={{ openEntry, setOpenEntry }}>
       <div className="space-y-3">
+        {/* Above everything, because it's the alternative to filling any of
+            it in by hand. */}
+        <ImportResume />
+
         <SectionCard
           icon={PersonalIcon}
           title="Personal details"

@@ -42,9 +42,9 @@ export const TEMPLATE_COLLECTIONS: TemplateCollection[] = [
     category: "ats",
     title: "ATS-friendly resume templates",
     metaTitle: (n) =>
-      `${n} ATS-Friendly Resume Templates — Free and Parser-Safe | meniacv`,
+      `${n} ATS-Friendly Resume & CV Templates — Parser-Safe | meniacv`,
     description:
-      "Single-column resume templates that parse cleanly in applicant tracking systems. Free to use, real-text PDF export, no watermark — plus how to check any resume yourself in ten seconds.",
+      "Single-column resume and CV templates that parse cleanly in applicant tracking systems. Free to use, real-text PDF export, no watermark — plus how to check any resume yourself in ten seconds.",
     intro:
       "Every template on this site exports real text, which is most of what an applicant tracking system needs. These are the ones that also avoid the two things that genuinely break a parse: a sidebar that interleaves when the text is extracted, and a dark page that nothing reads cleanly off.",
     sections: [
@@ -87,9 +87,9 @@ export const TEMPLATE_COLLECTIONS: TemplateCollection[] = [
     category: "minimal",
     title: "Simple resume templates",
     metaTitle: (n) =>
-      `${n} Simple Resume Templates — Clean, Free, ATS-Ready | meniacv`,
+      `${n} Simple Resume & CV Templates — Clean, Free, ATS-Ready | meniacv`,
     description:
-      "Plain single-column resume templates with no sidebar, no photo and nothing decorative. Free, editable, and exported as a real-text PDF.",
+      "Plain single-column resume and CV templates with no sidebar, no photo and nothing decorative. Free, editable, and exported as a real-text PDF.",
     intro:
       "One column, no photo, no tinted bands, nothing that draws the eye away from the words. These are the templates for when the writing is the point and the page should get out of its way.",
     sections: [
@@ -132,9 +132,9 @@ export const TEMPLATE_COLLECTIONS: TemplateCollection[] = [
     category: "modern",
     title: "Modern resume templates",
     metaTitle: (n) =>
-      `${n} Modern Resume Templates — Free and ATS-Ready | meniacv`,
+      `${n} Modern Resume & CV Templates — Free and ATS-Ready | meniacv`,
     description:
-      "Contemporary sans-serif resume templates with clean hierarchy and real-text PDF export. Free to use, fully customisable, no watermark.",
+      "Contemporary sans-serif resume and CV templates with clean hierarchy and real-text PDF export. Free to use, fully customisable, no watermark.",
     intro:
       "Sans-serif typefaces and contemporary hierarchy — the look most technology, product and startup hiring reads as current. Every one still exports as real text, so modern here is about type and spacing rather than about decoration a parser cannot read.",
     sections: [
@@ -177,9 +177,9 @@ export const TEMPLATE_COLLECTIONS: TemplateCollection[] = [
     category: "classic",
     title: "Professional resume templates",
     metaTitle: (n) =>
-      `${n} Professional Resume Templates — Free and ATS-Ready | meniacv`,
+      `${n} Professional Resume & CV Templates — Free, ATS-Ready | meniacv`,
     description:
-      "Classic serif resume templates for finance, law, academia, healthcare and government. Free, editable and exported as a real-text PDF.",
+      "Classic serif resume and CV templates for finance, law, academia, healthcare and government. Free, editable and exported as a real-text PDF.",
     intro:
       "Serif typefaces and conventional structure — the register that finance, law, academia, healthcare and government hiring still expect. Formal, unfashionable on purpose, and none the worse for it.",
     sections: [
@@ -222,9 +222,9 @@ export const TEMPLATE_COLLECTIONS: TemplateCollection[] = [
     category: "two-column",
     title: "Two-column resume templates",
     metaTitle: (n) =>
-      `${n} Two-Column Resume Templates — Free, With the ATS Caveat | meniacv`,
+      `${n} Two-Column Resume & CV Templates — Free | meniacv`,
     description:
-      "Two-column and sidebar resume templates, free to use and edit — plus an honest account of when a sidebar costs you and how to check yours parses.",
+      "Two-column and sidebar resume and CV templates, free to use and edit — plus an honest account of when a sidebar costs you and how to check yours parses.",
     intro:
       "A sidebar buys you density: skills, languages, contact details and tools move out of the main flow, and the space left over goes to your experience. It also carries the one layout risk worth taking seriously. Both halves of that are covered below.",
     sections: [
@@ -267,9 +267,9 @@ export const TEMPLATE_COLLECTIONS: TemplateCollection[] = [
     category: "photo",
     title: "Resume templates with a photo",
     metaTitle: (n) =>
-      `${n} Resume Templates With a Photo — Free and Editable | meniacv`,
+      `${n} Resume & CV Templates With a Photo — Free and Editable | meniacv`,
     description:
-      "Free resume templates with a photo or avatar, plus where a photo is expected, where it works against you, and how to get the picture itself right.",
+      "Free resume and CV templates with a photo or avatar — the norm on a continental European CV — plus where a photo is expected, where it works against you, and how to get the picture itself right.",
     intro:
       "A photo on a resume is a regional convention, not a matter of taste — expected in much of Europe, discouraged in the US and UK, and irrelevant to every parser. These are the templates that make room for one properly.",
     sections: [

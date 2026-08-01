@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -6,11 +7,18 @@ import {
   Column,
   ContentCta,
   ContentPage,
-  FaqList,
+  FaqAccordion,
   JsonLd,
   PageHeader,
 } from "@/components/content/ContentShell";
-import { btnPrimary, btnQuiet, panel } from "@/components/landing/ui";
+import { ExampleGallery } from "@/components/content/ExampleGallery";
+import {
+  btnCompact,
+  btnPrimary,
+  btnQuiet,
+  panelFlat,
+} from "@/components/landing/ui";
+import { exampleArt } from "@/lib/content/example-art";
 import type { FaqEntry } from "@/lib/content/guides";
 import {
   EXAMPLES_BY_CATEGORY,
@@ -30,9 +38,9 @@ import { cn } from "@/lib/utils";
 const YEAR = new Date().getUTCFullYear();
 
 export const metadata: Metadata = {
-  title: `Resume Examples & Templates for ${RESUME_EXAMPLES.length} Jobs (${YEAR}) | meniacv`,
+  title: `Resume & CV Examples for ${RESUME_EXAMPLES.length} Jobs (${YEAR}) | meniacv`,
   description:
-    "Full resume examples for software developers, nurses, marketers, analysts and more — each with sample bullet points, ATS keywords and the mistakes that cost interviews.",
+    "Full resume and CV examples for software developers, nurses, marketers, analysts and more — each with sample bullet points, ATS keywords and the mistakes that cost interviews.",
   alternates: { canonical: "/resume-examples" },
 };
 
@@ -94,7 +102,7 @@ const TRAIL = [HOME, { name: "Resume examples", path: "/resume-examples" }];
 
 export default function ResumeExamplesIndexPage() {
   return (
-    <ContentPage>
+    <ContentPage surface="white">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -119,52 +127,59 @@ export default function ResumeExamplesIndexPage() {
 
       <Column>
         <Breadcrumbs trail={TRAIL} />
-        <PageHeader
-          title="Resume examples"
-          intro="A complete, rendered resume for each of these jobs — not a fragment, and not a stock photo of one. Each page also carries the bullet-point patterns that work in that field, the keywords an applicant tracking system is matching against, and the mistakes that quietly cost people interviews."
-        />
+        {/* The same hero as /resume-templates: what the page is on the left,
+            what it looks like on the right, and one column on a phone. */}
+        <div className="grid items-center gap-6 lg:grid-cols-[1.45fr_1fr] lg:gap-12">
+          <div>
+            <PageHeader
+              title="Resume &amp; CV examples"
+              intro="A complete, rendered resume for each of these jobs — not a fragment, and not a stock photo of one. Each page also carries the bullet-point patterns that work in that field, the keywords an applicant tracking system is matching against, and the mistakes that quietly cost people interviews."
+            />
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/dashboard" className={btnPrimary}>
-            Start your resume
-          </Link>
-          <Link href="/resume-ats-score" className={btnQuiet}>
-            Check your ATS score
-          </Link>
+            <div className="mt-6 flex flex-nowrap gap-3 sm:mt-8 sm:flex-wrap">
+              <Link href="/dashboard" className={cn(btnPrimary, btnCompact)}>
+                Start your resume
+              </Link>
+              <Link
+                href="/resume-ats-score"
+                className={cn(btnQuiet, btnCompact)}
+              >
+                Check your ATS score
+              </Link>
+            </div>
+          </div>
+
+          {/* Decorative: the examples themselves are the illustration, and
+              they're a scroll away. Cropped to the middle 80% of the square
+              and multiplied into the page for the same reasons as the
+              templates hero — see that page. */}
+          <Image
+            src="/images/examples-hero.png"
+            alt=""
+            width={1254}
+            height={1254}
+            priority
+            sizes="(min-width: 1024px) 330px, 60vw"
+            className="mx-auto aspect-[1254/1003] w-full max-w-[330px] max-lg:hidden object-cover object-center mix-blend-multiply [mask-composite:intersect] [mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent),linear-gradient(to_bottom,transparent,#000_10%,#000_90%,transparent)]"
+          />
         </div>
 
-        {EXAMPLES_BY_CATEGORY.map((group) => (
-          <section key={group.id} className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
-              {group.label}
-            </h2>
-            <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-              {group.blurb}
-            </p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {group.examples.map((example) => (
-                <Link
-                  key={example.slug}
-                  href={`/resume-examples/${example.slug}`}
-                  className={cn(
-                    panel,
-                    "px-6 py-5 transition hover:ring-ink/15",
-                  )}
-                >
-                  <span className="block text-[17px] leading-snug font-extrabold text-ink">
-                    {example.role}
-                  </span>
-                  <span className="mt-1.5 block text-[12.5px] font-semibold text-ink-faint">
-                    {example.aka.join(" · ")}
-                  </span>
-                  <span className="mt-2.5 block text-[14px] leading-relaxed text-ink-soft">
-                    {example.description}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
+        {/* Tabs rather than six stacked sections: the fields are alternatives,
+            and a reader wants theirs, not a scroll past four others. Only what
+            a card prints crosses into the client — see ExampleGallery. */}
+        <ExampleGallery
+          groups={EXAMPLES_BY_CATEGORY.map((group) => ({
+            id: group.id,
+            label: group.label,
+            blurb: group.blurb,
+            examples: group.examples.map((example) => ({
+              slug: example.slug,
+              role: example.role,
+              aka: example.aka.join(" · "),
+              art: exampleArt(example.slug),
+            })),
+          }))}
+        />
 
         <section className="mt-16">
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
@@ -172,7 +187,7 @@ export default function ResumeExamplesIndexPage() {
           </h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {HOW_TO_USE.map((item) => (
-              <div key={item.heading} className={cn(panel, "px-6 py-5")}>
+              <div key={item.heading} className={cn(panelFlat, "px-6 py-5")}>
                 <h3 className="text-[16.5px] font-extrabold text-ink">
                   {item.heading}
                 </h3>
@@ -188,10 +203,10 @@ export default function ResumeExamplesIndexPage() {
           <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
             Common questions
           </h2>
-          <FaqList entries={FAQS} />
+          <FaqAccordion entries={FAQS} />
         </section>
 
-        <ContentCta />
+        <ContentCta flat />
       </Column>
     </ContentPage>
   );

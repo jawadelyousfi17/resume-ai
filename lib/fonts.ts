@@ -47,6 +47,48 @@ export const FONTS: FontOption[] = [
     category: "sans",
     stack: `var(--font-roboto), ${SANS_FALLBACK}`,
   },
+  {
+    id: "open-sans",
+    label: "Open Sans",
+    category: "sans",
+    stack: `var(--font-open-sans), ${SANS_FALLBACK}`,
+  },
+  {
+    id: "lato",
+    label: "Lato",
+    category: "sans",
+    stack: `var(--font-lato), ${SANS_FALLBACK}`,
+  },
+  {
+    id: "montserrat",
+    label: "Montserrat",
+    category: "sans",
+    stack: `var(--font-montserrat), ${SANS_FALLBACK}`,
+  },
+  {
+    id: "work-sans",
+    label: "Work Sans",
+    category: "sans",
+    stack: `var(--font-work-sans), ${SANS_FALLBACK}`,
+  },
+  {
+    id: "nunito-sans",
+    label: "Nunito Sans",
+    category: "sans",
+    stack: `var(--font-nunito-sans), ${SANS_FALLBACK}`,
+  },
+  {
+    id: "dm-sans",
+    label: "DM Sans",
+    category: "sans",
+    stack: `var(--font-dm-sans), ${SANS_FALLBACK}`,
+  },
+  {
+    id: "ibm-plex-sans",
+    label: "IBM Plex Sans",
+    category: "sans",
+    stack: `var(--font-ibm-plex-sans), ${SANS_FALLBACK}`,
+  },
 
   {
     id: "source-serif",
@@ -72,12 +114,66 @@ export const FONTS: FontOption[] = [
     category: "serif",
     stack: `var(--font-eb-garamond), ${SERIF_FALLBACK}`,
   },
+  {
+    id: "playfair-display",
+    label: "Playfair Display",
+    category: "serif",
+    stack: `var(--font-playfair-display), ${SERIF_FALLBACK}`,
+  },
+  {
+    id: "libre-baskerville",
+    label: "Libre Baskerville",
+    category: "serif",
+    stack: `var(--font-libre-baskerville), ${SERIF_FALLBACK}`,
+  },
+  {
+    id: "pt-serif",
+    label: "PT Serif",
+    category: "serif",
+    stack: `var(--font-pt-serif), ${SERIF_FALLBACK}`,
+  },
+  {
+    id: "crimson-pro",
+    label: "Crimson Pro",
+    category: "serif",
+    stack: `var(--font-crimson-pro), ${SERIF_FALLBACK}`,
+  },
+  {
+    id: "bitter",
+    label: "Bitter",
+    category: "serif",
+    stack: `var(--font-bitter), ${SERIF_FALLBACK}`,
+  },
+  {
+    id: "cormorant-garamond",
+    label: "Cormorant Garamond",
+    category: "serif",
+    stack: `var(--font-cormorant-garamond), ${SERIF_FALLBACK}`,
+  },
 
   {
     id: "jetbrains-mono",
     label: "JetBrains Mono",
     category: "mono",
     stack: `var(--font-jetbrains-mono), ${MONO_FALLBACK}`,
+  },
+  {
+    id: "ibm-plex-mono",
+    label: "IBM Plex Mono",
+    category: "mono",
+    stack: `var(--font-ibm-plex-mono), ${MONO_FALLBACK}`,
+  },
+  {
+    id: "roboto-mono",
+    label: "Roboto Mono",
+    category: "mono",
+    stack: `var(--font-roboto-mono), ${MONO_FALLBACK}`,
+  },
+  {
+    id: "source-code-pro",
+    label: "Source Code Pro",
+    category: "mono",
+    stack: `var(--font-source-code-pro), ${MONO_FALLBACK}`,
   },
 ];
 

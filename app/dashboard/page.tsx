@@ -15,11 +15,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: PageProps<"/dashboard">) {
   // Resumes belong to an account, so this page needs one: `requireUser()`
   // sends a signed-out visitor to /login, and mirrors the Supabase identity
   // into our own table on first sight.
   const user = await requireUser();
+
+  // Set when /start had to turn someone away for want of a slot on their
+  // plan — the resume they pressed for was never written, so the page says so
+  // with the plans rather than showing the same grid as if nothing happened.
+  const params = await props.searchParams;
+  const full = params.full;
+  const atLimit = (Array.isArray(full) ? full[0] : full) === "resumes";
 
   const [resumes, plan, celebration] = await Promise.all([
     listResumes(user.id),
@@ -33,6 +40,7 @@ export default async function DashboardPage() {
     <PlanProvider plan={plan}>
       <Dashboard
         resumes={resumes}
+        full={atLimit}
         account={{
           email: user.email,
           name: user.name,

@@ -81,7 +81,7 @@ function QuoteMark({ className }: { className?: string }) {
 
 function Card({ q }: { q: Quote }) {
   return (
-    <figure className="mx-2.5 flex w-[300px] shrink-0 flex-col justify-between rounded-3xl bg-panel p-6 shadow-[var(--shadow-panel)] ring-1 ring-black/5 sm:mx-3 sm:w-[360px] lg:w-[420px] lg:p-8">
+    <figure className="mx-2.5 flex w-[300px] shrink-0 flex-col justify-between rounded-3xl bg-panel p-6 ring-1 ring-black/[0.09] sm:mx-3 sm:w-[360px] lg:w-[420px] lg:p-8">
       <div>
         <QuoteMark className="h-5 w-7 text-brand lg:h-6 lg:w-8" />
         <blockquote className="mt-5 text-[17px] leading-[1.45] font-bold tracking-[-0.02em] text-ink lg:text-[20px]">
@@ -168,7 +168,7 @@ export function Testimonials() {
       </div>
 
       <div className={`${shell} mt-12 lg:mt-16`}>
-        <div className="grid gap-8 rounded-2xl bg-panel px-6 py-11 shadow-[var(--shadow-panel)] ring-1 ring-black/5 sm:grid-cols-3">
+        <div className="grid gap-8 rounded-2xl bg-panel px-6 py-11 ring-1 ring-black/[0.09] sm:grid-cols-3">
           {STATS.map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-[34px] font-extrabold tracking-tight text-ink sm:text-[40px]">

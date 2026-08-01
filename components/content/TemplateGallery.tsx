@@ -2,7 +2,7 @@
 
 // The gallery on /resume-templates: a filter row, a search box and the grid.
 // Filtering happens in the browser over a list that is known at build time —
-// seventeen templates is nothing to hold in memory, and it keeps the page
+// a couple of hundred descriptors are nothing to hold in memory, and it keeps the page
 // static and instant.
 
 import { useMemo, useState } from "react";

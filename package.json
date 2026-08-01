@@ -12,7 +12,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "plan": "tsx scripts/set-plan.ts",
-    "shoot": "node --experimental-strip-types scripts/shoot-templates.mjs"
+    "shoot": "node --experimental-strip-types scripts/shoot-templates.mjs",
+    "shoot:letters": "node --experimental-strip-types scripts/shoot-letter-templates.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

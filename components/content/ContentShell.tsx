@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
-import { btnPrimary, panel } from "@/components/landing/ui";
+import { btnPrimary, panel, panelFlat } from "@/components/landing/ui";
 import { cn } from "@/lib/utils";
 import type { FaqEntry } from "@/lib/content/guides";
 import type { Crumb } from "@/lib/seo/schema";
@@ -21,13 +21,24 @@ export function JsonLd({ data }: { data: object }) {
   );
 }
 
-export function ContentPage({ children }: { children: React.ReactNode }) {
+export function ContentPage({
+  children,
+  /** The page's own background. Cream everywhere by default; white where the
+   *  page is mostly pictures of paper and the tint behind them fights with
+   *  the paper itself — the template gallery. */
+  surface = "cream",
+}: {
+  children: React.ReactNode;
+  surface?: "cream" | "white";
+}) {
   return (
-    <div className="min-h-dvh bg-cream">
+    <div className={cn("min-h-dvh", surface === "white" ? "bg-panel" : "bg-cream")}>
       <SiteNav />
       {/* The gutters match the nav's, so a page's content lines up with the
           wordmark above it. */}
-      <main className="px-5 pt-6 sm:px-8 lg:px-10">{children}</main>
+      {/* Barely any inset above the heading on a phone — the nav is right
+          there, and a screen that small can't spare 24px of nothing. */}
+      <main className="px-5 pt-2 sm:px-8 sm:pt-6 lg:px-10">{children}</main>
       <SiteFooter />
     </div>
   );
@@ -68,7 +79,11 @@ export function Breadcrumbs({
   className?: string;
 }) {
   return (
-    <nav aria-label="Breadcrumb" className={cn("mt-2", className)}>
+    // Hidden on a phone, where a row of crumbs is a line of chrome above the
+    // heading and the back button does the same job. Nothing is lost to search:
+    // every page that renders this also emits a BreadcrumbList — the schema is
+    // what Google reads the hierarchy from — and the links stay in the HTML.
+    <nav aria-label="Breadcrumb" className={cn("mt-2 max-sm:hidden", className)}>
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-ink-faint">
         {trail.map((crumb, i) => {
           const last = i === trail.length - 1;
@@ -109,11 +124,11 @@ export function PageHeader({
   updated?: string;
 }) {
   return (
-    <header className="mt-6">
-      <h1 className="max-w-[20ch] text-[34px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[42px] lg:text-[48px]">
+    <header className="mt-4 sm:mt-6">
+      <h1 className="max-w-[20ch] text-[28px] leading-[1.15] font-extrabold tracking-tight text-ink sm:text-[42px] sm:leading-[1.12] lg:text-[48px]">
         {title}
       </h1>
-      <p className="mt-4 max-w-[62ch] text-[17px] leading-relaxed text-ink-soft">
+      <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed text-ink-soft sm:mt-4 sm:text-[17px]">
         {intro}
       </p>
       {updated && (
@@ -138,17 +153,23 @@ export function FaqList({
   entries,
   headingLevel = "h3",
   className,
+  /** Outlined rather than raised, for the pages that sit on white. */
+  flat = false,
 }: {
   entries: FaqEntry[];
   headingLevel?: "h2" | "h3";
   /** Override the two-column grid where the list sits somewhere narrow. */
   className?: string;
+  flat?: boolean;
 }) {
   const Heading = headingLevel;
   return (
     <dl className={cn("mt-5 grid gap-3 md:grid-cols-2", className)}>
       {entries.map((entry) => (
-        <div key={entry.question} className={cn(panel, "px-6 py-5")}>
+        <div
+          key={entry.question}
+          className={cn(flat ? panelFlat : panel, "px-6 py-5")}
+        >
           <dt>
             <Heading className="text-[16.5px] font-extrabold text-ink">
               {entry.question}
@@ -205,12 +226,17 @@ export function FaqAccordion({
 export function ContentCta({
   heading = "Build it in the editor",
   body = "Live preview, AI writing help, and an ATS-ready PDF. Free to start, and no card at any point.",
+  /** Outlined rather than raised, for the pages that sit on white. */
+  flat = false,
 }: {
   heading?: string;
   body?: string;
+  flat?: boolean;
 }) {
   return (
-    <section className={cn(panel, "mt-12 px-7 py-8 text-center")}>
+    <section
+      className={cn(flat ? panelFlat : panel, "mt-12 px-7 py-8 text-center")}
+    >
       <h2 className="text-[22px] font-extrabold tracking-tight text-ink">
         {heading}
       </h2>
