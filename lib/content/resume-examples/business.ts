@@ -1381,4 +1381,272 @@ export const BUSINESS_EXAMPLES: ResumeExample[] = [
     ],
     guides: ["resume-bullet-points", "ats-friendly-resume", "career-change-resume"],
   },
+  {
+    slug: "executive",
+    role: "Executive",
+    aka: [
+      "senior executive",
+      "C-suite",
+      "vice president",
+      "managing director",
+      "chief operating officer",
+      "general manager",
+    ],
+    category: "business",
+    metaTitle: "Executive Resume Example — VP and C-Suite ({year}) | meniacv",
+    description:
+      "A complete executive resume example for VP and C-suite roles, showing how the document changes when the reader is a board or a search firm rather than a recruiter.",
+    updated: "2026-08-01",
+    intro:
+      "An executive resume is read by a different audience for a different purpose, and most senior candidates keep writing the document that got them their last three promotions. A board member or a search consultant is not checking whether you can do the work. They are assessing scope, judgement and pattern — what you have owned, what you decided when it was genuinely difficult, and whether the shape of your career fits the problem they are hiring against.",
+    looksFor: [
+      "Scope stated immediately: P&L size, headcount, geography, function",
+      "Business outcomes rather than functional activity — revenue, margin, valuation, retention",
+      "Evidence of judgement under pressure: a turnaround, a restructuring, an integration, a crisis",
+      "Scale of the organisations you have operated in, and whether it matches theirs",
+      "Board, investor and external stakeholder exposure",
+      "A coherent trajectory, or a clear explanation where there is not one",
+    ],
+    sample: {
+      name: "Gordon Achebe",
+      title: "Chief Operating Officer",
+      email: "g.achebe@email.com",
+      phone: "(312) 555-0128",
+      location: "Chicago, IL",
+      links: [{ label: "LinkedIn", url: "linkedin.com/in/gordonachebe" }],
+      summary:
+        "Operating executive with 18 years scaling B2B software and services businesses from $40m to $400m+ in revenue. Currently COO of a 900-person SaaS company, owning go-to-market operations, customer success, support and business systems against a $310m ARR base. Track record in post-acquisition integration and in rebuilding operating cadence after rapid growth.",
+      experience: [
+        {
+          role: "Chief Operating Officer",
+          company: "Vantage Systems (PE-backed, $310m ARR)",
+          location: "Chicago, IL",
+          start: "2021-02",
+          bullets: [
+            "Own go-to-market operations, customer success, support and business systems — **420 of 900 employees** and a **$96m** operating budget",
+            "Grew net revenue retention from **104% to 119%** over three years by restructuring customer success around segment-specific coverage models and tying renewals to a measured health score",
+            "Led the integration of two acquisitions totalling **$140m** in purchase price, consolidating four CRM instances into one and retaining **91%** of acquired customer revenue through year two",
+            "Rebuilt the operating cadence — quarterly planning, a single metrics layer, weekly business review — after a period of growth that had left four functions running on incompatible forecasts",
+            "Took support cost per customer down **34%** while raising CSAT from 4.1 to 4.6, principally by moving tier-one volume into self-service and redeploying headcount to onboarding",
+            "Present quarterly to the board and lead the operating review with the sponsor's value-creation team",
+          ],
+        },
+        {
+          role: "SVP, Global Operations",
+          company: "Meridian Data Services",
+          location: "Chicago, IL",
+          start: "2016-06",
+          end: "2021-01",
+          bullets: [
+            "Ran delivery, support and professional services across **US, UK and India** — **310 people**, **$74m** services revenue",
+            "Improved services gross margin from **19% to 34%** over four years by shifting from bespoke delivery to a productised implementation model",
+            "Opened the Pune delivery centre from scratch, reaching **120 staff** in 20 months and taking blended delivery cost down about **40%**",
+            "Held the business through a **failed ERP migration**, stabilising delivery within a quarter and personally owning the client communications for the eleven most affected accounts",
+          ],
+        },
+        {
+          role: "Vice President, Customer Operations",
+          company: "Harbourline Software",
+          location: "Boston, MA",
+          start: "2012-03",
+          end: "2016-05",
+          bullets: [
+            "Built the customer operations function from **9 to 85 people** as the business grew from **$40m to $130m** in revenue",
+            "Cut churn from **18% to 9%** annually by introducing structured onboarding and an early-warning model on usage data",
+          ],
+        },
+        {
+          role: "Director of Operations, then Senior Director",
+          company: "Northgate Analytics",
+          location: "Boston, MA",
+          start: "2008-07",
+          end: "2012-02",
+          bullets: [
+            "Ran implementation and support for an enterprise analytics product across **60 customers**",
+          ],
+        },
+      ],
+      education: [
+        {
+          degree: "MBA",
+          school: "University of Chicago Booth School of Business",
+          location: "Chicago, IL",
+          start: "2010-09",
+          end: "2012-06",
+        },
+        {
+          degree: "BSc Industrial Engineering",
+          school: "University of Lagos",
+          location: "Lagos, Nigeria",
+          start: "2002-09",
+          end: "2006-07",
+        },
+      ],
+      skills: [
+        "P&L ownership",
+        "Post-acquisition integration",
+        "Go-to-market operations",
+        "Customer success and retention",
+        "Organisational design",
+        "Operating cadence and planning",
+        "Board and investor reporting",
+        "PE value-creation planning",
+        "Global delivery and offshoring",
+        "Business systems (Salesforce, NetSuite)",
+      ],
+    },
+    template: "oxford",
+    sections: [
+      {
+        heading: "Lead with scope, in the first four lines",
+        body: [
+          "A search consultant reading an executive resume is calibrating one thing before anything else: have you operated at the size of the problem they are hiring against. Revenue, headcount, budget, geography and function are what answer that, and they should be present before the reader has scrolled.",
+          "\"Operating executive with 18 years scaling B2B software from $40m to $400m+\" does more work than any adjective available, because it establishes the band you play in. Follow it immediately with your current scope — headcount, budget, functions owned — so the reader can place you against the specification in front of them.",
+          "This is the most common failure on senior resumes: a beautifully written summary about leadership philosophy that never says how big anything was. If a reader cannot tell whether you ran a team of twelve or twelve hundred, they will assume the smaller number.",
+        ],
+        list: [
+          "Revenue or P&L owned, per role",
+          "Headcount, and whether direct or total organisation",
+          "Operating budget",
+          "Geographies and legal entities",
+          "Which functions reported to you",
+          "Ownership structure — PE-backed, public, founder-led — because operating context differs sharply",
+        ],
+      },
+      {
+        heading: "Business outcomes, not functional activity",
+        body: [
+          "At director level a resume describes what you managed. At executive level it has to describe what changed in the business, because that is the only thing a board is buying. \"Led the customer success organisation\" is a functional statement; \"grew net revenue retention from 104% to 119% by restructuring coverage around segment\" is a business outcome with a mechanism attached.",
+          "The mechanism matters as much as the number. A retention improvement with no explanation reads as market conditions; the same number with \"by restructuring customer success around segment-specific coverage and tying renewals to a measured health score\" reads as something you did and could do again.",
+          "Pick the metrics that your kind of business is run on. Revenue growth, margin, retention, churn, cost per unit, NPS, valuation, cash conversion, time to integration. Two or three genuinely material ones per role beat eight small ones.",
+        ],
+      },
+      {
+        heading: "The hard things are the interesting things",
+        body: [
+          "Executive hiring turns on judgement, and judgement is only visible in difficulty. A resume of uninterrupted growth in a rising market tells a board very little about how you behave when it stops.",
+          "So include the hard ones. A turnaround. A restructuring, with the honest headcount. A failed programme you stabilised. An integration that went badly and what you did. A crisis you owned publicly. \"Held the business through a failed ERP migration, stabilising delivery within a quarter and personally owning client communications for the eleven most affected accounts\" is worth more than three growth bullets, because almost nobody writes it.",
+          "This is also the most-discussed material in an executive interview. Putting it on the page shapes the conversation towards the territory where you are strongest, rather than leaving it to be discovered.",
+        ],
+      },
+      {
+        heading: "Length, and what to do with twenty years",
+        body: [
+          "Two pages, occasionally three at C-level with genuine board and public-company history. Not one — compressing two decades onto a single page deletes the scope evidence that the document exists to convey, and the one-page rule was never written for this audience.",
+          "Give the last ten to twelve years the detail. Everything before that collapses into a short early-career block: title, company, dates, one line each or a single grouped entry. A reader assessing you for a COO role does not need four bullets about a 2009 director post, and the space is better spent on the integration you led last year.",
+          "Board seats, advisory roles and non-executive positions get their own short section. So do the things that only matter at this level: P&L certification, public-company experience, sector transitions, languages if the role is international.",
+        ],
+      },
+      {
+        heading: "Search firms, boards and applicant tracking",
+        body: [
+          "Most senior roles are filled through search rather than through an application portal, which changes the document's job. A search consultant is building a longlist against a specification and reading for pattern-match on scope, sector and situation. Make those three findable in the first half page and you will survive that screen.",
+          "That said, plenty of VP-level roles still go through corporate systems, so keep the format single-column and the text real. An executive resume set in a designed two-column layout can interleave on export, and losing your P&L figures into the middle of a job description is an expensive way to discover it.",
+          "One practical note on discretion: if you are searching confidentially, be careful what the document reveals about current employer specifics, and keep it consistent with your LinkedIn profile, because at this level both will be read side by side and any discrepancy in dates or scope becomes a question.",
+        ],
+      },
+    ],
+    keywords: [
+      {
+        group: "Scope and ownership",
+        terms: [
+          "P&L ownership",
+          "Revenue responsibility",
+          "Operating budget",
+          "Headcount",
+          "Multi-site",
+          "Global operations",
+          "Functional leadership",
+          "General management",
+        ],
+      },
+      {
+        group: "Corporate events",
+        terms: [
+          "Post-merger integration",
+          "M&A",
+          "Due diligence",
+          "Carve-out",
+          "Turnaround",
+          "Restructuring",
+          "IPO readiness",
+          "Private equity",
+          "Value creation plan",
+          "Exit",
+        ],
+      },
+      {
+        group: "Operating metrics",
+        terms: [
+          "Net revenue retention",
+          "Churn",
+          "Gross margin",
+          "EBITDA",
+          "ARR",
+          "Cash conversion",
+          "Cost to serve",
+          "NPS",
+          "Time to value",
+          "Capacity planning",
+        ],
+      },
+      {
+        group: "Governance",
+        terms: [
+          "Board reporting",
+          "Investor relations",
+          "Non-executive director",
+          "Audit committee",
+          "Risk management",
+          "Compliance",
+          "Succession planning",
+          "Executive team",
+        ],
+      },
+    ],
+    mistakes: [
+      "A summary about leadership philosophy that never states revenue, headcount or budget",
+      "Functional statements — \"led the operations organisation\" — where a board wants a business outcome",
+      "Compressing twenty years onto one page and deleting the scope evidence in the process",
+      "Equal detail on a 2009 role and a current one, which suggests the career peaked earlier",
+      "Metrics with no mechanism, which read as market conditions rather than as your work",
+      "Omitting the difficult episodes, which are the material executive interviews actually turn on",
+      "No ownership context — PE-backed, public, founder-led — when operating conditions differ sharply between them",
+      "A designed two-column layout that interleaves your P&L figures into a job description on export",
+    ],
+    faqs: [
+      {
+        question: "How long should an executive resume be?",
+        answer:
+          "Two pages, and three is defensible at C-level with genuine board or public-company history. One page is wrong at this level — it deletes the scope evidence the document exists to convey. Give the last ten to twelve years the detail and collapse everything earlier into a short block.",
+      },
+      {
+        question: "What should an executive resume include?",
+        answer:
+          "Scope stated immediately — revenue or P&L, headcount, budget, geography, functions owned — then business outcomes with the mechanism that produced them, the difficult episodes that demonstrate judgement, board and investor exposure, and a short early-career block. Ownership context matters too: PE-backed, public and founder-led are different operating problems.",
+      },
+      {
+        question: "How is an executive resume different from a normal one?",
+        answer:
+          "The reader and the question change. A recruiter screens for whether you can do the work; a board or search consultant assesses scope, judgement and pattern-fit against a specific problem. That pushes the document towards business outcomes over functional activity, and towards the hard episodes over the smooth ones.",
+      },
+      {
+        question: "Should an executive resume have a summary?",
+        answer:
+          "Yes, and it is the most important part of the page. Three or four lines establishing the band you operate in — sector, revenue scale, functions, the kind of situation you are known for. It is what a search consultant reads before deciding whether to continue.",
+      },
+      {
+        question: "Do executive resumes go through applicant tracking systems?",
+        answer:
+          "Many VP-level roles do, and most C-level searches do not — they run through search firms. Write for the human reader, but keep the layout single-column with real text so the version that does hit a portal parses cleanly. Losing your P&L figures into a job description is an expensive discovery.",
+      },
+      {
+        question: "Should I include failures on an executive resume?",
+        answer:
+          "Include the difficult situations you handled, which is not the same as listing failures. A stabilised failed programme, a restructuring you led, an integration that went badly and what you did about it — these demonstrate judgement under pressure, and almost nobody writes them, which is exactly why they land.",
+      },
+    ],
+    related: ["operations-manager", "product-manager", "financial-analyst"],
+    guides: ["resume-length", "resume-bullet-points", "resume-writing-services"],
+  },
 ];

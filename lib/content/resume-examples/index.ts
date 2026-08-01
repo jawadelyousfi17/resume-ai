@@ -4,8 +4,10 @@
 // route, sitemap and index page read the combined list, so adding an example
 // is adding an entry to one of the four arrays.
 
+import { ADMIN_SUPPORT_EXAMPLES } from "./admin-support";
 import { BUSINESS_EXAMPLES } from "./business";
 import { ENGINEERING_EXAMPLES } from "./engineering";
+import { HEALTHCARE_EXAMPLES } from "./healthcare";
 import { PEOPLE_EXAMPLES } from "./people";
 import { STUDENT_EXAMPLES } from "./student";
 import { TECH_OPS_EXAMPLES } from "./tech-ops";
@@ -25,6 +27,8 @@ export const RESUME_EXAMPLES: ResumeExample[] = [
   ...TECH_OPS_EXAMPLES,
   ...BUSINESS_EXAMPLES,
   ...PEOPLE_EXAMPLES,
+  ...HEALTHCARE_EXAMPLES,
+  ...ADMIN_SUPPORT_EXAMPLES,
   ...STUDENT_EXAMPLES,
 ];
 
