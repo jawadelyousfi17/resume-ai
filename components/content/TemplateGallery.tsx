@@ -1,130 +1,136 @@
 "use client";
 
-// The gallery on /resume-templates: a filter row, a search box and the grid.
-// Filtering happens in the browser over a list that is known at build time —
-// a couple of hundred descriptors are nothing to hold in memory, and it keeps the page
-// static and instant.
+// The gallery: a filter row and the grid. Used by /resume-templates and by
+// every /templates/{filter} page, which is the same view with one of the
+// filters already chosen.
+//
+// The filters are links rather than buttons. They used to be client state,
+// which meant no cut of the catalogue had a URL, nothing could be linked to,
+// and a crawler only ever saw the unfiltered grid. Navigating between them is
+// a prefetched static page, so it costs about what setState did.
+//
+// Six filters here, not fourteen: this row sticks under the nav for the whole
+// length of the page, and a bar carrying every cut of the catalogue is a menu
+// rather than a filter. The rest are in the index under the grid, where
+// there's room for a name and an icon.
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 import { TemplateCard } from "@/components/content/TemplateCard";
-import { SearchIcon } from "@/components/ui/icons";
+import { btnCompact, btnQuiet } from "@/components/landing/ui";
+import type { FilterChip } from "@/lib/content/template-filters";
 import {
   TEMPLATES,
-  TEMPLATE_CATEGORIES,
   type TemplateCategory,
   inCategory,
 } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
-export function TemplateGallery() {
-  const [category, setCategory] = useState<TemplateCategory | "all">("all");
-  const [query, setQuery] = useState("");
+/** Templates per screenful. Two hundred and twenty-seven cards is two hundred
+ *  and twenty-seven page renders in the browser and about as many image
+ *  requests — enough to make the first scroll stutter on a phone. */
+const PAGE = 24;
 
-  const shown = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return TEMPLATES.filter(
-      (t) =>
-        (category === "all" || inCategory(t, category)) &&
-        (!q ||
-          t.name.toLowerCase().includes(q) ||
-          t.short.toLowerCase().includes(q) ||
-          t.description.toLowerCase().includes(q)),
-    );
-  }, [category, query]);
+export function TemplateGallery({
+  chips,
+  /** The filter this page is showing, by slug. Absent on /resume-templates,
+   *  where the whole catalogue is on show. */
+  active,
+  category,
+}: {
+  chips: FilterChip[];
+  active?: string;
+  category?: TemplateCategory;
+}) {
+  const shown = category
+    ? TEMPLATES.filter((t) => inCategory(t, category))
+    : TEMPLATES;
 
-  const counts = useMemo(
-    () =>
-      Object.fromEntries(
-        TEMPLATE_CATEGORIES.map((c) => [
-          c.id,
-          TEMPLATES.filter((t) => inCategory(t, c.id)).length,
-        ]),
-      ) as Record<TemplateCategory, number>,
-    [],
-  );
+  const [limit, setLimit] = useState(PAGE);
+  const remaining = shown.length - limit;
+
+  // The six primary filters, plus whichever one this page is — landing on
+  // /templates/creative with no chip for it in the row reads as broken.
+  const row = chips.filter((c) => c.primary || c.slug === active);
+
+  // On a phone the row scrolls, and the active chip can start off the right
+  // edge of it. Scrolls the row rather than the page: `scrollIntoView` would
+  // take the heading above it with it.
+  const rowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = rowRef.current?.querySelector<HTMLElement>("[data-active]");
+    if (el && rowRef.current) rowRef.current.scrollLeft = el.offsetLeft - 12;
+  }, [active]);
 
   return (
     <>
-      <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        {/* A row of eight filters wraps into three lines on a phone and pushes
-            the templates off the screen — so there it scrolls instead. */}
-        <div className="scroll-slim -mx-3 flex min-w-0 gap-2.5 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-          <FilterButton
-            active={category === "all"}
-            count={TEMPLATES.length}
-            onClick={() => setCategory("all")}
-          >
+      {/* Full-bleed within the page column so the cards passing underneath are
+          covered rather than showing along its edges. Sits directly under the
+          site nav, which is 76px tall and 96px from lg up. */}
+      <div className="sticky top-[76px] z-20 -mx-5 mt-8 border-b border-black/[0.07] bg-panel/95 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 lg:top-[96px] lg:-mx-10 lg:px-10">
+        <div
+          ref={rowRef}
+          className="scroll-slim mx-auto flex w-full max-w-site gap-2 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"
+        >
+          <FilterLink href="/resume-templates" active={!active} count={TEMPLATES.length}>
             All
-          </FilterButton>
-          {TEMPLATE_CATEGORIES.map((c) => (
-            <FilterButton
-              key={c.id}
-              active={category === c.id}
-              count={counts[c.id]}
-              onClick={() => setCategory(c.id)}
+          </FilterLink>
+          {row.map((chip) => (
+            <FilterLink
+              key={chip.slug}
+              href={`/templates/${chip.slug}`}
+              active={chip.slug === active}
+              count={chip.count}
             >
-              {c.label}
-            </FilterButton>
+              {chip.label}
+            </FilterLink>
           ))}
         </div>
-
-        <label className="relative block w-full lg:w-[280px] lg:shrink-0">
-          <span className="sr-only">Search templates</span>
-          <SearchIcon className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-ink-faint" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search templates"
-            className="h-12 w-full rounded-xl border-2 border-black/10 bg-panel pr-4 pl-11 text-[15px] font-bold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:border-brand/50"
-          />
-        </label>
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {shown.map((template) => (
+        {shown.slice(0, limit).map((template) => (
           <TemplateCard key={template.id} template={template} />
         ))}
       </div>
 
-      {shown.length === 0 && (
-        <p className="mt-8 text-[15px] font-bold text-ink-soft">
-          No template matches “{query.trim()}”.{" "}
+      {remaining > 0 && (
+        <div className="mt-10 flex flex-col items-center gap-3">
           <button
             type="button"
-            onClick={() => {
-              setQuery("");
-              setCategory("all");
-            }}
-            className="text-brand underline underline-offset-4"
+            onClick={() => setLimit((n) => n + PAGE)}
+            className={cn(btnQuiet, btnCompact)}
           >
-            Show all templates
+            Load more templates
           </button>
-        </p>
+          <p className="text-[13px] font-semibold text-ink-faint">
+            Showing {limit} of {shown.length}
+          </p>
+        </div>
       )}
     </>
   );
 }
 
-function FilterButton({
+function FilterLink({
+  href,
   active,
   count,
-  onClick,
   children,
 }: {
+  href: string;
   active: boolean;
   count: number;
-  onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
+    <Link
+      href={href}
+      data-active={active ? "" : undefined}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "inline-flex h-12 shrink-0 items-center gap-2 rounded-xl border-2 px-5 text-[15px] font-bold transition",
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3.5 text-[13.5px] font-bold transition",
         active
           ? "border-transparent bg-navy text-white"
           : "border-black/10 bg-panel text-ink hover:border-ink/30",
@@ -133,12 +139,12 @@ function FilterButton({
       {children}
       <span
         className={cn(
-          "text-[13px] font-bold",
+          "text-[12px] font-bold",
           active ? "text-white/55" : "text-ink-faint",
         )}
       >
         {count}
       </span>
-    </button>
+    </Link>
   );
 }

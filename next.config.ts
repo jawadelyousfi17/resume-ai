@@ -21,6 +21,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    return [
+      // /templates/{filter} are real pages; the bare parent is the gallery,
+      // which has always lived at /resume-templates.
+      { source: "/templates", destination: "/resume-templates", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

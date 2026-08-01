@@ -3783,10 +3783,29 @@ export function applyTemplate(settings: ResumeSettings, t: Template) {
   if (t.accent) settings.accent = t.accent;
 }
 
-/** The buckets the picker filters by. A template can sit in several. */
+/** The buckets the picker filters by. A template can sit in several.
+ *
+ *  The first seven are the editor's short list; the rest exist for the browse
+ *  pages under /templates, where the cuts people actually search for are
+ *  finer-grained than the ones worth putting in a side panel. */
 export type TemplateCategory =
-  "ats" | "classic" | "modern" | "minimal" | "photo" | "two-column" | "compact";
+  | "ats"
+  | "classic"
+  | "modern"
+  | "minimal"
+  | "photo"
+  | "two-column"
+  | "compact"
+  | "simple"
+  | "professional"
+  | "corporate"
+  | "creative"
+  | "one-column"
+  | "word"
+  | "google-docs";
 
+/** The buckets the editor's Customize panel offers. Deliberately shorter than
+ *  the public filter row — a side panel can't carry fourteen chips. */
 export const TEMPLATE_CATEGORIES: {
   id: TemplateCategory;
   label: string;
@@ -3831,6 +3850,91 @@ export function inCategory(t: Template, category: TemplateCategory): boolean {
       return t.sidebar !== "none";
     case "compact":
       return t.density < 1;
+    // Minimal without the purity test: one plain column and no photo, but a
+    // banded heading or a tinted header is still allowed. This is what people
+    // mean by "simple" — plain, not stripped.
+    case "simple":
+      return (
+        t.photo === "none" &&
+        t.sidebar === "none" &&
+        !t.edgeStrip &&
+        t.page === "light"
+      );
+    // The conservative register, typeface aside: nothing reversed out of a
+    // chip, no proficiency meters, no numbered sections, no dark page, no
+    // photo — the things that read as out of place in law, finance, medicine
+    // and government.
+    case "professional":
+      return (
+        t.page === "light" &&
+        !t.edgeStrip &&
+        !t.entryTitleChip &&
+        t.photo === "none" &&
+        t.headingStyle !== "chip" &&
+        t.tags !== "dots" &&
+        t.tags !== "bars" &&
+        t.headingNumber === "none" &&
+        t.sidebar !== "dark" &&
+        !(t.headerBand && t.headerBandStyle === "accent")
+      );
+    // Business-formal with visible structure: a ruled or banded header, or
+    // banded headings — the house-style look of an internal document.
+    case "corporate":
+      return (
+        t.page === "light" &&
+        t.headingNumber === "none" &&
+        t.tags !== "dots" &&
+        t.tags !== "bars" &&
+        t.headingStyle !== "chip" &&
+        !t.entryTitleChip &&
+        (t.headerBand ||
+          t.headerBox ||
+          t.headerRule ||
+          t.headingStyle === "band" ||
+          t.headingStyle === "rules")
+      );
+    // Anything that makes a visual argument: a dark page, an edge strip,
+    // reversed chips, numbered sections, meters, or a solid accent header.
+    case "creative":
+      return (
+        t.page === "dark" ||
+        t.edgeStrip ||
+        t.headingStyle === "chip" ||
+        t.entryTitleChip ||
+        t.headingNumber !== "none" ||
+        t.tags === "dots" ||
+        t.tags === "bars" ||
+        (t.headerBand && t.headerBandStyle === "accent")
+      );
+    case "one-column":
+      return t.sidebar === "none";
+    // What survives being rebuilt in Word: a single column of body text, no
+    // rails, no meters, no reversed panels. Word can do the rest, badly.
+    case "word":
+      return (
+        t.sidebar === "none" &&
+        t.page === "light" &&
+        !t.edgeStrip &&
+        t.photo === "none" &&
+        t.headingStyle !== "chip" &&
+        t.tags !== "dots" &&
+        t.tags !== "bars" &&
+        !t.entryTitleChip
+      );
+    // Same idea, one step looser: Docs will place an image and hold a tint,
+    // but a two-column layout there means a table, and tables are where a
+    // Docs resume starts fighting you.
+    case "google-docs":
+      return (
+        t.page === "light" &&
+        !t.edgeStrip &&
+        !t.photoBleed &&
+        t.sidebar === "none" &&
+        t.tags !== "dots" &&
+        t.tags !== "bars" &&
+        t.headingNumber === "none" &&
+        t.headingStyle !== "chip"
+      );
   }
 }
 

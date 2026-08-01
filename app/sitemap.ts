@@ -4,6 +4,7 @@ import { GUIDES } from "@/lib/content/guides";
 import { RESUME_EXAMPLES } from "@/lib/content/resume-examples";
 import { LANDINGS } from "@/lib/content/landings";
 import { TEMPLATE_COLLECTIONS } from "@/lib/content/template-collections";
+import { TEMPLATE_FILTERS } from "@/lib/content/template-filters";
 import { TEMPLATES } from "@/lib/templates";
 import { siteOrigin } from "@/lib/site-url";
 
@@ -54,6 +55,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.85,
+    })),
+    // The filtered browse pages. Only the cuts that are their own canonical:
+    // the rest point at a collection landing above, and a sitemap listing a
+    // URL that canonicalises elsewhere is a contradiction.
+    ...TEMPLATE_FILTERS.filter((filter) => !filter.canonicalTo).map((filter) => ({
+      url: `${origin}/templates/${filter.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
     })),
     // The CV vocabulary, ecosystem and AI builder landings.
     ...LANDINGS.map((landing) => ({

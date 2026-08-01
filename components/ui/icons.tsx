@@ -10,7 +10,15 @@ import {
   AiChipIcon,
   ArrowDown01Icon,
   Award01Icon,
+  Book01Icon,
   Briefcase01Icon,
+  Building01Icon,
+  File02Icon,
+  GoogleDocIcon as HugeGoogleDocIcon,
+  Image01Icon,
+  Layout01Icon,
+  PaintBrush02Icon,
+  SidebarLeftIcon,
   CalendarBlock01Icon,
   CalendarCheckIn01Icon,
   Camera01Icon,
@@ -107,3 +115,13 @@ export const LogoutIcon = icon(Logout02Icon);
 export const ChipIcon = icon(AiChipIcon);
 /** The editor's tailoring tab. */
 export const TargetIcon = icon(Target02Icon);
+
+// The template filter row: one glyph per cut of the catalogue.
+export const BookIcon = icon(Book01Icon);
+export const BuildingIcon = icon(Building01Icon);
+export const DocFileIcon = icon(File02Icon);
+export const GoogleDocIcon = icon(HugeGoogleDocIcon);
+export const ImageIcon = icon(Image01Icon);
+export const LayoutIcon = icon(Layout01Icon);
+export const BrushIcon = icon(PaintBrush02Icon);
+export const SidebarIcon = icon(SidebarLeftIcon);
