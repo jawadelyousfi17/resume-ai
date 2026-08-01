@@ -73,19 +73,6 @@ export function Avatar({
   );
 }
 
-/** The cursor arrow that tags each floating hero avatar. */
-export function CursorTag({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 12 14"
-      className={cn("h-3.5 w-3", className)}
-      aria-hidden="true"
-    >
-      <path d="M0 0 L11.5 6.4 L5.4 7.6 L2.6 13.6 Z" fill="currentColor" />
-    </svg>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /* Partner logos                                                              */
 /* -------------------------------------------------------------------------- */

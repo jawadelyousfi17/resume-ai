@@ -1,15 +1,18 @@
 import Link from "next/link";
 
+import { TemplateThumb } from "@/components/content/TemplateCard";
 import { TEMPLATES } from "@/lib/templates";
 
-import { ResumePaper } from "./ResumePaper";
 import { TemplateFan } from "./TemplateFan";
-import { sampleWithTemplate } from "./sample-resume";
 import { h2, lede, sectionGap, shell } from "./ui";
 
-// The pages in the carousel. Each one is a full render, so keep the count
-// modest — the pill's link carries the rest of the library.
-const FAN = TEMPLATES.slice(0, 10);
+// The pages in the carousel.
+//
+// Screenshots, not live renders. Twenty live ones would have meant twenty
+// passes of the template engine on every request to the landing page, and the
+// same picture the gallery already shows is sitting in public/templates. The
+// pill's link carries the rest of the library.
+const FAN = TEMPLATES.slice(0, 20);
 
 export function Templates() {
   return (
@@ -36,11 +39,10 @@ export function Templates() {
       <div className="mt-10 lg:mt-12">
         <TemplateFan total={TEMPLATES.length} names={FAN.map((t) => t.name)}>
           {FAN.map((t) => (
-            <ResumePaper
+            <TemplateThumb
               key={t.id}
-              data={sampleWithTemplate(t.id)}
-              size="fan"
-              className="shadow-[var(--shadow-paper)] ring-1 ring-black/5"
+              template={t}
+              className="w-[168px] sm:w-[240px] lg:w-[300px]"
             />
           ))}
         </TemplateFan>

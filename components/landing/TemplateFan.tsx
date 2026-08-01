@@ -62,6 +62,28 @@ export function TemplateFan({
             </p>
           </div>
         ))}
+
+        {/* What's past the last card. Twenty of two hundred are in this row,
+            and someone who has swiped to the end of it is the reader most
+            likely to want the rest — so the end of the row is where the rest
+            lives, rather than only in the pill underneath. Sized as a sheet so
+            the row keeps its rhythm right to the edge. */}
+        <div className="shrink-0 snap-center">
+          <Link
+            href="/resume-templates"
+            className="flex aspect-[210/297] w-[168px] flex-col items-center justify-center gap-3 border border-dashed border-ink/25 px-5 text-center transition hover:border-ink/45 hover:bg-black/[0.02] sm:w-[240px] lg:w-[300px]"
+          >
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-brand text-white">
+              <ArrowRight className="h-4 w-4" />
+            </span>
+            <span className="text-[15px] leading-snug font-extrabold text-ink">
+              {`See all ${total} templates`}
+            </span>
+            <span className="text-[13px] leading-relaxed text-ink-soft">
+              Filter by column count, photo, style or profession.
+            </span>
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 flex justify-center">

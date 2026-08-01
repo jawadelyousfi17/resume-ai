@@ -97,10 +97,6 @@ export const btnCompact = "max-sm:min-w-0 max-sm:flex-1 max-sm:px-3 max-sm:text-
 /** Secondary action on a navy panel. */
 export const btnOnNavy = cn(base, row, "bg-white text-ink hover:bg-white/90");
 
-/** Small pill used inside the product mockups. */
-export const btnMini =
-  "inline-flex h-6 items-center gap-1 rounded-lg bg-navy px-2.5 text-[10px] font-bold text-white";
-
 /** Right-pointing arrow for text links — the app's icon set has no arrow. */
 export function ArrowRight({ className }: { className?: string }) {
   return (

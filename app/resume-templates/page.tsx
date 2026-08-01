@@ -15,6 +15,7 @@ import { TemplateFilterIndex } from "@/components/content/TemplateFilterIndex";
 import { TemplateGallery } from "@/components/content/TemplateGallery";
 import { panelFlat } from "@/components/landing/ui";
 import { TEMPLATE_COLLECTIONS } from "@/lib/content/template-collections";
+import { chipsWithIcons } from "@/lib/content/filter-icons";
 import { filterChips } from "@/lib/content/template-filters";
 import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
 import { TEMPLATES, templatesIn } from "@/lib/templates";
@@ -83,7 +84,7 @@ export default function ResumeTemplatesPage() {
           intro="Every one is a live render rather than a mock-up, shown with the kind of history it was designed for — a nurse's page and an engineer's page put different pressure on a layout. Pick one now and change your mind later: switching template re-renders what you've written rather than starting it over."
         />
 
-        <TemplateGallery chips={filterChips()} />
+        <TemplateGallery chips={chipsWithIcons(filterChips())} />
 
         <TemplateFilterIndex />
 

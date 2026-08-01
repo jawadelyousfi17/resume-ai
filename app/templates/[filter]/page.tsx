@@ -23,6 +23,7 @@ import { TemplateBrowseHero } from "@/components/content/TemplateBrowseHero";
 import { TemplateFilterIndex } from "@/components/content/TemplateFilterIndex";
 import { TemplateGallery } from "@/components/content/TemplateGallery";
 import { panelFlat } from "@/components/landing/ui";
+import { chipsWithIcons } from "@/lib/content/filter-icons";
 import {
   TEMPLATE_FILTERS,
   filterChips,
@@ -124,7 +125,7 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
         </p>
 
         <TemplateGallery
-          chips={filterChips()}
+          chips={chipsWithIcons(filterChips())}
           active={filter.slug}
           category={filter.category}
         />

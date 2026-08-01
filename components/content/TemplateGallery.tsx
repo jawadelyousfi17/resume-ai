@@ -14,23 +14,23 @@
 // rather than a filter. The rest are in the index under the grid, where
 // there's room for a name and an icon.
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { TemplateCard } from "@/components/content/TemplateCard";
 import { btnCompact, btnQuiet } from "@/components/landing/ui";
 import type { FilterChip } from "@/lib/content/template-filters";
-import {
-  TEMPLATES,
-  type TemplateCategory,
-  inCategory,
-} from "@/lib/templates";
+import { TEMPLATES, type TemplateCategory, inCategory } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 
 /** Templates per screenful. Two hundred and twenty-seven cards is two hundred
  *  and twenty-seven page renders in the browser and about as many image
  *  requests — enough to make the first scroll stutter on a phone. */
 const PAGE = 24;
+
+/** A chip plus the icon the server resolved for it — see chipsWithIcons. */
+export type GalleryChip = FilterChip & { icon?: string | null };
 
 export function TemplateGallery({
   chips,
@@ -39,7 +39,7 @@ export function TemplateGallery({
   active,
   category,
 }: {
-  chips: FilterChip[];
+  chips: GalleryChip[];
   active?: string;
   category?: TemplateCategory;
 }) {
@@ -73,7 +73,11 @@ export function TemplateGallery({
           ref={rowRef}
           className="scroll-slim mx-auto flex w-full max-w-site gap-2 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"
         >
-          <FilterLink href="/resume-templates" active={!active} count={TEMPLATES.length}>
+          <FilterLink
+            href="/resume-templates"
+            active={!active}
+            count={TEMPLATES.length}
+          >
             All
           </FilterLink>
           {row.map((chip) => (
@@ -82,6 +86,7 @@ export function TemplateGallery({
               href={`/templates/${chip.slug}`}
               active={chip.slug === active}
               count={chip.count}
+              icon={chip.icon}
             >
               {chip.label}
             </FilterLink>
@@ -117,11 +122,13 @@ function FilterLink({
   href,
   active,
   count,
+  icon,
   children,
 }: {
   href: string;
   active: boolean;
   count: number;
+  icon?: string | null;
   children: React.ReactNode;
 }) {
   return (
@@ -130,17 +137,36 @@ function FilterLink({
       data-active={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3.5 text-[13.5px] font-bold transition",
+        "inline-flex h-12 shrink-0 items-center gap-2 rounded-full border bg-panel pr-4 text-[14.5px] font-bold transition",
+        icon ? "pl-2.5" : "pl-4",
+        // The current filter is marked by its edge and its ink, not by being
+        // filled in: a solid chip in a row that sticks to the top of the page
+        // for its whole length is a heavy thing to have there, and the icons
+        // are drawn on white — a dark fill under them means either a tile or a
+        // filter trick, and neither survives the size.
         active
-          ? "border-transparent bg-navy text-white"
-          : "border-black/10 bg-panel text-ink hover:border-ink/30",
+          ? "border-navy text-navy ring-1 ring-navy ring-inset"
+          : "border-black/10 text-ink hover:border-ink/30",
       )}
     >
+      {icon && (
+        // Bare, on either state — the chip is white behind it now, so multiply
+        // takes the ground away and nothing needs a tile.
+        <Image
+          src={icon}
+          alt=""
+          width={1254}
+          height={1254}
+          sizes="32px"
+          quality={95}
+          className="h-7 w-7 shrink-0 mix-blend-multiply"
+        />
+      )}
       {children}
       <span
         className={cn(
-          "text-[12px] font-bold",
-          active ? "text-white/55" : "text-ink-faint",
+          "text-[12.5px] font-bold",
+          active ? "text-navy/55" : "text-ink-faint",
         )}
       >
         {count}

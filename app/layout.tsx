@@ -10,7 +10,9 @@ import { FeedbackNudge } from "@/components/feedback/FeedbackNudge";
 import { configuredSiteUrl } from "@/lib/site-url";
 import { AuthDialogProvider } from "@/components/auth/AuthDialog";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import { FontSwitcher } from "@/components/theme/FontSwitcher";
 import { DEFAULT_THEME, LEGACY_THEME_KEY, THEME_KEY } from "@/lib/themes";
+import { UI_FONT_KEY } from "@/lib/ui-fonts";
 
 const siteUrl = configuredSiteUrl();
 
@@ -42,7 +44,7 @@ export default function RootLayout({
             // Falls back to the old key: the name used to be spelled wrong,
             // and a theme picked under it shouldn't reset itself. Moved over
             // on the way past, so this only reads twice once.
-            __html: `try{var k=${JSON.stringify(THEME_KEY)},t=localStorage.getItem(k);if(!t){t=localStorage.getItem(${JSON.stringify(LEGACY_THEME_KEY)});if(t){localStorage.setItem(k,t);localStorage.removeItem(${JSON.stringify(LEGACY_THEME_KEY)})}}if(t)document.documentElement.dataset.theme=t}catch(e){}`,
+            __html: `try{var k=${JSON.stringify(THEME_KEY)},t=localStorage.getItem(k);if(!t){t=localStorage.getItem(${JSON.stringify(LEGACY_THEME_KEY)});if(t){localStorage.setItem(k,t);localStorage.removeItem(${JSON.stringify(LEGACY_THEME_KEY)})}}if(t)document.documentElement.dataset.theme=t;var f=localStorage.getItem(${JSON.stringify(UI_FONT_KEY)});if(f)document.documentElement.dataset.uiFont=f}catch(e){}`,
           }}
         />
       </head>
@@ -61,6 +63,10 @@ export default function RootLayout({
             monitor. */}
         <AuthDialogProvider>{children}</AuthDialogProvider>
         <ThemeSwitcher />
+        {/* A tool for picking the interface font, not a setting to ship: it
+            sits above the theme pill in development and isn't rendered in a
+            production build. Delete this guard to hand it to everyone. */}
+        {process.env.NODE_ENV !== "production" && <FontSwitcher />}
         {/* Dormant until the first resume is downloaded, wherever that
             happens from. */}
         <FirstExportCelebration />

@@ -104,6 +104,37 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Interface font.
+
+   `--font-sans` above is the default; these redirect it for whichever
+   candidate is being tried. The selector is `html[data-ui-font=…]`, which is
+   the same element the @theme block declares on and one specificity step above
+   it, so the override lands without !important. Nothing else in the app names
+   a family — everything reads `--font-sans` — so this is the whole switch.
+   The list and the storage key live in lib/ui-fonts.ts.
+   --------------------------------------------------------------------------- */
+
+html[data-ui-font="inter"] {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-ui-font="dm-sans"] {
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-ui-font="work-sans"] {
+  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-ui-font="ibm-plex-sans"] {
+  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
    Landing page primitives. Prefixed `lp-` and used only by components/landing.
    --------------------------------------------------------------------------- */
 
