@@ -17,7 +17,7 @@ import { migrateInlinePhoto } from "@/lib/upload-image";
 import { applyTemplate, getTemplate } from "./templates";
 import { takePendingTemplate } from "./pending-resume";
 import { toast } from "@/components/ui/toast";
-import type { PageFormat, Resume, ResumeData } from "./types";
+import type { PageFormat, Resume, ResumeData, ShareLink } from "./types";
 import {
   renameResumeAction,
   saveResumeDataAction,
@@ -44,6 +44,12 @@ interface ResumeContextValue {
   saveState: SaveState;
   /** True when this resume lives in the browser, not the database. */
   guest: boolean;
+  /** The public link, when this resume has one. Null when it's private —
+   *  which a guest's resume always is. */
+  share: ShareLink | null;
+  /** Set by the share dialog once the server has minted or cleared a link, so
+   *  the top bar reads right without a round trip through the page. */
+  setShare: (share: ShareLink | null) => void;
   /** Apply a mutation against a structural clone of the current data. */
   update: (mutator: (draft: ResumeData) => void) => void;
   setName: (name: string) => void;
@@ -78,6 +84,10 @@ export function ResumeProvider({
   const [name, setNameState] = useState(resume.name);
   const [format, setFormatState] = useState<PageFormat>(resume.format);
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  // Sharing writes through its own actions rather than the debounced saves
+  // below — it isn't an edit to the document, and it has to be true the
+  // moment the dialog says it is.
+  const [share, setShare] = useState<ShareLink | null>(resume.share ?? null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The edit the timer is holding, if any — kept so leaving the editor can
@@ -224,6 +234,8 @@ export function ResumeProvider({
         format,
         guest,
         saveState,
+        share,
+        setShare,
         update,
         setName,
         setFormat,

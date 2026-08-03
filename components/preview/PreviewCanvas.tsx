@@ -14,9 +14,14 @@ import type { PageFormat } from "@/lib/types";
 
 export function PreviewCanvas({
   format = "A4",
+  guides = true,
   children,
 }: {
   format?: PageFormat;
+  /** The dashed page cuts and the page count under the paper. On by default:
+   *  they're what the editor needs. Off for the public view of a shared
+   *  resume, where a reader has no export to be warned about. */
+  guides?: boolean;
   children: React.ReactNode;
 }) {
   const { width: PAGE_W, height: PAGE_H } = PAGE_SIZES[format];
@@ -52,11 +57,16 @@ export function PreviewCanvas({
   return (
     <div ref={wrapRef} className="w-full">
       <div
+        // Both boxes are sized from a scale that only makes sense on screen.
+        // A page printing this preview — /r/<slug> does — undoes the two
+        // through these hooks; see the print block there.
+        data-preview-stage
         style={{ height: content * scale, width: PAGE_W * scale }}
         className="relative mx-auto"
       >
         <div
           ref={pageRef}
+          data-preview-page
           className="resume-page bg-white shadow-[var(--shadow-paper)]"
           style={{
             width: PAGE_W,
@@ -70,24 +80,27 @@ export function PreviewCanvas({
 
         {/* Drawn outside the scaled page, so the label stays legible however
             far the paper has been shrunk to fit. */}
-        {breaks.map((n) => (
-          <div
-            key={n}
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 flex items-center gap-2"
-            style={{ top: n * PAGE_H * scale }}
-          >
-            <span className="h-0 flex-1 border-t border-dashed border-danger/50" />
-            <span className="rounded bg-danger px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
-              Page {n + 1}
-            </span>
-          </div>
-        ))}
+        {guides &&
+          breaks.map((n) => (
+            <div
+              key={n}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 flex items-center gap-2"
+              style={{ top: n * PAGE_H * scale }}
+            >
+              <span className="h-0 flex-1 border-t border-dashed border-danger/50" />
+              <span className="rounded bg-danger px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                Page {n + 1}
+              </span>
+            </div>
+          ))}
       </div>
 
-      <p className="mt-2.5 text-center text-[12px] font-semibold text-ink-faint">
-        {pages === 1 ? "1 page" : `${pages} pages`}
-      </p>
+      {guides && (
+        <p className="mt-2.5 text-center text-[12px] font-semibold text-ink-faint">
+          {pages === 1 ? "1 page" : `${pages} pages`}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useResume } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Logo, LogoLockup } from "@/components/ui/logo";
@@ -9,9 +10,12 @@ import {
   ChipIcon,
   DownloadIcon,
   FileTextIcon,
+  LinkIcon,
   TargetIcon,
   WandIcon,
 } from "@/components/ui/icons";
+import { ShareDialog } from "@/components/share/ShareDialog";
+import { useAuthDialog } from "@/components/auth/AuthDialog";
 import { useDownloadPdf } from "./use-download-pdf";
 
 export type EditorTab = "content" | "customize" | "ai" | "review" | "tailor";
@@ -51,8 +55,14 @@ export function TopBar({
   tab: EditorTab;
   onTab: (t: EditorTab) => void;
 }) {
-  const { name } = useResume();
+  const { id, name, guest, share, setShare } = useResume();
   const { download, busy } = useDownloadPdf();
+  const auth = useAuthDialog();
+  const [sharing, setSharing] = useState(false);
+
+  // A guest's resume is in this browser and nowhere else, so there is nothing
+  // to put a link on. Same answer the dashboard gives: an account first.
+  const openShare = () => (guest ? auth.open("signup") : setSharing(true));
 
   return (
     <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-black/5 bg-panel px-3 py-2">
@@ -97,8 +107,26 @@ export function TopBar({
           })}
         </nav>
 
-        {/* Right: the one primary action. */}
+        {/* Right: the two ways a finished resume leaves the editor — as a
+            file, or as a link. */}
         <div className="flex shrink-0 items-center gap-2">
+          <Button
+            onClick={openShare}
+            title={share ? "Shared — manage the link" : "Share a public link"}
+            className={`h-auto gap-2 rounded-lg px-3.5 py-2 text-[14px] font-bold transition ${
+              // A shared resume says so from across the bar: this is the only
+              // place that tells you a link is live.
+              share
+                ? "bg-brand-soft text-brand hover:bg-brand-soft/70"
+                : "bg-transparent text-ink-soft hover:bg-black/5 hover:text-ink"
+            }`}
+          >
+            <LinkIcon className="h-[18px] w-[18px]" />
+            <span className="hidden sm:inline">
+              {share ? "Shared" : "Share"}
+            </span>
+          </Button>
+
           <Button
             onClick={download}
             disabled={busy}
@@ -109,6 +137,12 @@ export function TopBar({
           </Button>
         </div>
       </div>
+
+      <ShareDialog
+        resume={sharing ? { id, name, share } : null}
+        onClose={() => setSharing(false)}
+        onChange={setShare}
+      />
     </header>
   );
 }

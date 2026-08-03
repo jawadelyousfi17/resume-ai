@@ -9,6 +9,7 @@ import {
   CopyIcon,
   DotsIcon,
   DownloadIcon,
+  LinkIcon,
   PencilIcon,
   TagIcon,
   TrashIcon,
@@ -26,11 +27,13 @@ export function ResumeCard({
   resume,
   onRename,
   onDuplicate,
+  onShare,
   onDelete,
 }: {
   resume: Resume;
   onRename: () => void;
   onDuplicate: () => void;
+  onShare: () => void;
   onDelete: () => void;
 }) {
   // Building a PDF takes a couple of seconds on the server, so the row it was
@@ -85,6 +88,9 @@ export function ResumeCard({
             >
               {downloading ? "Building…" : "Download"}
             </CardAction>
+            <CardAction onClick={onShare} icon={LinkIcon}>
+              {resume.share ? "Manage link" : "Share"}
+            </CardAction>
             <CardAction onClick={onDuplicate} icon={CopyIcon}>
               Duplicate
             </CardAction>
@@ -105,6 +111,14 @@ export function ResumeCard({
           </p>
           <p className="text-[13px] text-ink-soft">
             edited {formatRelative(resume.updatedAt)} · {resume.format}
+            {/* A resume anyone with a link can read shouldn't be quiet about
+                it — this is the only place the dashboard says so. */}
+            {resume.share && (
+              <span className="ml-1.5 inline-flex items-center gap-1 align-middle font-bold text-brand">
+                <LinkIcon className="h-3.5 w-3.5" />
+                Shared
+              </span>
+            )}
           </p>
         </div>
 
@@ -124,6 +138,10 @@ export function ResumeCard({
             <DropdownMenuItem onClick={() => void download()}>
               <DownloadIcon />
               Download
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onShare}>
+              <LinkIcon />
+              {resume.share ? "Manage link" : "Share"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onRename}>
               <TagIcon />

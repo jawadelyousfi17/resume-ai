@@ -141,6 +141,16 @@ model Resume {
   /// checked on the way in by `resumeDataSchema` in lib/validation.ts.
   data   Json
 
+  /// The public link, when there is one: an unguessable token that /r/<slug>
+  /// reads the resume back out of. Null means the resume is private, which is
+  /// how every one of them starts and what revoking a link returns it to.
+  /// Minted in lib/share.ts — never the row id, which is what the owner's own
+  /// URLs are keyed by.
+  shareSlug String?   @unique
+  /// When the current link was minted, so the share dialog can say how long
+  /// it has been out there. Cleared with the slug.
+  sharedAt  DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

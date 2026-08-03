@@ -442,6 +442,14 @@ export interface ResumeData {
   settings: ResumeSettings;
 }
 
+/** A resume's public link. Minted, read and revoked in lib/share.ts; the slug
+ *  is what /r/<slug> is keyed by. */
+export interface ShareLink {
+  slug: string;
+  /** When the link was minted, in epoch millis. */
+  sharedAt: number;
+}
+
 export interface Resume {
   id: string;
   name: string;
@@ -449,6 +457,9 @@ export interface Resume {
   createdAt: number;
   updatedAt: number;
   data: ResumeData;
+  /** The public link, when this resume is shared. Absent on a guest's resume,
+   *  which lives in one browser and has nothing to share from. */
+  share?: ShareLink | null;
 }
 
 /* ---------------------------------------------------------------------------

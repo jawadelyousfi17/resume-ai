@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import * as db from "@/lib/resumes";
+import { shareResume, unshareResume } from "@/lib/share";
 import { quotaDenial } from "@/lib/subscription";
 import {
   idSchema,
@@ -10,7 +11,7 @@ import {
   parseResumeData,
   resumeNameSchema,
 } from "@/lib/validation";
-import type { ResumeData } from "@/lib/types";
+import type { ResumeData, ShareLink } from "@/lib/types";
 
 // Server Actions are reachable by anyone who can POST to the app, so each one
 // starts by resolving the signed-in user and then only ever touches rows that
@@ -132,6 +133,43 @@ export async function deleteResumeAction(id: string): Promise<ActionResult> {
   if (!deleted) return { ok: false, error: NOT_FOUND };
 
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+/**
+ * Puts this resume behind a public link, or hands back the one it has.
+ *
+ * On any plan: a link is a page this app was already rendering, and a free
+ * account that can't send anyone their resume has nothing to send.
+ */
+export async function shareResumeAction(
+  id: string,
+): Promise<ActionResult<{ share: ShareLink }>> {
+  const user = await requireUser();
+
+  const parsedId = idSchema.safeParse(id);
+  if (!parsedId.success) return { ok: false, error: NOT_FOUND };
+
+  const share = await shareResume(user.id, parsedId.data);
+  if (!share) return { ok: false, error: NOT_FOUND };
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/resume/${parsedId.data}`);
+  return { ok: true, share };
+}
+
+/** Takes the link down. Anyone holding it gets a 404 from the next press. */
+export async function unshareResumeAction(id: string): Promise<ActionResult> {
+  const user = await requireUser();
+
+  const parsedId = idSchema.safeParse(id);
+  if (!parsedId.success) return { ok: false, error: NOT_FOUND };
+
+  const stopped = await unshareResume(user.id, parsedId.data);
+  if (!stopped) return { ok: false, error: NOT_FOUND };
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/resume/${parsedId.data}`);
   return { ok: true };
 }
 

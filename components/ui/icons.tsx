@@ -37,6 +37,8 @@ import {
   LeftToRightListBulletIcon,
   LeftToRightListNumberIcon,
   MagicWand01Icon,
+  Link01Icon,
+  LinkSquare02Icon,
   Mail01Icon,
   MinusSignIcon,
   MoreHorizontalIcon,
@@ -109,6 +111,11 @@ export const BulletListIcon = icon(LeftToRightListBulletIcon);
 export const NumberListIcon = icon(LeftToRightListNumberIcon);
 export const TranslateIcon = icon(HugeTranslateIcon);
 export const CopyIcon = icon(Copy01Icon);
+/** Sharing: the link a resume is handed round on. */
+export const LinkIcon = icon(Link01Icon);
+/** A link that leaves this page — the shared resume, opened as a visitor
+ *  sees it. */
+export const ExternalLinkIcon = icon(LinkSquare02Icon);
 export const SearchIcon = icon(Search01Icon);
 export const LogoutIcon = icon(Logout02Icon);
 /** The editor's AI tab. */

@@ -30,6 +30,7 @@ import {
   ConfirmDeleteDialog,
   RenameDialog,
 } from "@/components/ui/prompt-dialogs";
+import { ShareDialog } from "@/components/share/ShareDialog";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
 import { reachedMilestone } from "@/lib/feedback-nudge";
 import { setPendingTemplate } from "@/lib/pending-resume";
@@ -71,6 +72,7 @@ export function Dashboard({
   // The resume each dialog is asking about, or null when it's closed.
   const [renaming, setRenaming] = useState<Resume | null>(null);
   const [deleting, setDeleting] = useState<Resume | null>(null);
+  const [sharing, setSharing] = useState<Resume | null>(null);
 
   const guest = account === null;
   const plan = usePlan();
@@ -261,6 +263,16 @@ export function Dashboard({
     run(resume.id, () => duplicateResumeAction(resume.id));
   };
 
+  /** A guest's resume is in this browser only — there's nothing for a link to
+   *  point at until it's an account's. */
+  const handleShare = (resume: Resume) => {
+    if (guest) {
+      auth.open("signup");
+      return;
+    }
+    setSharing(resume);
+  };
+
   const confirmDelete = (resume: Resume) => {
     setDeleting(null);
     if (guest) {
@@ -347,6 +359,7 @@ export function Dashboard({
               resume={resume}
               onRename={() => setRenaming(resume)}
               onDuplicate={() => handleDuplicate(resume)}
+              onShare={() => handleShare(resume)}
               onDelete={() => setDeleting(resume)}
             />
           </div>
@@ -358,6 +371,14 @@ export function Dashboard({
         name={renaming?.name ?? null}
         onClose={() => setRenaming(null)}
         onRename={(name) => renaming && confirmRename(renaming, name)}
+      />
+      <ShareDialog
+        resume={sharing}
+        onClose={() => setSharing(null)}
+        // The cards are server-rendered, and one of them now says "Shared" —
+        // or has stopped saying it. Ask for the list again rather than
+        // patching a copy of it here.
+        onChange={() => router.refresh()}
       />
       <ConfirmDeleteDialog
         title="Delete this resume?"

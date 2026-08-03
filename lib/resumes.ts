@@ -142,6 +142,12 @@ function toResume(row: ResumeRow): Resume {
     format: row.format,
     createdAt: row.createdAt.getTime(),
     updatedAt: row.updatedAt.getTime(),
+    // Null unless there's a public link out there — see lib/share.ts, which
+    // is the only module that mints or clears one.
+    share:
+      row.shareSlug && row.sharedAt
+        ? { slug: row.shareSlug, sharedAt: row.sharedAt.getTime() }
+        : null,
     // Back-fill settings saved before customization existed, then bring older
     // field shapes up to date — same treatment the localStorage store gave
     // documents on load.
