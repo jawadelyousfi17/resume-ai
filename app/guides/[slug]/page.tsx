@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -18,6 +19,8 @@ import {
   btnQuiet,
   panelFlat,
 } from "@/components/landing/ui";
+import { guideArt } from "@/lib/content/guide-art";
+import { authorFor, readingMinutes } from "@/lib/content/guide-meta";
 import { GUIDES, getGuide } from "@/lib/content/guides";
 import { RESUME_EXAMPLES } from "@/lib/content/resume-examples";
 import {
@@ -101,6 +104,10 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
   const guide = getGuide(slug);
   if (!guide) notFound();
 
+  const art = guideArt(guide.slug);
+  const author = authorFor(guide.slug);
+  const minutes = readingMinutes(guide);
+
   const related = guide.related
     .map(getGuide)
     .filter((item) => item !== undefined);
@@ -161,8 +168,16 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               description: guide.description,
               datePublished: guide.updated,
               dateModified: guide.updated,
-              author: ORGANIZATION,
+              // The byline the page shows. A page that names a writer and a
+              // graph that credits the company disagree about who wrote it,
+              // and the visible one is the one readers check.
+              author: {
+                "@type": "Person",
+                name: author.name,
+                jobTitle: author.role,
+              },
               publisher: ORGANIZATION,
+              timeRequired: `PT${minutes}M`,
               mainEntityOfPage: abs(`/guides/${guide.slug}`),
             },
             faqPage(guide.faqs),
@@ -174,53 +189,92 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
       <Column>
         <Breadcrumbs trail={trail} />
 
-        {/* The role examples' header rather than the shared <PageHeader>: a
-            step down in every size, the meta on one line, and the actions
-            visible before the first scroll. The two page types are the same
-            kind of document now and should open the same way. */}
-        <header className="mt-4 sm:mt-5">
-          <p className="text-[11px] font-bold tracking-[0.12em] text-brand uppercase">
-            {guide.eyebrow}
-          </p>
-          <h1 className="mt-2 max-w-[26ch] text-[26px] leading-[1.15] font-extrabold tracking-tight text-ink sm:text-[32px] lg:text-[36px]">
-            {guide.title}
-          </h1>
-          <p className="mt-2.5 max-w-[76ch] text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">
-            {guide.intro}
-          </p>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">
-            <time dateTime={guide.updated}>
-              Updated{" "}
-              {new Date(`${guide.updated}T00:00:00Z`).toLocaleDateString(
-                "en-GB",
-                {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  timeZone: "UTC",
-                },
-              )}
-            </time>
-            <span aria-hidden="true" className="px-2 text-ink-faint/50">
-              ·
-            </span>
-            {guide.sections.length} sections
-          </p>
+        {/* The header sits on its own tinted field rather than on the page:
+            a guide opens with an argument, and the band is what separates the
+            argument's own introduction from the article that follows it. The
+            tint is the brand's, at the strength the app uses behind a chip —
+            enough to read as a surface, not enough to fight the illustration
+            standing on it. */}
+        <header className="mt-4 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-soft via-brand-soft/70 to-field px-6 py-8 ring-1 ring-black/[0.06] sm:mt-5 sm:px-10 sm:py-10 lg:flex lg:items-center lg:gap-10 lg:px-12">
+          <div className="min-w-0 lg:flex-1">
+            <p className="text-[11px] font-bold tracking-[0.12em] text-brand uppercase">
+              {guide.eyebrow}
+            </p>
+            <h1 className="mt-2 max-w-[26ch] text-[26px] leading-[1.15] font-extrabold tracking-tight text-ink sm:text-[32px] lg:text-[36px]">
+              {guide.title}
+            </h1>
+            <p className="mt-2.5 max-w-[76ch] text-[15px] leading-relaxed text-ink sm:text-[16px]">
+              {guide.intro}
+            </p>
 
-          <div className="mt-5 flex flex-nowrap gap-3 sm:flex-wrap">
-            <Link
-              href="/dashboard"
-              className={cn(btnPrimary, btnCompact, "h-11")}
-            >
-              Build your resume
-            </Link>
-            <Link
-              href="/resume-ats-score"
-              className={cn(btnQuiet, btnCompact, "h-11")}
-            >
-              Check your ATS score
-            </Link>
+            {/* Who wrote it, when it was last true, and how long it takes —
+                the three things a reader decides on before starting. */}
+            <p className="mt-4 text-[13px] leading-relaxed font-semibold text-ink">
+              {author.name}
+              <span className="font-normal text-ink-soft">
+                {" "}
+                · {author.role}
+              </span>
+              <span aria-hidden="true" className="px-2 text-ink-soft/60">
+                ·
+              </span>
+              <time
+                dateTime={guide.updated}
+                className="font-normal text-ink-soft"
+              >
+                Updated{" "}
+                {new Date(`${guide.updated}T00:00:00Z`).toLocaleDateString(
+                  "en-GB",
+                  {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    timeZone: "UTC",
+                  },
+                )}
+              </time>
+              <span aria-hidden="true" className="px-2 text-ink-soft/60">
+                ·
+              </span>
+              <span className="font-normal text-ink-soft">
+                {minutes} min read
+              </span>
+            </p>
+
+            <div className="mt-5 flex flex-nowrap gap-3 sm:flex-wrap">
+              <Link
+                href="/dashboard"
+                className={cn(btnPrimary, btnCompact, "h-11")}
+              >
+                Build your resume
+              </Link>
+              <Link
+                href="/resume-ats-score"
+                className={cn(btnQuiet, btnCompact, "h-11 bg-panel")}
+              >
+                Check your ATS score
+              </Link>
+            </div>
           </div>
+
+          {/* The guide's own illustration, the one its card carries on
+              /guides — arriving on the page you clicked and finding the same
+              picture is how a link confirms it went where you meant.
+              Decorative, so no alt text, and gone below `lg` where the words
+              need the whole width. Not every guide is drawn yet. */}
+          {art && (
+            <Image
+              src={art}
+              alt=""
+              width={1672}
+              height={941}
+              priority
+              sizes="380px"
+              // Multiplied into the band rather than laid on it: the drawing
+              // is on white, and a white rectangle over a tint is a sticker.
+              className="aspect-[1338/753] w-[380px] shrink-0 scale-105 object-cover object-center mix-blend-multiply max-lg:hidden"
+            />
+          )}
         </header>
 
         {/* The answer before the argument. Someone who arrived from a search
@@ -238,7 +292,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               {guide.takeaways.map((item) => (
                 <li key={item} className="flex gap-3">
                   <CheckMark />
-                  <span className="text-[15px] leading-relaxed text-ink-soft">
+                  <span className="text-[15px] leading-relaxed text-ink">
                     {item}
                   </span>
                 </li>
@@ -262,7 +316,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                 {section.body.map((paragraph) => (
                   <p
                     key={paragraph.slice(0, 40)}
-                    className="mt-4 text-[16px] leading-[1.75] text-ink-soft"
+                    className="mt-4 text-[16px] leading-[1.75] text-ink"
                   >
                     {paragraph}
                   </p>
@@ -272,7 +326,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                     {section.list.map((item) => (
                       <li
                         key={item}
-                        className="flex gap-3 text-[16px] leading-[1.7] text-ink-soft"
+                        className="flex gap-3 text-[16px] leading-[1.7] text-ink"
                       >
                         <span
                           aria-hidden="true"
@@ -294,7 +348,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
 
             {related.length > 0 && (
               <section className="mt-8">
-                <p className="text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+                <p className="text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase">
                   Read next
                 </p>
                 <ul className="mt-3 space-y-2.5">
@@ -302,7 +356,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                     <li key={item.slug}>
                       <Link
                         href={`/guides/${item.slug}`}
-                        className="block text-[14.5px] leading-snug font-bold text-ink-soft transition hover:text-brand"
+                        className="block text-[14.5px] leading-snug font-bold text-ink transition hover:text-brand"
                       >
                         {item.title}
                       </Link>
@@ -313,13 +367,13 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             )}
 
             <section className="mt-8">
-              <p className="text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+              <p className="text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase">
                 See it applied
               </p>
               <div className="mt-3">
                 <Link
                   href={`/resume-examples/${example.slug}`}
-                  className="block text-[14.5px] leading-snug font-bold text-ink-soft transition hover:text-brand"
+                  className="block text-[14.5px] leading-snug font-bold text-ink transition hover:text-brand"
                 >
                   {example.role} resume example
                 </Link>
@@ -334,7 +388,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               <p className="text-[15px] font-extrabold text-ink">
                 Write it while you read
               </p>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink">
                 Live preview, AI help on every bullet, and an ATS-ready PDF. No
                 card at any point.
               </p>
@@ -346,7 +400,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               </Link>
               <Link
                 href="/resume-templates"
-                className="mt-3 block text-center text-[13px] font-bold text-ink-faint transition hover:text-brand"
+                className="mt-3 block text-center text-[13px] font-bold text-ink-soft transition hover:text-brand"
               >
                 Browse templates
               </Link>
@@ -360,7 +414,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
               Before and after
             </h2>
-            <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink-soft">
+            <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink">
               The same facts, written twice. Nothing has been added to the
               right-hand column that was not already true on the left — which is
               the whole point, and the reason this is editing rather than
@@ -373,16 +427,16 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                   className={cn(panelFlat, "px-6 py-5")}
                 >
                   {rewrite.label && (
-                    <p className="text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+                    <p className="text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase">
                       {rewrite.label}
                     </p>
                   )}
                   <div className="mt-3 grid gap-4 md:grid-cols-2 md:gap-8">
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.12em] text-ink-faint uppercase">
+                      <p className="text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase">
                         Before
                       </p>
-                      <p className="mt-2 text-[15px] leading-relaxed text-ink-faint line-through decoration-ink-faint/40">
+                      <p className="mt-2 text-[15px] leading-relaxed text-ink-soft line-through decoration-ink-soft/40">
                         {rewrite.before}
                       </p>
                     </div>
@@ -396,7 +450,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                     </div>
                   </div>
                   {rewrite.note && (
-                    <p className="mt-4 border-t border-field-border pt-3 text-[14px] leading-relaxed text-ink-soft">
+                    <p className="mt-4 border-t border-field-border pt-3 text-[14px] leading-relaxed text-ink">
                       {rewrite.note}
                     </p>
                   )}
@@ -419,7 +473,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                 the right behaviour and an invisible one, so it gets a line
                 saying so — the cut-off second column is otherwise just a
                 column that appears to be missing. */}
-            <p className="mt-3 text-[13px] font-semibold text-ink-faint sm:hidden">
+            <p className="mt-3 text-[13px] font-semibold text-ink-soft sm:hidden">
               Scroll the table sideways to compare &rarr;
             </p>
             <div
@@ -437,7 +491,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                         scope="col"
                         className={cn(
                           "px-6 py-4 text-[13px] font-bold tracking-[0.08em] uppercase",
-                          i === 0 ? "text-ink-faint" : "text-brand",
+                          i === 0 ? "text-ink-soft" : "text-brand",
                         )}
                       >
                         {column}
@@ -457,10 +511,10 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                       >
                         {row[0]}
                       </th>
-                      <td className="px-6 py-4 align-top text-[15px] leading-relaxed text-ink-soft">
+                      <td className="px-6 py-4 align-top text-[15px] leading-relaxed text-ink">
                         {row[1]}
                       </td>
-                      <td className="px-6 py-4 align-top text-[15px] leading-relaxed text-ink-soft">
+                      <td className="px-6 py-4 align-top text-[15px] leading-relaxed text-ink">
                         {row[2]}
                       </td>
                     </tr>
@@ -477,7 +531,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
               {guide.checklist.heading}
             </h2>
-            <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink-soft">
+            <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink">
               Open your own resume beside this and work down it. Every line is
               something a reader or a parser acts on within the first pass.
             </p>
@@ -488,7 +542,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                   className={cn(panelFlat, "flex gap-3 px-5 py-4")}
                 >
                   <CheckMark />
-                  <span className="text-[15px] leading-relaxed text-ink-soft">
+                  <span className="text-[15px] leading-relaxed text-ink">
                     {item}
                   </span>
                 </li>
@@ -505,7 +559,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
               {guide.templates.heading}
             </h2>
-            <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink-soft">
+            <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink">
               {guide.templates.blurb}
             </p>
             <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-9 sm:gap-x-7 lg:grid-cols-3">
@@ -558,7 +612,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                   <span className="mt-2 block text-[15px] font-extrabold text-ink">
                     {item.title}
                   </span>
-                  <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+                  <span className="mt-1 block text-[13px] leading-relaxed text-ink">
                     {item.description}
                   </span>
                 </Link>

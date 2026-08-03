@@ -13,7 +13,8 @@
     "db:studio": "prisma studio",
     "plan": "tsx scripts/set-plan.ts",
     "shoot": "node --experimental-strip-types scripts/shoot-templates.mjs",
-    "shoot:letters": "node --experimental-strip-types scripts/shoot-letter-templates.mjs"
+    "shoot:letters": "node --experimental-strip-types scripts/shoot-letter-templates.mjs",
+    "art:guides": "node --experimental-strip-types scripts/generate-guide-art.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
