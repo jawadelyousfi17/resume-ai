@@ -68,7 +68,10 @@ export default function ResumeTemplatesPage() {
                 position: i + 1,
                 name: `${template.name} resume template`,
                 description: template.description,
-                url: abs(`/resume-templates/${template.id}`),
+                // The list items are the templates on this page, not links
+                // out: there is no page per template. The screenshot is what
+                // identifies each one.
+                image: abs(`/templates/${template.id}.png`),
               })),
             },
             faqPage(FAQS),

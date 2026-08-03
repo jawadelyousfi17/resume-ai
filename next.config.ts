@@ -35,6 +35,14 @@ const nextConfig: NextConfig = {
       // /templates/{filter} are real pages; the bare parent is the gallery,
       // which has always lived at /resume-templates.
       { source: "/templates", destination: "/resume-templates", permanent: true },
+      // There was a page per template. The gallery says the same thing about
+      // all of them at once, so the old URLs fold back into it rather than
+      // 404ing what's already indexed and linked.
+      {
+        source: "/resume-templates/:id",
+        destination: "/resume-templates",
+        permanent: true,
+      },
     ];
   },
 };

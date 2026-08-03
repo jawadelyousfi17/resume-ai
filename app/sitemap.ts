@@ -5,7 +5,6 @@ import { RESUME_EXAMPLES } from "@/lib/content/resume-examples";
 import { LANDINGS } from "@/lib/content/landings";
 import { TEMPLATE_COLLECTIONS } from "@/lib/content/template-collections";
 import { TEMPLATE_FILTERS } from "@/lib/content/template-filters";
-import { TEMPLATES } from "@/lib/templates";
 import { siteOrigin } from "@/lib/site-url";
 
 /** Only the pages worth indexing: the marketing and written content. The
@@ -48,8 +47,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    // The collection landings sit above the individual templates: they're the
-    // pages carrying the demand, and each one links down into the detail pages.
+    // The collection landings are where the template demand lands: a page per
+    // template only split it, so there are no detail pages under these.
     ...TEMPLATE_COLLECTIONS.map((collection) => ({
       url: `${origin}/${collection.slug}`,
       lastModified: new Date(),
@@ -73,12 +72,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     })),
     { url: `${origin}/cv-examples`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.85 },
-    ...TEMPLATES.map((template) => ({
-      url: `${origin}/resume-templates/${template.id}`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
     ...GUIDES.map((guide) => ({
       url: `${origin}/guides/${guide.slug}`,
       lastModified: new Date(`${guide.updated}T00:00:00Z`),

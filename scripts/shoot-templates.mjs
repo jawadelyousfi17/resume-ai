@@ -3,8 +3,9 @@
 // panel show.
 //
 // The screenshots come from the real <ResumePreview>, captured off the
-// per-template page — so a thumbnail can never show something the editor
-// wouldn't produce. Re-run after changing a template or the renderer:
+// bare render at /shot/template/<id> — so a thumbnail can never show something
+// the editor wouldn't produce. Re-run after changing a template or the
+// renderer:
 //
 //   node scripts/shoot-templates.mjs            (against localhost:3000)
 //   BASE=http://localhost:3001 node scripts/...
@@ -37,7 +38,7 @@ let ok = 0;
 const failed = [];
 
 for (const template of TEMPLATES) {
-  const url = `${BASE}/resume-templates/${template.id}`;
+  const url = `${BASE}/shot/template/${template.id}`;
   try {
     await page.goto(url, { waitUntil: "networkidle", timeout: 45_000 });
 

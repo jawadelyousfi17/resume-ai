@@ -104,7 +104,7 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
                   position: i + 1,
                   name: `${template.name} resume template`,
                   description: template.description,
-                  url: abs(`/resume-templates/${template.id}`),
+                  image: abs(`/templates/${template.id}.png`),
                 })),
               },
             },

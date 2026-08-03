@@ -32,7 +32,14 @@ export function TemplateThumb({
     // The hover group is the paper, not whatever the caller wraps around it.
     <div className={cn("group relative", className)}>
       <Link
-        href={`/resume-templates/${template.id}`}
+        href={`/start?template=${template.id}`}
+        // The paper is the button. There is no page per template to send them
+        // to any more, and a card that only opens a bigger picture of itself
+        // was a stop on the way to the thing they came to do.
+        //
+        // /start writes a resume, so it runs on the press and never on a
+        // hover — see app/start/page.tsx.
+        prefetch={false}
         // `overflow-hidden` with the page scaled a hair over its box: the
         // outermost ring of pixels in the screenshot is antialiased edge, and
         // cropping it is what keeps the corners looking cut rather than
@@ -71,8 +78,8 @@ export function TemplateThumb({
       </Link>
 
       {/* The action, on the paper rather than under it. Hidden where there is
-          no pointer to hover with — a phone gets the same button on the
-          template's own page, one tap away. */}
+          no pointer to hover with — on a phone the paper itself is the tap,
+          and it goes to the same place. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-black/45 to-transparent pt-16 pb-5 opacity-0 transition group-hover:opacity-100 max-lg:hidden">
         <Link
           href={`/start?template=${template.id}`}
@@ -94,7 +101,11 @@ export function TemplateCard({ template }: { template: Template }) {
     <div>
       <TemplateThumb template={template} />
 
-      <Link href={`/resume-templates/${template.id}`} className="block">
+      <Link
+        href={`/start?template=${template.id}`}
+        prefetch={false}
+        className="block"
+      >
         <span className="mt-3 block text-[16px] font-extrabold text-ink">
           {template.name}
         </span>

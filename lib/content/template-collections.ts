@@ -7,11 +7,10 @@
 // that makes the page worth landing on.
 //
 // Why root-level `{modifier}-resume-templates` rather than
-// `/resume-templates/{modifier}`: five of the template ids are `modern`,
-// `minimal`, `classic`, `compact` and `sidebar`, so half the obvious child
-// slugs are already detail pages. Root level also exact-matches the phrase
-// people actually search, and matches the ecosystem pages (/latex-…, /canva-…)
-// that live at the root for the same reason.
+// `/resume-templates/{modifier}`: root level exact-matches the phrase people
+// actually search, and matches the ecosystem pages (/latex-…, /canva-…) that
+// live at the root for the same reason. Child slugs aren't available anyway —
+// everything under /resume-templates/ redirects back up to the gallery.
 
 import type { TemplateCategory } from "@/lib/templates";
 import type { FaqEntry } from "@/lib/content/guides";

@@ -310,7 +310,7 @@ export default async function ResumeExamplePage(
             <p className="mt-6 text-[14px] leading-relaxed text-ink-faint">
               Drawn in the{" "}
               <Link
-                href={`/resume-templates/${template.id}`}
+                href="/resume-templates"
                 className="font-semibold text-brand underline decoration-brand/30 underline-offset-2 hover:decoration-brand"
               >
                 {template.name}

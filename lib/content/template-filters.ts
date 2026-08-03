@@ -7,9 +7,10 @@
 // crawler can reach, and the filtered grid is in the server-rendered HTML
 // rather than behind a click.
 //
-// Why /templates/{filter} and not /resume-templates/{filter}: five template
-// ids are `modern`, `minimal`, `classic`, `compact` and `sidebar`, so half the
-// obvious child slugs are already detail pages under /resume-templates/[id].
+// Why /templates/{filter} and not /resume-templates/{filter}: everything under
+// /resume-templates/ is a permanent redirect back up to the gallery (see
+// next.config.ts — it retires the old page-per-template), so that whole space
+// is spoken for.
 //
 // The relationship to lib/content/template-collections.ts: those six pages are
 // editorial — long-form arguments that happen to end in a grid, and they own
