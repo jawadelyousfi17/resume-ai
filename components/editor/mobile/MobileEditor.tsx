@@ -199,8 +199,8 @@ function PreviewTab() {
       {/* Its own positioning context, so an overlay covers the paper rather
           than the padding around it. */}
       <div className="relative">
-        <PreviewCanvas format={format}>
-          <ResumePreview data={data} format={format} />
+        <PreviewCanvas format={format} marginY={data.settings?.marginY}>
+          <ResumePreview data={data} format={format} paged />
         </PreviewCanvas>
         {/* Switching to this tab mid-run is exactly when you want to see that
             something is still happening to the page. */}

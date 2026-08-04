@@ -59,20 +59,22 @@ export default async function SharedResumePage(props: PageProps<"/r/[slug]">) {
   return (
     <div className="flex min-h-dvh flex-col bg-cream">
       {/* Printing gives back the document on its own: the chrome comes off,
-          and the canvas next door — which sizes itself to the window — is
-          returned to the paper's real dimensions. */}
+          and the canvas next door — whose sheets are scaled to the window — is
+          returned to the paper's real dimensions. The sheets already carry the
+          page margins and are already cut in the right places, so the page box
+          adds nothing and each one prints as itself. */}
       <style>{`
         @media print {
           @page { margin: 0; }
           [data-share-chrome] { display: none !important; }
           [data-share-stage] { padding: 0 !important; }
-          [data-preview-stage] { width: auto !important; height: auto !important; }
+          [data-preview-stage] { width: auto !important; gap: 0 !important; }
           [data-preview-page] {
-            transform: none !important;
+            width: auto !important;
+            height: auto !important;
             box-shadow: none !important;
           }
-          h2 { break-after: avoid; }
-          li { break-inside: avoid; }
+          [data-preview-sheet] { transform: none !important; }
         }
       `}</style>
 

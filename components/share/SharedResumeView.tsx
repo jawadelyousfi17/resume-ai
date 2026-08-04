@@ -19,8 +19,8 @@ export function SharedResumeView({
   format: PageFormat;
 }) {
   return (
-    <PreviewCanvas format={format} guides={false}>
-      <ResumePreview data={data} format={format} />
+    <PreviewCanvas format={format} guides={false} marginY={data.settings?.marginY}>
+      <ResumePreview data={data} format={format} paged />
     </PreviewCanvas>
   );
 }

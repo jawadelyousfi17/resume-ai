@@ -2,7 +2,15 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useResume } from "@/lib/store";
-import type { DateFormat, PageFormat, ResumeSettings } from "@/lib/types";
+import type {
+  DateFormat,
+  IconKind,
+  IconStyle,
+  PageFormat,
+  ResumeSettings,
+  TagLayout,
+  TagSeparator,
+} from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import {
   applyTemplate,
@@ -40,6 +48,7 @@ import { ChevronDownIcon } from "@/components/ui/svg-icons";
 import { removePhoto, uploadPhoto } from "@/lib/upload-image";
 import { ColorWheel } from "@/components/ui/color-picker";
 import { FontPicker } from "./FontPicker";
+import { ContactIcon } from "@/components/preview/contact-icons";
 
 const GROUPS = [
   { id: "cz-document", label: "Document" },
@@ -47,6 +56,8 @@ const GROUPS = [
   { id: "cz-font-size", label: "Font Size" },
   { id: "cz-spacing", label: "Spacing" },
   { id: "cz-headings", label: "Headings" },
+  { id: "cz-icons", label: "Icons" },
+  { id: "cz-skills", label: "Skills" },
   { id: "cz-font", label: "Font" },
   { id: "cz-colors", label: "Colors" },
   { id: "cz-background", label: "Background" },
@@ -108,6 +119,38 @@ const HEADINGS: { value: ResumeSettings["headingStyle"]; label: string }[] = [
   { value: "underline", label: "Underline" },
   { value: "plain", label: "Plain" },
   { value: "uppercase", label: "Uppercase" },
+];
+
+const ICON_STYLES: { value: IconStyle; label: string; hint: string }[] = [
+  { value: "solid", label: "Solid", hint: "Filled, with brand marks" },
+  { value: "line", label: "Line", hint: "Feather" },
+  { value: "rounded", label: "Rounded", hint: "Phosphor" },
+  { value: "classic", label: "Classic", hint: "Font Awesome" },
+  { value: "none", label: "None", hint: "Text only" },
+];
+
+/** The kinds worth showing in the picker: the two everyone has, and the two
+ *  where the difference between one set and the next is most obvious. */
+const ICON_SAMPLE: IconKind[] = ["email", "phone", "github", "linkedin"];
+
+const TAG_LAYOUTS: { value: TagLayout; label: string; hint: string }[] = [
+  { value: "auto", label: "Template's own", hint: "Whatever it was drawn with" },
+  { value: "columns-1", label: "One column", hint: "A bullet a line" },
+  { value: "columns-2", label: "Two columns", hint: "Bulleted, side by side" },
+  { value: "columns-3", label: "Three columns", hint: "Tighter still" },
+  { value: "columns-4", label: "Four columns", hint: "For long lists" },
+  { value: "inline", label: "One line", hint: "Condensed, separated" },
+  { value: "dots", label: "Dots", hint: "A five-dot meter" },
+  { value: "bars", label: "Bars", hint: "A filled meter bar" },
+];
+
+const TAG_SEPARATOR_OPTIONS: { value: TagSeparator; label: string }[] = [
+  { value: "pipe", label: "|" },
+  { value: "bullet", label: "•" },
+  { value: "dot", label: "·" },
+  { value: "slash", label: "/" },
+  { value: "comma", label: "," },
+  { value: "dash", label: "–" },
 ];
 
 export function CustomizePanel() {
@@ -374,6 +417,136 @@ export function CustomizePanel() {
             options={HEADINGS}
             onChange={(v) => set("headingStyle", v)}
           />
+        </Group>
+
+        <Group id="cz-icons" title="Icons">
+          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
+            Contact icon style
+          </p>
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {ICON_STYLES.map((o) => {
+              const selected = (s.iconStyle ?? "solid") === o.value;
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => set("iconStyle", o.value)}
+                  aria-pressed={selected}
+                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                    selected
+                      ? "border-brand/50 bg-brand-soft"
+                      : "border-field-border bg-field hover:border-ink-faint/40"
+                  }`}
+                >
+                  {/* The sample is the label that matters — the names are only
+                      there to say which set it is. Drawn by the same component
+                      the page uses, so the row can't promise a mark the resume
+                      won't print. */}
+                  <span
+                    className="flex h-5 items-center gap-2 text-[17px]"
+                    style={{ color: s.accent }}
+                  >
+                    {o.value === "none" ? (
+                      <span className="text-[13px] font-semibold text-ink-faint">
+                        No icons
+                      </span>
+                    ) : (
+                      ICON_SAMPLE.map((kind) => (
+                        <ContactIcon
+                          key={kind}
+                          kind={kind}
+                          style={o.value}
+                          color="currentColor"
+                        />
+                      ))
+                    )}
+                  </span>
+                  <span
+                    className={`mt-1.5 block text-[13.5px] font-semibold ${
+                      selected ? "text-brand" : "text-ink"
+                    }`}
+                  >
+                    {o.label}
+                  </span>
+                  <span className="block text-[12px] text-ink-faint">
+                    {o.hint}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </Group>
+
+        <Group id="cz-skills" title="Skills">
+          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
+            Skills layout
+          </p>
+          <p className="mb-2.5 text-[12.5px] text-ink-faint">
+            Applies to Skills, Languages and Interests.
+          </p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {TAG_LAYOUTS.map((o) => {
+              const selected = (s.tagStyle ?? "auto") === o.value;
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => set("tagStyle", o.value)}
+                  aria-pressed={selected}
+                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                    selected
+                      ? "border-brand/50 bg-brand-soft"
+                      : "border-field-border bg-field hover:border-ink-faint/40"
+                  }`}
+                >
+                  <span
+                    className={`block text-[13.5px] font-semibold ${
+                      selected ? "text-brand" : "text-ink"
+                    }`}
+                  >
+                    {o.label}
+                  </span>
+                  <span className="block text-[12px] text-ink-faint">
+                    {o.hint}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Only the one-line layout has anything between its entries, so the
+              choice appears with it rather than sitting inert the rest of the
+              time. */}
+          {(s.tagStyle === "inline" ||
+            (!(s.tagStyle && s.tagStyle !== "auto") &&
+              activeTemplate.tags === "inline")) && (
+            <>
+              <p className="mt-5 mb-2.5 text-[13.5px] font-bold text-ink">
+                Separator
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {TAG_SEPARATOR_OPTIONS.map((o) => {
+                  const selected = (s.tagSeparator ?? "pipe") === o.value;
+                  return (
+                    <button
+                      key={o.value}
+                      type="button"
+                      onClick={() => set("tagSeparator", o.value)}
+                      aria-label={o.value}
+                      aria-pressed={selected}
+                      className={`h-10 w-10 rounded-xl border text-[16px] font-semibold transition ${
+                        selected
+                          ? "border-brand/50 bg-brand-soft text-brand"
+                          : "border-field-border bg-field text-ink-soft hover:text-ink"
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </Group>
 
         <Group id="cz-font" title="Font">

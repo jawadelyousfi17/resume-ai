@@ -21,12 +21,14 @@ import type {
   SkillsSection,
   SummarySection,
 } from "@/lib/types";
+import type { IconKind } from "@/lib/types";
 import {
   contactOrder,
   DEFAULT_SETTINGS,
   isTagGroupSection,
   PAGE_SIZES,
   showsDates,
+  TAG_SEPARATORS,
 } from "@/lib/defaults";
 import { fontStack } from "@/lib/fonts";
 import { isRtl, levelLabel } from "@/lib/i18n";
@@ -34,6 +36,7 @@ import { getTemplate, tagColumns, type Template } from "@/lib/templates";
 import { formatRange } from "@/lib/format";
 import { isMarkdownEmpty } from "@/lib/markdown";
 import { MarkdownView } from "@/components/ui/markdown-view";
+import { ContactIcon, linkIcon } from "./contact-icons";
 
 const INK = "#111827";
 const MUTED = "#4b5563";
@@ -114,9 +117,18 @@ interface Ctx {
 export function ResumePreview({
   data,
   format = "A4",
+  paged = false,
 }: {
   data: ResumeData;
   format?: PageFormat;
+  /**
+   * The document is being fragmented into real pages — see the `@page` block in
+   * app/print/[token]. The page box then supplies the bottom margin on every
+   * sheet and the top margin from the second one on, so the document must stop
+   * padding its own foot or the last page gets the margin twice. Page one still
+   * pads its own head, which is what lets a banded header bleed to the edge.
+   */
+  paged?: boolean;
 }) {
   const { personal, sections } = data;
   const minHeight = PAGE_SIZES[format].height;
@@ -169,14 +181,39 @@ export function ResumePreview({
     backgroundSize: s.pageImage ? "cover" : undefined,
     backgroundPosition: s.pageImage ? "center" : undefined,
     backgroundRepeat: s.pageImage ? "no-repeat" : undefined,
-    minHeight,
+    // A short resume still fills a sheet. Paged, the page box has already taken
+    // its bottom margin out of the first sheet, so asking for the full height
+    // here would push a blank second page out of a half-empty first one.
+    minHeight: paged ? `calc(${minHeight}px - ${s.marginY}mm)` : minHeight,
     // Right-to-left languages flip the whole document: headings, contact rows,
     // list markers and the date column all follow the text direction.
     direction: rtl ? "rtl" : undefined,
     textAlign: rtl ? "right" : undefined,
   };
 
-  const pad = `${s.marginY}mm ${s.marginX}mm`;
+  /** The foot the document pads for itself — nothing, once the page box is
+   *  putting a margin under every sheet rather than only under the last. */
+  const padBottom = paged ? 0 : s.marginY;
+
+  /**
+   * A padding box, always as longhands.
+   *
+   * Never `{ padding: "…", paddingTop: 0 }`. React diffs inline styles key by
+   * key: on a re-render where only the shorthand changed it writes `padding`
+   * and leaves `paddingTop` alone — but the shorthand has just reset every
+   * longhand, so the override is gone until the node is mounted again. Dragging
+   * the margin slider opened a hole under the header that a reload closed.
+   */
+  const box = (
+    top: number,
+    x: number,
+    bottom: number,
+  ): React.CSSProperties => ({
+    paddingTop: `${top}mm`,
+    paddingRight: `${x}mm`,
+    paddingBottom: `${bottom}mm`,
+    paddingLeft: `${x}mm`,
+  });
 
   // ---- two-column layouts ------------------------------------------------
   if (template.sidebar !== "none") {
@@ -193,7 +230,14 @@ export function ResumePreview({
     const ruled = template.sidebar === "rule";
     const onRight = template.sidebarSide === "right";
     const railCtx: Ctx = { ...ctx, onDark: dark || darkPage, rail: true };
-    const railPad = `${s.marginY}mm ${Math.max(s.marginX * 0.72, 8)}mm`;
+    // A header spanning both columns has already paid the top margin, so the
+    // columns underneath must not pay it again — the single-column layout
+    // zeroes its own top padding for exactly this reason. Left in, the two
+    // stacked and the space under the header grew with the margin slider until
+    // it read as a hole. A header living inside the rail keeps it: there the
+    // rail's padding is the only top margin there is.
+    const railTop = template.sidebarHeader === "inside" ? s.marginY : 0;
+    const railPad = box(railTop, Math.max(s.marginX * 0.72, 8), padBottom);
 
     const aside = (
       <aside
@@ -206,7 +250,7 @@ export function ResumePreview({
               ? undefined
               : `${s.accent}14`,
           color: dark ? "rgba(255,255,255,0.86)" : undefined,
-          padding: railPad,
+          ...railPad,
           borderRight: ruled && !onRight ? `1px solid ${LINE}` : undefined,
           borderLeft: ruled && onRight ? `1px solid ${LINE}` : undefined,
         }}
@@ -227,7 +271,11 @@ export function ResumePreview({
     );
 
     const column = (
-      <div key="main" style={{ padding: railPad }} className="min-w-0 flex-1">
+      <div
+        key="main"
+        style={railPad}
+        className="min-w-0 flex-1"
+      >
         {main.map((section, i) => (
           <SectionBlock
             key={section.id}
@@ -239,8 +287,13 @@ export function ResumePreview({
       </div>
     );
 
+    // `min-w-0`: a column-flex item's automatic minimum is its min-content
+    // width, so without this the widest unbreakable thing in either column —
+    // a date that can't wrap, most often — would push the row past the paper
+    // instead of the column giving way. See the grid tracks in the blocks,
+    // which are bounded for the same reason.
     const columns = (
-      <div className="flex flex-1 items-stretch">
+      <div className="flex min-w-0 flex-1 items-stretch">
         {onRight ? [column, aside] : [aside, column]}
       </div>
     );
@@ -261,7 +314,7 @@ export function ResumePreview({
 
     return (
       <div dir={rtl ? "rtl" : undefined} style={page} className="flex flex-col">
-        <div style={{ padding: pad, paddingBottom: 0 }}>
+        <div style={box(s.marginY, s.marginX, 0)}>
           <Header personal={personal} ctx={ctx} />
         </div>
         {columns}
@@ -287,14 +340,18 @@ export function ResumePreview({
       <div className="min-w-0 flex-1">
         {/* A banded header bleeds to the page edge, so it pads itself. */}
         <div
-          style={{ padding: template.headerBand ? 0 : pad, paddingBottom: 0 }}
+          style={
+            template.headerBand
+              ? { padding: 0 }
+              : box(s.marginY, s.marginX, 0)
+          }
         >
           <Header personal={personal} ctx={ctx} />
         </div>
         {/* No top padding either way: an unbanded header is padded by the
             block above it, and a banded one ends in its own margin. Letting the
             page margin apply here as well opened a hole under the band. */}
-        <div style={{ padding: pad, paddingTop: 0 }}>
+        <div style={box(0, s.marginX, padBottom)}>
           {sections.map((section, i) => (
             <SectionBlock
               key={section.id}
@@ -506,49 +563,49 @@ function Avatar({
   );
 }
 
-/** The small marks beside each contact row. Kept local and tiny so the
- *  preview stays self-contained and legible at 8pt. */
-function ContactIcon({ kind, color }: { kind: string; color: string }) {
-  const common = {
-    width: "1em",
-    height: "1em",
-    viewBox: "0 0 16 16",
-    fill: "none",
-    stroke: color,
-    strokeWidth: 1.4,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    style: { flexShrink: 0, marginTop: "0.15em" },
-  };
-
-  if (kind === "email") {
-    return (
-      <svg {...common}>
-        <rect x="1.8" y="3.4" width="12.4" height="9.2" rx="1.4" />
-        <path d="m2.4 4.4 5.6 4 5.6-4" />
-      </svg>
-    );
-  }
+/**
+ * Where a contact row points, if anywhere.
+ *
+ * Chromium turns an `<a href>` into a real PDF link annotation, so this is
+ * what makes an exported resume's email and profiles clickable rather than
+ * text a recruiter has to retype. A bare `github.com/x` or `x@y.com` is what
+ * people actually type, so the scheme is inferred rather than demanded.
+ */
+function contactHref(kind: string, value: string): string | undefined {
+  const v = value.trim();
+  if (!v) return undefined;
+  if (kind === "email") return v.includes("@") ? `mailto:${v}` : undefined;
+  // Everything a dialler would reject, gone: spaces, brackets, dashes.
   if (kind === "phone") {
-    return (
-      <svg {...common}>
-        <path d="M5.2 2.4 6.6 5.2 5.3 6.5a8 8 0 0 0 4.2 4.2l1.3-1.3 2.8 1.4v2.2c0 .6-.5 1.1-1.1 1A11.5 11.5 0 0 1 2 3.5c0-.6.4-1.1 1-1.1z" />
-      </svg>
-    );
+    const dial = v.replace(/[^\d+]/g, "");
+    return dial.length >= 4 ? `tel:${dial}` : undefined;
   }
-  if (kind === "location") {
-    return (
-      <svg {...common}>
-        <path d="M8 14.2s5-4.4 5-8a5 5 0 0 0-10 0c0 3.6 5 8 5 8Z" />
-        <circle cx="8" cy="6.2" r="1.8" />
-      </svg>
-    );
-  }
+  if (kind === "location") return undefined;
+  if (/^(https?:|mailto:|tel:)/i.test(v)) return v;
+  // A handle on its own is not an address; a host with a dot in it is.
+  return /^[\w-]+(\.[\w-]+)+(\/|$)/.test(v) ? `https://${v}` : undefined;
+}
+
+/** The value, linked if it can be. Inherits its colour and stays undecorated:
+ *  a blue underline is a web convention, not a resume one. */
+function ContactValue({
+  href,
+  children,
+  className,
+}: {
+  href?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  if (!href) return <span className={className}>{children}</span>;
   return (
-    <svg {...common}>
-      <path d="M6.6 9.4a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 1 0-4-4l-.7.7" />
-      <path d="M9.4 6.6a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 1 0 4 4l.7-.7" />
-    </svg>
+    <a
+      href={href}
+      className={className}
+      style={{ color: "inherit", textDecoration: "none" }}
+    >
+      {children}
+    </a>
   );
 }
 
@@ -569,14 +626,34 @@ function ContactList({
   const { settings: s, template: t, onDark } = ctx;
   const { muted: MUTED } = inks(s);
   const color = ink ?? (onDark ? "rgba(255,255,255,0.72)" : MUTED);
+  // Absent on resumes saved before the choice existed, which all showed the
+  // house set — so that stays the default rather than the first pack.
+  const iconStyle = s.iconStyle ?? DEFAULT_SETTINGS.iconStyle ?? "solid";
 
-  const contacts = [
+  const contacts: {
+    icon: IconKind;
+    value: string;
+    href?: string;
+  }[] = [
     ...contactOrder(personal)
-      .map((field) => ({ kind: field, value: personal[field] }))
-      .filter((c) => c.value),
+      .filter((field) => personal[field])
+      .map((field) => ({
+        icon: field as IconKind,
+        value: personal[field],
+        href: contactHref(field, personal[field]),
+      })),
     ...personal.links
-      .map((l) => ({ kind: "link", value: l.url || l.label }))
-      .filter((c) => c.value),
+      .filter((l) => l.url || l.label)
+      .map((l) => {
+        const value = l.url || l.label;
+        return {
+          // Both fields decide the mark: the address names the site, and the
+          // label names it too when someone pasted the address into the label.
+          icon: linkIcon(`${l.label} ${l.url}`),
+          value,
+          href: contactHref("link", l.url || l.label),
+        };
+      }),
   ];
 
   if (contacts.length === 0) return null;
@@ -593,8 +670,10 @@ function ContactList({
       <div style={{ ...base, marginBottom: "0.4em" }} className="space-y-1.5">
         {contacts.map((c, i) => (
           <p key={i} className="flex items-start gap-2 break-words">
-            <ContactIcon kind={c.kind} color={color} />
-            <span className="min-w-0 break-words">{c.value}</span>
+            <ContactIcon kind={c.icon} style={iconStyle} color={color} />
+            <ContactValue href={c.href} className="min-w-0 break-words">
+              {c.value}
+            </ContactValue>
           </p>
         ))}
       </div>
@@ -610,25 +689,36 @@ function ContactList({
       >
         {contacts.map((c, i) => (
           <span key={i} className="flex items-start gap-2">
-            <ContactIcon kind={c.kind} color={color} />
-            <span className="min-w-0 break-words">{c.value}</span>
+            <ContactIcon kind={c.icon} style={iconStyle} color={color} />
+            <ContactValue href={c.href} className="min-w-0 break-words">
+              {c.value}
+            </ContactValue>
           </span>
         ))}
       </div>
     );
   }
 
-  // One flowing row.
+  // One flowing row. `<wbr>` after each bullet for the same reason as the
+  // inline skills line: the dots are spaced with a margin, not with spaces, so
+  // without it the row is one word and a long address or URL pushes it off the
+  // page instead of wrapping.
   return (
-    <div style={base} className={centered ? "text-center" : undefined}>
+    <div
+      style={base}
+      className={`break-words ${centered ? "text-center" : ""}`}
+    >
       {contacts.map((c, i) => (
         <span key={i}>
           {i > 0 && (
-            <span style={{ margin: "0 0.45em", color: `${s.accent}80` }}>
-              •
-            </span>
+            <>
+              <span style={{ margin: "0 0.45em", color: `${s.accent}80` }}>
+                •
+              </span>
+              <wbr />
+            </>
           )}
-          {c.value}
+          <ContactValue href={c.href}>{c.value}</ContactValue>
         </span>
       ))}
     </div>
@@ -902,16 +992,22 @@ function Meta({
 
   if (!range && !location) return null;
 
+  // The range never breaks — "Sep 2021 –" over "Present" reads as two dates.
+  // Everything around it can, and has to: a column that refuses to give way
+  // pushes the entry, its section and the whole page wider than the paper,
+  // and the overflow is what gets cut off at the right edge.
   if (t.dates === "right-inline") {
     return (
-      <p style={style} className="shrink-0 whitespace-nowrap">
-        {[range, location].filter(Boolean).join("  |  ")}
+      <p style={style}>
+        <span className="whitespace-nowrap">{range}</span>
+        {range && location && <span>{"  |  "}</span>}
+        {location}
       </p>
     );
   }
 
   return (
-    <div style={style} className={t.dates === "right" ? "shrink-0" : undefined}>
+    <div style={style}>
       {range && <p className="whitespace-nowrap">{range}</p>}
       {location && <p>{location}</p>}
     </div>
@@ -941,7 +1037,16 @@ function ExperienceBlock({
       <SectionHeading ctx={ctx} index={index}>
         {section.title}
       </SectionHeading>
-      <div style={{ display: "grid", rowGap: `${0.7 * t.density}em` }}>
+      {/* `minmax(0, 1fr)`, not the implicit `auto`: an auto track is floored
+          at its items' min-content width, so one entry too wide to fit would
+          widen the track — and with it the section, the column and the page. */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr)",
+          rowGap: `${0.7 * t.density}em`,
+        }}
+      >
         {items.map((item) => {
           const range = showsDates(section)
             ? formatRange(
@@ -995,7 +1100,7 @@ function ExperienceBlock({
                 key={item.id}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "9em 1fr",
+                  gridTemplateColumns: "9em minmax(0, 1fr)",
                   columnGap: "1em",
                 }}
               >
@@ -1005,7 +1110,12 @@ function ExperienceBlock({
                   ctx={ctx}
                   align="left"
                 />
-                <div className="min-w-0">
+                {/* Pinned to the second track rather than left to fall there.
+                    An entry with no date and no location renders no <Meta> at
+                    all, and auto-placement then dropped the entry itself into
+                    the 9em date column — a project without dates came out as a
+                    ribbon of one-word lines down the left edge. */}
+                <div className="min-w-0" style={{ gridColumn: 2 }}>
                   {heading}
                   {body}
                 </div>
@@ -1056,7 +1166,13 @@ function EducationBlock({
       <SectionHeading ctx={ctx} index={index}>
         {section.title}
       </SectionHeading>
-      <div style={{ display: "grid", rowGap: `${0.55 * t.density}em` }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr)",
+          rowGap: `${0.55 * t.density}em`,
+        }}
+      >
         {items.map((item) => {
           const range = showsDates(section)
             ? formatRange(
@@ -1109,7 +1225,7 @@ function EducationBlock({
                 key={item.id}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "9em 1fr",
+                  gridTemplateColumns: "9em minmax(0, 1fr)",
                   columnGap: "1em",
                 }}
               >
@@ -1119,7 +1235,12 @@ function EducationBlock({
                   ctx={ctx}
                   align="left"
                 />
-                <div className="min-w-0">
+                {/* Pinned to the second track rather than left to fall there.
+                    An entry with no date and no location renders no <Meta> at
+                    all, and auto-placement then dropped the entry itself into
+                    the 9em date column — a project without dates came out as a
+                    ribbon of one-word lines down the left edge. */}
+                <div className="min-w-0" style={{ gridColumn: 2 }}>
                   {heading}
                   {body}
                 </div>
@@ -1213,19 +1334,44 @@ function TagBlock({
   const color = onDark ? "rgba(255,255,255,0.85)" : BODY;
   const size = "0.95em";
 
+  // What the template drew, unless the document has asked for something else.
+  // A template is a starting point here rather than a rule: the same skills
+  // read very differently as four columns, as one flowing line, or as meters,
+  // and which one fits depends on how many there are.
+  const layout = s.tagStyle && s.tagStyle !== "auto" ? s.tagStyle : t.tags;
+  const separator =
+    TAG_SEPARATORS[s.tagSeparator ?? "pipe"] ?? TAG_SEPARATORS.pipe;
+
   const inner = () => {
-    // One flowing line, pipe-separated.
-    if (t.tags === "inline") {
+    // One flowing line, separator-delimited.
+    //
+    // The separator is spaced with a margin rather than with spaces, which
+    // leaves the whole list as one unbreakable word — it could only wrap where
+    // a skill happened to contain a space, and everything past the last of
+    // those ran off the right edge of the paper. `<wbr>` puts the break
+    // opportunity back after each one, without touching the spacing.
+    if (layout === "inline") {
       return (
-        <p style={{ fontSize: size, color }}>
+        <p style={{ fontSize: size, color }} className="break-words">
           {items.map((item, i) => {
             const level = levelLabel(section.type, item.level, s.language);
             return (
               <span key={item.id}>
                 {i > 0 && (
-                  <span style={{ margin: "0 0.5em", color: `${s.accent}66` }}>
-                    |
-                  </span>
+                  <>
+                    <span
+                      style={{
+                        // A comma belongs to the word before it; every other
+                        // mark stands between the two.
+                        margin:
+                          separator === "," ? "0 0.35em 0 0" : "0 0.5em",
+                        color: `${s.accent}66`,
+                      }}
+                    >
+                      {separator}
+                    </span>
+                    <wbr />
+                  </>
                 )}
                 <span className="font-medium">{item.name}</span>
                 {level && <span style={{ color: MUTED }}> ({level})</span>}
@@ -1238,7 +1384,7 @@ function TagBlock({
 
     // Name over a bar filled to the level. Two across in the main column, one
     // in a rail — a half-width bar reads as a broken one.
-    if (t.tags === "bars") {
+    if (layout === "bars") {
       const track = onDark ? "rgba(255,255,255,0.22)" : `${s.accent}26`;
       const fill = onDark ? "rgba(255,255,255,0.9)" : s.accent;
       return (
@@ -1282,7 +1428,7 @@ function TagBlock({
     }
 
     // Name on the left, a proficiency meter on the right.
-    if (t.tags === "dots") {
+    if (layout === "dots") {
       return (
         <div
           style={{
@@ -1311,8 +1457,11 @@ function TagBlock({
       );
     }
 
-    // Bulleted columns.
-    const cols = tagColumns(t.tags);
+    // Bulleted columns — but never in a rail. A template asking for four of
+    // them means four across the width of the paper; four across a 30% column
+    // leaves each one narrower than the word in it, and every skill spilled
+    // out past the right edge of the page.
+    const cols = ctx.rail ? 1 : tagColumns(layout);
     return (
       <ul
         style={{
@@ -1339,7 +1488,7 @@ function TagBlock({
                 }}
                 className="shrink-0"
               />
-              <span className="min-w-0">
+              <span className="min-w-0 break-words">
                 {item.name}
                 {level && (
                   <span

@@ -83,8 +83,8 @@ function EditorShell({ initialMobile }: { initialMobile: boolean }) {
             className="relative mx-auto w-full"
             style={{ maxWidth: PAGE_SIZES[format].width }}
           >
-            <PreviewCanvas format={format}>
-              <ResumePreview data={data} format={format} />
+            <PreviewCanvas format={format} marginY={data.settings?.marginY}>
+              <ResumePreview data={data} format={format} paged />
             </PreviewCanvas>
             {/* Both draw over the paper, and only one can be running: the
                 review and the tailor each take the whole panel while they

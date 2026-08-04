@@ -19,6 +19,7 @@ import type {
   SkillItem,
   SkillsSection,
   SummarySection,
+  TagSeparator,
 } from "./types";
 
 const uid = () => crypto.randomUUID();
@@ -33,6 +34,19 @@ export const DEFAULT_SETTINGS: ResumeSettings = {
   marginX: 16,
   marginY: 14,
   headingStyle: "underline",
+  iconStyle: "solid",
+  tagStyle: "auto",
+  tagSeparator: "pipe",
+};
+
+/** What each separator actually prints. */
+export const TAG_SEPARATORS: Record<TagSeparator, string> = {
+  pipe: "|",
+  bullet: "•",
+  dot: "·",
+  slash: "/",
+  comma: ",",
+  dash: "–",
 };
 
 export const DEFAULT_CONTACT_ORDER: ContactField[] = [

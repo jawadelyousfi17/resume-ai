@@ -434,7 +434,55 @@ export interface ResumeSettings {
   /** Top/bottom page margin in millimetres. */
   marginY: number;
   headingStyle: HeadingStyle;
+  /** Which set the contact marks are drawn from. Absent on resumes saved
+   *  before the choice existed, which all showed the house set. */
+  iconStyle?: IconStyle;
+  /** How the skills, languages and interests sections are laid out. "auto",
+   *  and absent, both mean whatever the template chose. */
+  tagStyle?: TagLayout;
+  /** What goes between the entries in the one-line layout. Absent means a
+   *  pipe, which is what that layout always used. */
+  tagSeparator?: TagSeparator;
 }
+
+/** A skills layout the document can ask for, over the template's own choice.
+ *  The named values mirror `TagStyle` in lib/templates. */
+export type TagLayout =
+  | "auto"
+  | "columns-1"
+  | "columns-2"
+  | "columns-3"
+  | "columns-4"
+  | "dots"
+  | "bars"
+  | "inline";
+
+/** The mark between entries in the one-line skills layout. */
+export type TagSeparator =
+  | "pipe"
+  | "bullet"
+  | "dot"
+  | "slash"
+  | "comma"
+  | "dash";
+
+/** What a contact row means. The renderer works in these, not in icon names,
+ *  so a style swap can't change which rows get a mark. */
+export type IconKind =
+  | "email"
+  | "phone"
+  | "location"
+  | "github"
+  | "linkedin"
+  | "gitlab"
+  | "dribbble"
+  | "behance"
+  | "stackoverflow"
+  | "x"
+  | "link";
+
+/** The hand the marks are drawn in — see components/preview/contact-icons. */
+export type IconStyle = "solid" | "line" | "rounded" | "classic" | "none";
 
 export interface ResumeData {
   personal: PersonalDetails;
