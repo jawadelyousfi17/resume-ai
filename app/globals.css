@@ -131,7 +131,8 @@ html[data-ui-font="work-sans"] {
 
 html[data-ui-font="ibm-plex-sans"] {
   --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ---------------------------------------------------------------------------
@@ -195,98 +196,12 @@ html[data-ui-font="ibm-plex-sans"] {
   }
 }
 
-/* ---------------------------------------------------------------------------
-   Pricing plans.
-
-   A white card floating on a lit gradient slab, with the plan's features listed
-   on the slab underneath it. The gradients are stacked radials rather than one
-   linear pass — that's what gives the panel depth instead of a flat wash — and
-   they're tuned to the app's brand blue and cyan so the section belongs on the
-   page rather than looking imported.
-   --------------------------------------------------------------------------- */
-
-.plan-shell {
-  background:
-    radial-gradient(
-      46% 34% at 15% 3%,
-      rgba(103, 232, 249, 0.92),
-      transparent 62%
-    ),
-    radial-gradient(
-      58% 38% at 80% 17%,
-      rgba(29, 78, 216, 0.92),
-      transparent 70%
-    ),
-    radial-gradient(
-      70% 50% at 79% 72%,
-      rgba(37, 99, 235, 0.96),
-      transparent 66%
-    ),
-    radial-gradient(
-      58% 36% at 18% 96%,
-      rgba(99, 102, 241, 0.94),
-      transparent 69%
-    ),
-    radial-gradient(
-      58% 45% at 49% 74%,
-      rgba(22, 35, 167, 0.96),
-      transparent 68%
-    ),
-    linear-gradient(145deg, #0a2338 0%, #071244 34%, #141064 67%, #074e91 100%);
-}
-
-/* The free plan sits back: same construction, most of the colour drained out,
-   so the paid plans carry the eye. */
-.plan-shell-quiet {
-  background:
-    radial-gradient(
-      50% 36% at 18% 4%,
-      rgba(148, 163, 184, 0.55),
-      transparent 64%
-    ),
-    radial-gradient(
-      64% 44% at 82% 78%,
-      rgba(71, 85, 105, 0.9),
-      transparent 68%
-    ),
-    linear-gradient(150deg, #3a4759 0%, #2b3448 46%, #1e2537 100%);
-}
-
-/* A pressed-metal button, lit from the top edge. */
-/* Flat, like every other button on the site: one colour, a hairline edge, and
-   no lighting. It used to be a lit slab — gradient, inner highlight, dropped
-   shadow, shadowed type — which is the one control that didn't look like the
-   rest of the product. */
-.plan-cta {
-  color: #fff;
-  border: 1px solid var(--app-navy);
-  background: var(--app-navy);
-}
-.plan-cta:active {
-  transform: translateY(1px);
-}
-
-/* The tick beside each feature: two thick borders rotated into a check, which
-   stays crisp at any size where an icon font would blur. */
-.plan-check {
-  position: relative;
-  flex: 0 0 15px;
-  width: 15px;
-  height: 12px;
-}
-.plan-check::before {
-  content: "";
-  position: absolute;
-  left: 1px;
-  top: 2px;
-  width: 12px;
-  height: 6px;
-  border-left: 3.5px solid rgba(255, 255, 255, 0.72);
-  border-bottom: 3.5px solid rgba(255, 255, 255, 0.72);
-  border-radius: 1px;
-  transform: rotate(-45deg);
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
-}
+/* Pricing plans used to be drawn here: a lit slab built from six radial
+   gradients in a fixed blue and cyan, a pressed-metal button and a tick made
+   of two rotated borders. None of it could follow `data-theme`, so the section
+   arrived in blue on the four palettes that aren't — graphite, the default,
+   included. The cards are the app's own panel now, with the plan we recommend
+   on navy; the recipe lives in components/ui/plan-surface.tsx. */
 
 /* The filled CTA, used across the editor and every marketing page.
    One flat colour: the brand, and nothing behind it. It was a gradient into

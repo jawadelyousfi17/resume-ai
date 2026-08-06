@@ -52,6 +52,15 @@ interface ResumeContextValue {
   setShare: (share: ShareLink | null) => void;
   /** Apply a mutation against a structural clone of the current data. */
   update: (mutator: (draft: ResumeData) => void) => void;
+  /**
+   * Put a whole document back, saving it like any other edit.
+   *
+   * For undo. The AI agent can touch several fields, entries and settings in
+   * one turn, so unwinding it as a sequence of inverse mutations would mean
+   * every tool carrying its own opposite; a snapshot taken before the turn is
+   * one object and always exact.
+   */
+  replace: (next: ResumeData) => void;
   setName: (name: string) => void;
   setFormat: (format: PageFormat) => void;
 }
@@ -150,6 +159,18 @@ export function ResumeProvider({
     [scheduleSave],
   );
 
+  const replace = useCallback(
+    (next: ResumeData) => {
+      // Cloned on the way in: the caller is holding a snapshot it may restore
+      // from more than once, and handing the same object to the store would
+      // let a later edit mutate the snapshot itself.
+      const copy = structuredClone(next);
+      setData(copy);
+      scheduleSave(copy);
+    },
+    [scheduleSave],
+  );
+
   const setFormat = useCallback(
     (value: PageFormat) => {
       setFormatState(value);
@@ -237,6 +258,7 @@ export function ResumeProvider({
         share,
         setShare,
         update,
+        replace,
         setName,
         setFormat,
       }}

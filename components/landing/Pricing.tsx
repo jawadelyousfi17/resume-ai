@@ -1,12 +1,17 @@
 "use client";
 
-// The plans, as a row of cards: a white panel floating on a lit gradient slab,
-// with that plan's features listed on the slab underneath it.
+// The plans, as a row of cards: the app's own panel, with the plan we
+// recommend drawn on navy instead of on white.
 //
 // The data lives in lib/plans.ts and both the landing section and /pricing
 // render from it, so the two can't drift apart. The billing toggle is the only
 // state on the page: the headline figure is always what a month costs, and the
 // year's total sits under it when the year is what you're buying.
+//
+// Nothing here is lit. The cards were a white panel floating on a stack of
+// radial gradients in a fixed blue and cyan, with shadowed type on top — the
+// one part of the site with lighting on it, and the one part that couldn't
+// follow the palette. See components/ui/plan-surface.
 
 import Link from "next/link";
 import { useState } from "react";
@@ -22,17 +27,23 @@ import {
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { FlameMark } from "@/components/ui/plan-badge";
+import { PlanTicks, planAction, planSkin } from "@/components/ui/plan-surface";
 
 import { h2, lede, sectionGap, shell } from "./ui";
 
-/** The flame, for the plan we'd point someone at. */
-export function HotBadge() {
+/** The mark on the plan we'd point someone at. Says what it means rather than
+ *  only glowing: a flame on its own is decoration, a flame with a word is a
+ *  recommendation. */
+export function HotBadge({ className }: { className?: string }) {
   return (
     <span
-      className="absolute top-5 right-5 grid h-11 w-11 place-items-center rounded-xl border border-[#0393a6] bg-gradient-to-br from-[#58d7ed] via-[#17c2df] to-[#09b4d7] text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.75),0_2px_4px_rgba(0,0,0,0.09)]"
-      aria-hidden="true"
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-bold tracking-[0.02em]",
+        className,
+      )}
     >
-      <FlameMark className="h-6 w-6" />
+      <FlameMark className="h-3 w-3" />
+      Most popular
     </span>
   );
 }
@@ -48,11 +59,16 @@ export function BillingToggle({
   className?: string;
 }) {
   return (
+    // A track and a marker, like the rest of the app's segmented controls:
+    // `rounded-xl` outside, one step down inside, and the same `font-bold` the
+    // buttons use. The track is the field colour rather than a floating white
+    // pill, so the control reads as an input on both the cream page and the
+    // white one.
     <div
       role="radiogroup"
       aria-label="Billing period"
       className={cn(
-        "mx-auto inline-flex items-center gap-1 rounded-full bg-panel p-1.5 shadow-[var(--shadow-panel)] ring-1 ring-black/5",
+        "mx-auto inline-flex items-center gap-1 rounded-xl bg-field p-1 ring-1 ring-black/[0.06]",
         className,
       )}
     >
@@ -64,7 +80,7 @@ export function BillingToggle({
           aria-checked={cycle === option}
           onClick={() => onChange(option)}
           className={cn(
-            "inline-flex h-11 items-center gap-2 rounded-full px-6 text-[15px] font-bold transition",
+            "inline-flex h-11 items-center gap-2 rounded-lg px-6 text-[15px] font-bold transition",
             cycle === option
               ? "bg-navy text-white"
               : "text-ink-soft hover:text-ink",
@@ -91,85 +107,82 @@ export function BillingToggle({
 
 export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
   const price = planPrice(plan, cycle);
+  const skin = planSkin(plan.id);
   // The free plan is always available — it costs nothing to hand over. The
   // paid ones need a checkout that doesn't exist yet.
   const closed = !CHECKOUT_ENABLED && plan.monthly > 0;
-
+  // One card, not a card on a slab: the plan's price and what it includes are
+  // the same offer, and there's no reason to draw a seam between them.
   return (
     <article
       className={cn(
-        // The ring is invisible on cream and does the separating on the dark
-        // pricing page, so one card works on both.
-        "flex flex-col overflow-hidden rounded-[20px] p-1.5 ring-1 ring-white/10",
-        plan.featured ? "plan-shell" : "plan-shell-quiet",
+        "flex h-full flex-col rounded-2xl px-6 pt-6 pb-7",
+        skin.card,
       )}
     >
-      {/* The white card */}
-      <div className="relative rounded-[15px] bg-white px-6 pt-7 pb-6 text-ink shadow-[0_0_0_1px_rgba(0,0,0,0.03)]">
-        <h3
-          className={cn(
-            "text-[26px] leading-[1.05] tracking-[-0.04em]",
-            // Clear of the flame, which floats in the same corner.
-            plan.featured && "pr-14",
-          )}
-        >
-          <span className="block font-medium text-ink-faint">
-            {plan.qualifier}
-          </span>
-          <span className="block font-semibold text-ink">{plan.name}</span>
-        </h3>
-
-        {plan.featured && <HotBadge />}
-
-        <div className="mt-8 flex items-baseline gap-2 whitespace-nowrap">
-          <span className="text-[44px] leading-[0.9] font-semibold tracking-[-0.055em]">
-            {price.amount}
-          </span>
-          <span className="text-[14px] font-normal tracking-[-0.035em] text-ink-soft">
-            {price.period}
-          </span>
-        </div>
-        <p className="mt-2 text-[12.5px] text-ink-faint">{price.note}</p>
-
-        {closed ? (
-          // Nothing to hand a card to yet. The button keeps its place and its
-          // words so the card still reads as an offer, but it doesn't pretend
-          // to be a way to buy anything.
-          <button
-            type="button"
-            disabled
-            title="Payments aren't open yet."
-            className="plan-cta mt-6 flex h-12 w-full cursor-not-allowed items-center justify-center rounded-[10px] text-[14.5px] font-medium tracking-[-0.025em] opacity-55"
-          >
-            {plan.cta}
-          </button>
-        ) : (
-          <Link
-            href={plan.href}
-            className="plan-cta mt-6 flex h-12 w-full items-center justify-center rounded-[10px] text-[14.5px] font-medium tracking-[-0.025em] transition hover:opacity-95"
-          >
-            {plan.cta}
-          </Link>
-        )}
-
+      {/* The mark sits in the flow above the name rather than floating in the
+          corner, so the two cards without one keep the same rhythm — the row
+          below it starts at the same height on all three. */}
+      <div className="flex h-6 items-start">
+        {plan.featured && <HotBadge className={skin.pill} />}
       </div>
 
-      {/* The features, on the slab */}
-      <div className="px-5 pt-6 pb-5 text-white">
-        <p className="text-[14px] leading-none font-normal tracking-[-0.02em] text-white/85 [text-shadow:0_1px_2px_rgba(1,4,36,0.38)]">
+      <h3 className="mt-4 text-[24px] leading-[1.1] font-extrabold tracking-tight">
+        <span className={cn("block text-[14px] font-bold", skin.faint)}>
+          {plan.qualifier}
+        </span>
+        <span className={cn("mt-1 block", skin.title)}>{plan.name}</span>
+      </h3>
+
+      <div className="mt-7 flex items-baseline gap-1.5 whitespace-nowrap">
+        <span
+          className={cn(
+            "text-[42px] leading-none font-extrabold tracking-tight",
+            skin.title,
+          )}
+        >
+          {price.amount}
+        </span>
+        <span className={cn("text-[15px] font-bold", skin.soft)}>
+          {price.period}
+        </span>
+      </div>
+      <p className={cn("mt-2 text-[13px]", skin.faint)}>{price.note}</p>
+
+      {closed ? (
+        // Nothing to hand a card to yet. The button keeps its place and its
+        // words so the card still reads as an offer, but it doesn't pretend
+        // to be a way to buy anything.
+        <button
+          type="button"
+          disabled
+          title="Payments aren't open yet."
+          className={cn(planAction, skin.ctaShut, "cursor-not-allowed")}
+        >
+          {plan.cta}
+        </button>
+      ) : (
+        <Link
+          href={plan.href}
+          // The free plan is the one nobody has to be sold: it gets the quiet
+          // button, and the paid ones get the filled one.
+          className={cn(
+            planAction,
+            plan.monthly === 0 ? skin.ctaQuiet : skin.cta,
+          )}
+        >
+          {plan.cta}
+        </Link>
+      )}
+
+      {/* What's included, under a hairline rule rather than on a second
+          surface. `h-full` on the card is what keeps the three the same
+          height when one plan lists a longer feature than another. */}
+      <div className={cn("mt-7 border-t pt-6", skin.rule)}>
+        <p className={cn("text-[13px] font-bold", skin.faint)}>
           {plan.featuresHeading}
         </p>
-        <ul className="mt-4 grid gap-3.5">
-          {plan.features.map((feature) => (
-            <li
-              key={feature}
-              className="flex items-center gap-2.5 text-[14px] leading-[1.15] tracking-[-0.025em] [text-shadow:0_1px_2px_rgba(0,4,40,0.4)]"
-            >
-              <span className="plan-check" aria-hidden="true" />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
+        <PlanTicks features={plan.features} skin={skin} className="mt-4" />
       </div>
     </article>
   );
@@ -230,10 +243,11 @@ export function PlanGrid({
           cards keep the same shape and the reason doesn't arrive twice. */}
       {!CHECKOUT_ENABLED && (
         <p className="mt-6 text-center text-[13.5px] text-ink-soft">
-          <span className="font-bold text-ink">Not on sale yet.</span> The first{" "}
-          {EARLY_SUPPORTER.places}{" "}
-          accounts get Ultimate free for a year — sign
-          up and it&rsquo;s yours, no card involved.
+          <span className="font-bold text-ink">Not on sale yet.</span>{" "}
+          {/* One string rather than words either side of `{places}`: the space
+              after the number was being eaten at the JSX boundary, and the
+              sentence read "the first 100accounts". */}
+          {`The first ${EARLY_SUPPORTER.places} accounts get Ultimate free for a year — sign up and it’s yours, no card involved.`}
         </p>
       )}
     </div>

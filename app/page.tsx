@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { JsonLd } from "@/components/content/ContentShell";
+import { Companies } from "@/components/landing/Companies";
 import { Faq } from "@/components/landing/Faq";
 import { FreePlan } from "@/components/landing/FreePlan";
 import { Hero } from "@/components/landing/Hero";
@@ -55,6 +56,7 @@ export default function LandingPage() {
       <SiteNav />
       <main className="grow">
         <Hero />
+        <Companies />
         <Highlights />
         <HowItWorks />
         <Templates />

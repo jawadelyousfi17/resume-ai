@@ -9,7 +9,7 @@ import { PAGE_SIZES } from "@/lib/defaults";
 import { TopBar, type EditorTab } from "./TopBar";
 import { ContentPanel } from "./ContentPanel";
 import { CustomizePanel } from "./CustomizePanel";
-import { AIPanel } from "./ai/AIPanel";
+import { AgentOverlay } from "./ai/AgentOverlay";
 import { ReviewPanel } from "./ReviewPanel";
 import { ReviewProvider, ScanOverlay } from "./ReviewSession";
 import { TailorPanel } from "./TailorPanel";
@@ -69,7 +69,6 @@ function EditorShell({ initialMobile }: { initialMobile: boolean }) {
         <div className="scroll-slim w-full min-w-0 max-w-[860px] shrink-0 overflow-y-auto px-4 py-5 sm:min-w-[420px] lg:w-[55%]">
           {tab === "content" && <ContentPanel />}
           {tab === "customize" && <CustomizePanel />}
-          {tab === "ai" && <AIPanel />}
           {tab === "review" && <ReviewPanel />}
           {tab === "tailor" && <TailorPanel />}
         </div>
@@ -94,6 +93,10 @@ function EditorShell({ initialMobile }: { initialMobile: boolean }) {
           </div>
         </div>
       </div>
+
+      {/* Floating, and outside the two columns: the assistant opens over the
+          whole window rather than into either of them. */}
+      <AgentOverlay />
     </div>
   );
 }

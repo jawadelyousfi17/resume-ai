@@ -6,11 +6,18 @@ import Link from "next/link";
 import { AccountAvatar } from "@/components/ui/account-avatar";
 import { PlanBadge } from "@/components/ui/plan-badge";
 import {
+  PlanTicks,
+  planAction,
+  planSkin,
+  type PlanSkin,
+} from "@/components/ui/plan-surface";
+import {
   CHECKOUT_ENABLED,
   EARLY_SUPPORTER,
   planById,
   type PlanId,
 } from "@/lib/plans";
+import { cn } from "@/lib/utils";
 
 export interface ProfileSubscription {
   status: string;
@@ -37,6 +44,7 @@ export function Profile({
   subscription: ProfileSubscription;
 }) {
   const current = planById(plan);
+  const skin = planSkin(plan);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -66,55 +74,47 @@ export function Profile({
         </div>
       </section>
 
-      {/* The plan, wearing its own card. Same slab, same ticks as the pricing
-          page, so what you're on and what's on offer are the same object. */}
+      {/* The plan, wearing the pricing page's own card — same surface, same
+          ticks — so what you're on and what's on offer are the same object. */}
       <section className="mt-4">
-        <article className="plan-shell flex flex-col overflow-hidden rounded-[20px] p-1.5 ring-1 ring-white/10">
-          <div className="rounded-[15px] bg-white px-6 pt-6 pb-5 text-ink shadow-[0_0_0_1px_rgba(0,0,0,0.03)]">
-            <p className="text-[13px] font-medium text-ink-faint">
-              You&rsquo;re on
-            </p>
-            <h2 className="text-[26px] leading-[1.05] font-semibold tracking-[-0.04em] text-ink">
-              {current.title}
-            </h2>
+        <article className={cn("rounded-2xl px-6 pt-6 pb-7", skin.card)}>
+          <p className={cn("text-[13px] font-bold", skin.faint)}>
+            You&rsquo;re on
+          </p>
+          <h2
+            className={cn(
+              "mt-1 text-[24px] leading-[1.1] font-extrabold tracking-tight",
+              skin.title,
+            )}
+          >
+            {current.title}
+          </h2>
 
-            <p className="mt-3 text-[13.5px] leading-relaxed text-ink-soft">
-              <Standing plan={plan} subscription={subscription} />
-            </p>
+          <p className={cn("mt-3 text-[13.5px] leading-relaxed", skin.soft)}>
+            <Standing plan={plan} subscription={subscription} skin={skin} />
+          </p>
 
-            {plan !== "ultimate" &&
-              (CHECKOUT_ENABLED ? (
-                <Link
-                  href="/pricing"
-                  className="plan-cta mt-5 flex h-11 w-full items-center justify-center rounded-[10px] text-[14.5px] font-medium tracking-[-0.025em] transition hover:opacity-95"
-                >
-                  See the plans
-                </Link>
-              ) : (
-                <Link
-                  href="/pricing"
-                  className="mt-5 flex h-11 w-full items-center justify-center rounded-[10px] border border-field-border text-[14.5px] font-bold text-ink transition hover:border-ink/30"
-                >
-                  See what&rsquo;s coming
-                </Link>
-              ))}
-          </div>
+          {plan !== "ultimate" && (
+            <Link
+              href="/pricing"
+              className={cn(
+                planAction,
+                CHECKOUT_ENABLED ? skin.cta : skin.ctaQuiet,
+              )}
+            >
+              {CHECKOUT_ENABLED ? "See the plans" : "See what's coming"}
+            </Link>
+          )}
 
-          <div className="px-5 pt-5 pb-4 text-white">
-            <p className="text-[14px] leading-none font-normal tracking-[-0.02em] text-white/85 [text-shadow:0_1px_2px_rgba(1,4,36,0.38)]">
+          <div className={cn("mt-7 border-t pt-6", skin.rule)}>
+            <p className={cn("text-[13px] font-bold", skin.faint)}>
               {plan === "free" ? "What you get" : current.featuresHeading}
             </p>
-            <ul className="mt-4 grid gap-3.5">
-              {current.features.map((feature) => (
-                <li
-                  key={feature}
-                  className="flex items-center gap-2.5 text-[14px] leading-[1.15] tracking-[-0.025em] [text-shadow:0_1px_2px_rgba(0,4,40,0.4)]"
-                >
-                  <span className="plan-check" aria-hidden="true" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+            <PlanTicks
+              features={current.features}
+              skin={skin}
+              className="mt-4"
+            />
           </div>
         </article>
       </section>
@@ -122,23 +122,28 @@ export function Profile({
   );
 }
 
-/** Where the subscription stands, in one sentence. */
+/** Where the subscription stands, in one sentence. Takes the card's skin
+ *  because the sentence is drawn on it — the dates it emphasises have to read
+ *  on navy as well as on the panel. */
 function Standing({
   plan,
   subscription,
+  skin,
 }: {
   plan: PlanId;
   subscription: ProfileSubscription;
+  skin: PlanSkin;
 }) {
   const { supporterNumber, renewsAt, cancelAtPeriodEnd, status } = subscription;
+  const strong = cn("font-bold", skin.title);
 
   if (supporterNumber !== null && renewsAt) {
     return (
       <>
         Supporter no. {supporterNumber} of the first{" "}
         {subscription.supporterPlaces} — Ultimate is yours free until{" "}
-        <strong className="font-bold text-ink">{date(renewsAt)}</strong>, with
-        no card and nothing to cancel.
+        <strong className={strong}>{date(renewsAt)}</strong>, with no card and
+        nothing to cancel.
       </>
     );
   }
@@ -161,8 +166,8 @@ function Standing({
     return (
       <>
         Cancelled — you keep everything until{" "}
-        <strong className="font-bold text-ink">{date(renewsAt)}</strong>, then
-        the account goes back to Free.
+        <strong className={strong}>{date(renewsAt)}</strong>, then the account
+        goes back to Free.
       </>
     );
   }
@@ -171,7 +176,7 @@ function Standing({
     return (
       <>
         A payment didn&rsquo;t go through. Access holds until{" "}
-        <strong className="font-bold text-ink">{date(renewsAt)}</strong>.
+        <strong className={strong}>{date(renewsAt)}</strong>.
       </>
     );
   }
@@ -179,8 +184,7 @@ function Standing({
   if (renewsAt) {
     return (
       <>
-        Renews on{" "}
-        <strong className="font-bold text-ink">{date(renewsAt)}</strong>.
+        Renews on <strong className={strong}>{date(renewsAt)}</strong>.
       </>
     );
   }

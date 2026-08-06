@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Logo, LogoLockup } from "@/components/ui/logo";
 import {
   AwardIcon,
-  ChipIcon,
   DownloadIcon,
   FileTextIcon,
   LinkIcon,
@@ -18,7 +17,9 @@ import { ShareDialog } from "@/components/share/ShareDialog";
 import { useAuthDialog } from "@/components/auth/AuthDialog";
 import { useDownloadPdf } from "./use-download-pdf";
 
-export type EditorTab = "content" | "customize" | "ai" | "review" | "tailor";
+// The assistant is deliberately absent: it is no longer a tab but a floating
+// mark that opens the whole window — see `ai/AgentOverlay`.
+export type EditorTab = "content" | "customize" | "review" | "tailor";
 
 const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
   {
@@ -30,11 +31,6 @@ const TABS: { id: EditorTab; label: string; icon: React.ReactNode }[] = [
     id: "customize",
     label: "Customize",
     icon: <WandIcon className="h-[18px] w-[18px]" />,
-  },
-  {
-    id: "ai",
-    label: "AI Tools",
-    icon: <ChipIcon className="h-[18px] w-[18px]" />,
   },
   {
     id: "review",

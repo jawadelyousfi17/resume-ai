@@ -3,6 +3,12 @@
 // being written, and the whole point is that it lands intact.
 
 import Anthropic from "@anthropic-ai/sdk";
+import {
+  activeProvider,
+  ai,
+  NotConfiguredError,
+  notConfiguredMessage,
+} from "@/lib/ai/provider";
 import { requireFeature } from "@/lib/subscription";
 import {
   applyTranslations,
@@ -16,12 +22,10 @@ import type { ResumeData } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const MODEL = "claude-sonnet-5";
 
 /** A resume with more strings than this isn't a resume any more. */
 const MAX_STRINGS = 400;
 
-let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
   const denied = await requireFeature("translate");
@@ -52,12 +56,14 @@ export async function POST(req: Request) {
     return jsonError("This resume is too long to translate in one go.", 400);
   }
 
-  let anthropic: Anthropic;
+  let handle;
   try {
-    anthropic = client ??= new Anthropic();
-  } catch {
+    handle = ai();
+  } catch (err) {
     return jsonError(
-      "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
+      err instanceof NotConfiguredError
+        ? err.message
+        : notConfiguredMessage(activeProvider()),
       503,
     );
   }
@@ -66,9 +72,9 @@ export async function POST(req: Request) {
 
   let message;
   try {
-    message = await anthropic.messages.create(
+    message = await handle.create(
       {
-        model: MODEL,
+        model: handle.model,
         max_tokens: 16000,
         system: prompt.system,
         thinking: { type: "adaptive" },

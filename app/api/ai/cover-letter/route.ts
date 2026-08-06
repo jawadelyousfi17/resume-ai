@@ -3,6 +3,12 @@
 // and half a salutation is no use to anybody.
 
 import Anthropic from "@anthropic-ai/sdk";
+import {
+  activeProvider,
+  ai,
+  NotConfiguredError,
+  notConfiguredMessage,
+} from "@/lib/ai/provider";
 import { requireQuota } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
 import {
@@ -18,12 +24,10 @@ import type { CoverLetterData, ResumeData } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const MODEL = "claude-sonnet-5";
 
 /** Below this there's no posting to write against, only a job title. */
 const MIN_JOB_DESCRIPTION = 40;
 
-let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
   // Drafting is only worth paying for if the letter can then be saved, so the
@@ -71,12 +75,14 @@ export async function POST(req: Request) {
     );
   }
 
-  let anthropic: Anthropic;
+  let handle;
   try {
-    anthropic = (client ??= new Anthropic());
-  } catch {
+    handle = ai();
+  } catch (err) {
     return jsonError(
-      "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
+      err instanceof NotConfiguredError
+        ? err.message
+        : notConfiguredMessage(activeProvider()),
       503,
     );
   }
@@ -92,9 +98,9 @@ export async function POST(req: Request) {
 
   let message;
   try {
-    message = await anthropic.messages.create(
+    message = await handle.create(
       {
-        model: MODEL,
+        model: handle.model,
         max_tokens: 8000,
         system: prompt.system,
         thinking: { type: "adaptive" },

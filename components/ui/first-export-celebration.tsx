@@ -52,7 +52,9 @@ export function FirstExportCelebration() {
 
       <Dialog open={open} onOpenChange={(next) => !next && close()}>
         <DialogContent className="overflow-hidden text-center sm:max-w-md">
-          <div className="plan-shell -m-4 mb-0 px-6 pt-9 pb-8">
+          {/* Navy, the app's one filled surface — the same one the top plan's
+              card is drawn on. */}
+          <div className="-m-4 mb-0 bg-navy px-6 pt-9 pb-8">
             <p className="text-[13px] font-bold tracking-[0.14em] text-white/70 uppercase">
               First resume
             </p>

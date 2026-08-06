@@ -9,6 +9,12 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
  *  public and crawlable — this list is only about /api. */
 const PUBLIC_API_PATHS: string[] = [
   "/api/v1/extract",
+  // The MCP server, which authenticates with the same API keys the extractor
+  // does and likewise never carries a session cookie. Its own 401 is a
+  // JSON-RPC error object with a `WWW-Authenticate` challenge, which is what
+  // an MCP client knows how to read — this one would answer `Not signed in`
+  // and tell it nothing.
+  "/api/mcp",
   // Stand-in avatars. These render inside the template previews on the landing
   // page and on all 32 template detail pages, so a signed-out visitor — and
   // every crawler — has to be able to fetch them. The route takes a style and

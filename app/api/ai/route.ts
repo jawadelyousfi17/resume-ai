@@ -1,25 +1,23 @@
-// The writing assistant, backed by Claude Sonnet 5. Streams plain text back to
-// the editor so suggestions appear as they're written. Runs on the Node.js
-// runtime because it holds the API key and the Anthropic SDK.
+// The writing assistant. Streams plain text back to the editor so suggestions
+// appear as they're written. Runs on the Node.js runtime because it holds the
+// API key and the Anthropic SDK.
+//
+// Which model answers is `lib/ai/provider`'s business, not this route's — see
+// AI_PROVIDER in .env.example.
 
 import Anthropic from "@anthropic-ai/sdk";
 import { requireFeature } from "@/lib/subscription";
+import {
+  activeProvider,
+  ai,
+  NotConfiguredError,
+  notConfiguredMessage,
+} from "@/lib/ai/provider";
 import { buildPrompt, PromptError } from "@/lib/ai/prompt";
 import { AI_TASKS, LIMITS, TASK_GATE, type AIRequest } from "@/lib/ai/tasks";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-const MODEL = "claude-sonnet-5";
-
-let client: Anthropic | null = null;
-
-/** Constructed on first use: an unconfigured deployment should fail on the
- *  first AI request, not at import time. */
-function getClient(): Anthropic {
-  if (!client) client = new Anthropic();
-  return client;
-}
 
 export async function POST(req: Request) {
   let body: AIRequest;
@@ -53,19 +51,21 @@ export async function POST(req: Request) {
     throw err;
   }
 
-  let anthropic: Anthropic;
+  let handle;
   try {
-    anthropic = getClient();
-  } catch {
+    handle = ai();
+  } catch (err) {
     return jsonError(
-      "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
+      err instanceof NotConfiguredError
+        ? err.message
+        : notConfiguredMessage(activeProvider()),
       503,
     );
   }
 
-  const stream = anthropic.messages.stream(
+  const stream = handle.stream(
     {
-      model: MODEL,
+      model: handle.model,
       max_tokens: prompt.maxTokens,
       // Adaptive thinking with a low effort keeps short rewrites responsive;
       // the review asks for more deliberation.

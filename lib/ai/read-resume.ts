@@ -14,12 +14,18 @@ import "server-only";
 
 import Anthropic from "@anthropic-ai/sdk";
 import {
+  activeProvider,
+  ai,
+  isConfigured,
+  NotConfiguredError,
+  notConfiguredMessage,
+  supportsDocuments,
+} from "./provider";
+import {
   EXTRACTION_SCHEMA,
   EXTRACTION_SYSTEM,
   type ExtractedResume,
 } from "./extract";
-
-const MODEL = "claude-sonnet-5";
 
 /** Claude reads PDFs and images natively; plain text is passed straight
  *  through. Anything else — .docx especially — has no reader here. */
@@ -144,35 +150,55 @@ export function guessType(filename: string): string {
   return "";
 }
 
-let client: Anthropic | null = null;
-
 /**
  * Transcribes one document into the extraction schema.
  *
  * Structured outputs mean the response parses or the request fails — the only
  * JSON that can arrive broken here is a truncated one, which reads better as
  * "too long" than as a crash. Every failure leaves as a `ReadError`.
+ *
+ * Runs on the fast tier: transcription is mechanical, and the depth belongs in
+ * reading the page rather than deliberating about it.
  */
 export async function readResume(
   content: Anthropic.ContentBlockParam,
   signal?: AbortSignal,
 ): Promise<ResumeReading> {
-  let anthropic: Anthropic;
-  try {
-    anthropic = client ??= new Anthropic();
-  } catch {
+  // A PDF or an image needs a model that can see one, and only Anthropic's
+  // can. Rather than fail on an upload the deployment could handle, this one
+  // call crosses back over to Claude regardless of `AI_PROVIDER` — text files,
+  // which are most of the volume through the public extractor, still go to
+  // whichever provider is configured.
+  const needsEyes = content.type !== "text";
+  const provider =
+    needsEyes && !supportsDocuments(activeProvider()) ? "anthropic" : undefined;
+
+  if (provider === "anthropic" && !isConfigured("anthropic")) {
     throw new ReadError(
       "not_configured",
-      "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
+      `PDFs and images are read by Claude, which isn't configured here. ${notConfiguredMessage("anthropic")}`,
+      503,
+    );
+  }
+
+  let handle;
+  try {
+    handle = ai({ tier: "fast", provider });
+  } catch (err) {
+    throw new ReadError(
+      "not_configured",
+      err instanceof NotConfiguredError
+        ? err.message
+        : notConfiguredMessage(activeProvider()),
       503,
     );
   }
 
   let message: Anthropic.Message;
   try {
-    message = await anthropic.messages.create(
+    message = await handle.create(
       {
-        model: MODEL,
+        model: handle.model,
         max_tokens: 16000,
         system: EXTRACTION_SYSTEM,
         // Transcription is a mechanical task; the depth goes into reading the
@@ -202,7 +228,11 @@ export async function readResume(
   }
 
   if (message.stop_reason === "refusal") {
-    throw new ReadError("refused", "Claude declined to read that file.", 422);
+    throw new ReadError(
+      "refused",
+      `${handle.label} declined to read that file.`,
+      422,
+    );
   }
 
   const text = message.content.find((block) => block.type === "text")?.text;

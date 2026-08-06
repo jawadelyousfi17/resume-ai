@@ -8,6 +8,7 @@
 import Link from "next/link";
 
 import { CheckIcon } from "@/components/ui/icons";
+import { FlameMark } from "@/components/ui/plan-badge";
 import { COMPARISON, PLANS } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
@@ -44,13 +45,26 @@ export function PlanComparison({ className }: { className?: string }) {
                   key={plan.id}
                   scope="col"
                   className={cn(
-                    "px-6 pt-6 pb-5 text-center align-bottom",
-                    // The recommended column is a panel running the whole
-                    // height of the table, closed off at the bottom row.
-                    plan.featured && "rounded-t-2xl bg-panel",
+                    "px-6 pt-5 pb-5 text-center align-bottom",
+                    // The recommended column is a tinted panel running the
+                    // whole height of the table, closed off at the bottom row.
+                    // Brand-soft rather than the panel colour: this table sits
+                    // on a white page, where a white column highlights
+                    // nothing.
+                    plan.featured && "rounded-t-2xl bg-brand-soft/60",
                   )}
                 >
-                  <span className="block text-[17px] font-extrabold tracking-tight text-ink">
+                  {/* The same mark the card carries, so the recommended plan
+                      is the recommended plan in both places. */}
+                  <span className="flex h-5 items-center justify-center">
+                    {plan.featured && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-brand uppercase">
+                        <FlameMark className="h-2.5 w-2.5" />
+                        Most popular
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-2 block text-[17px] font-extrabold tracking-tight text-ink">
                     {plan.id.toUpperCase()}
                   </span>
                   <Link
@@ -78,7 +92,7 @@ export function PlanComparison({ className }: { className?: string }) {
                     key={PLANS[i].id}
                     className={cn(
                       "border-t border-black/[0.07] px-6 py-4 text-center text-[14.5px] leading-snug text-ink-soft",
-                      PLANS[i].featured && "bg-panel",
+                      PLANS[i].featured && "bg-brand-soft/60",
                     )}
                   >
                     <Cell value={cell} feature={row.feature} />
@@ -96,7 +110,7 @@ export function PlanComparison({ className }: { className?: string }) {
                   key={plan.id}
                   className={cn(
                     "h-4",
-                    plan.featured && "rounded-b-2xl bg-panel",
+                    plan.featured && "rounded-b-2xl bg-brand-soft/60",
                   )}
                 />
               ))}

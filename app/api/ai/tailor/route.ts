@@ -6,6 +6,12 @@
 // lib/ai/tailoring for why the person writes it themselves.
 
 import Anthropic from "@anthropic-ai/sdk";
+import {
+  activeProvider,
+  ai,
+  NotConfiguredError,
+  notConfiguredMessage,
+} from "@/lib/ai/provider";
 
 import { requireFeature } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
@@ -28,13 +34,11 @@ import type { ResumeData } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const MODEL = "claude-sonnet-5";
 
 /** More than this and the panel is a wall rather than a set of decisions. */
 const MAX_REWRITES = 8;
 const MAX_REQUIREMENTS = 14;
 
-let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
   const denied = await requireFeature("tailor");
@@ -70,12 +74,14 @@ export async function POST(req: Request) {
 
   const items = collectStrings(data);
 
-  let anthropic: Anthropic;
+  let handle;
   try {
-    anthropic = client ??= new Anthropic();
-  } catch {
+    handle = ai();
+  } catch (err) {
     return jsonError(
-      "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
+      err instanceof NotConfiguredError
+        ? err.message
+        : notConfiguredMessage(activeProvider()),
       503,
     );
   }
@@ -89,9 +95,9 @@ export async function POST(req: Request) {
 
   let message;
   try {
-    message = await anthropic.messages.create(
+    message = await handle.create(
       {
-        model: MODEL,
+        model: handle.model,
         max_tokens: 12000,
         system: prompt.system,
         // Deciding what to change, and what would be an invention, is worth

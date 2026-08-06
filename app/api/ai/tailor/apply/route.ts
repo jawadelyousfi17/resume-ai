@@ -7,6 +7,12 @@
 // in lib/ai/tailor-apply.
 
 import Anthropic from "@anthropic-ai/sdk";
+import {
+  activeProvider,
+  ai,
+  NotConfiguredError,
+  notConfiguredMessage,
+} from "@/lib/ai/provider";
 
 import { requireFeature } from "@/lib/subscription";
 import { resumeBrief } from "@/lib/ai/prompt";
@@ -31,7 +37,6 @@ import type { ResumeData } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 180;
 
-const MODEL = "claude-sonnet-5";
 
 const MAX_EDITS = 16;
 const MAX_SKILLS = 12;
@@ -39,7 +44,6 @@ const MAX_SKILLS = 12;
  *  request when there are a dozen of them. */
 const MAX_ANSWER_CHARS = 1500;
 
-let client: Anthropic | null = null;
 
 export async function POST(req: Request) {
   const denied = await requireFeature("tailor");
@@ -91,12 +95,14 @@ export async function POST(req: Request) {
       answer: a.answer.slice(0, MAX_ANSWER_CHARS),
     }));
 
-  let anthropic: Anthropic;
+  let handle;
   try {
-    anthropic = client ??= new Anthropic();
-  } catch {
+    handle = ai();
+  } catch (err) {
     return jsonError(
-      "AI is not configured on this server. Set ANTHROPIC_API_KEY and restart.",
+      err instanceof NotConfiguredError
+        ? err.message
+        : notConfiguredMessage(activeProvider()),
       503,
     );
   }
@@ -130,9 +136,9 @@ export async function POST(req: Request) {
 
   let message;
   try {
-    message = await anthropic.messages.create(
+    message = await handle.create(
       {
-        model: MODEL,
+        model: handle.model,
         max_tokens: 16000,
         system: prompt.system,
         // Rewriting a whole document against a posting, while working out what

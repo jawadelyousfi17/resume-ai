@@ -19,10 +19,10 @@ export function FlameMark({ className }: { className?: string }) {
 /**
  * The plan, said in a word.
  *
- * A paid plan wears its own slab — the lit one for Ultimate, the quiet one for
- * Basic — so the badge and the pricing card are recognisably the same thing.
- * Free is drawn flat and grey: it says what account you're on without dressing
- * up as something bought.
+ * Three flat fills, one step apart, matching the pricing cards: Free is grey
+ * because it isn't something bought, Basic wears the soft brand, and the top
+ * plan gets navy — the same navy its card is drawn on, so the badge and the
+ * card are recognisably the same thing.
  */
 export function PlanBadge({
   plan,
@@ -32,18 +32,16 @@ export function PlanBadge({
   className?: string;
 }) {
   const { title, featured } = planById(plan);
-  const free = plan === "free";
 
   return (
     <span
       className={cn(
         "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-[3px] text-[10px] font-bold tracking-[0.08em] uppercase",
-        free
-          ? "bg-black/[0.06] text-ink-soft"
-          : cn(
-              "text-white ring-1 ring-white/15",
-              featured ? "plan-shell" : "plan-shell-quiet",
-            ),
+        featured
+          ? "bg-navy text-white"
+          : plan === "free"
+            ? "bg-black/[0.06] text-ink-soft"
+            : "bg-brand-soft text-brand",
         className,
       )}
     >

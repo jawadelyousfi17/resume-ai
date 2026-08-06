@@ -63,13 +63,13 @@ export function SupporterCelebration({
 
       <Dialog open={open} onOpenChange={(next) => !next && close()}>
         <DialogContent className="overflow-hidden text-center sm:max-w-md">
-          {/* A lit slab behind the number, the same one the featured plan card
-              uses, so the gift looks like the plan it is. */}
-          <div className="plan-shell -m-4 mb-0 px-6 pt-9 pb-8">
+          {/* Navy behind the number — the surface the featured plan card is
+              drawn on, so the gift looks like the plan it is. */}
+          <div className="-m-4 mb-0 bg-navy px-6 pt-9 pb-8">
             <p className="text-[13px] font-bold tracking-[0.14em] text-white/70 uppercase">
               Early supporter
             </p>
-            <p className="mt-2 text-[56px] leading-none font-semibold tracking-[-0.05em] text-white">
+            <p className="mt-2 text-[56px] leading-none font-extrabold tracking-tight text-white">
               #{celebration.number}
             </p>
             <p className="mt-2 text-[13.5px] text-white/75">
