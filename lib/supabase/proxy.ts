@@ -42,6 +42,9 @@ function isPublicApi(pathname: string) {
  * enforced again in lib/resumes.ts, next to the data.
  */
 export async function updateSession(request: NextRequest) {
+  const stray = strayCallback(request);
+  if (stray) return NextResponse.redirect(stray);
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl(), supabaseAnonKey(), {
@@ -94,6 +97,49 @@ export async function updateSession(request: NextRequest) {
 
   // Return this exact response so the refreshed cookies survive.
   return response;
+}
+
+/**
+ * A sign-in that came back to the wrong place, forwarded to the route that can
+ * finish it.
+ *
+ * Supabase only honours a `redirectTo` that matches its Redirect URLs allow
+ * list. When it doesn't match it doesn't fail loudly — it quietly falls back to
+ * the dashboard Site URL, so the provider's `?code=` lands on the landing page,
+ * which is static, reads no search params, and drops it. The user arrives back
+ * signed out with no error to explain why.
+ *
+ * The origins are easy to get out of step precisely where it's hardest to
+ * notice: the callback URL is built from NEXT_PUBLIC_SITE_URL, or from the
+ * request headers when that isn't set, and behind a proxy those describe the
+ * edge — a platform hostname or a per-deploy preview URL that was never
+ * allow-listed. Locally, where the header is plain `localhost:3000`, it matches
+ * and everything works.
+ *
+ * So treat the fallback as a route rather than a dead end. The Site URL is
+ * allow-listed by definition — it's what Supabase falls back *to* — and the
+ * hop is same-origin, so the PKCE verifier cookie rides along and the exchange
+ * succeeds. Returns null for ordinary traffic, which is nearly all of it.
+ *
+ * This is a safety net, not the fix: the allow list is still worth correcting,
+ * or every sign-in pays a redirect it didn't need.
+ */
+function strayCallback(request: NextRequest): URL | null {
+  const { pathname, searchParams } = request.nextUrl;
+  if (pathname !== "/") return null;
+
+  // `code` is the sign-in itself; the error pair is the provider refusing, and
+  // is worth forwarding too so the login page can say what went wrong instead
+  // of showing a landing page as though nothing had been attempted.
+  const isCallback =
+    searchParams.has("code") ||
+    searchParams.has("error") ||
+    searchParams.has("error_description");
+  if (!isCallback) return null;
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/auth/callback";
+  return url;
 }
 
 /** Carries the refreshed auth cookies onto a redirect we're returning
