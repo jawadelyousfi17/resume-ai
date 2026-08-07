@@ -2,9 +2,11 @@
 // code; trading it for a session is what actually signs them in.
 
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { syncUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { siteOrigin } from "@/lib/site-url";
+import { OAUTH_NEXT_COOKIE } from "@/lib/auth-providers";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,7 +14,13 @@ export async function GET(request: Request) {
   // edge, not the host the user is on.
   const origin = await siteOrigin();
   const code = searchParams.get("code");
-  const next = safeNext(searchParams.get("next"));
+
+  // Set just before the hand-off. Still validated on the way out: a cookie is
+  // no more trustworthy than a query param, it just survives a callback URL
+  // that has to stay exactly as registered with Supabase.
+  const cookieStore = await cookies();
+  const next = safeNext(cookieStore.get(OAUTH_NEXT_COOKIE)?.value ?? null);
+  cookieStore.delete(OAUTH_NEXT_COOKIE);
 
   // The provider itself can refuse — the user hit "cancel", say.
   const providerError =

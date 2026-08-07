@@ -23,6 +23,19 @@ export const CREDENTIALS_ENABLED = false;
 /** What a switched-off way in says, wherever it's said. */
 export const SIGN_IN_DISABLED = "Not open yet — continue with Google for now.";
 
+/**
+ * Where the post-sign-in destination rides while the user is off at the
+ * provider.
+ *
+ * It used to be a query param on the callback URL. Supabase matches
+ * `redirectTo` against the dashboard's Redirect URLs allow list as a whole
+ * string, so `/auth/callback?next=%2Fdashboard` did not match the registered
+ * `/auth/callback` — Supabase discarded it and fell back to the dashboard Site
+ * URL, dropping users on `/?code=…` where nothing trades the code for a
+ * session. A cookie keeps the callback URL exactly as registered.
+ */
+export const OAUTH_NEXT_COOKIE = "meniacv-oauth-next";
+
 export function isOAuthProvider(value: unknown): value is OAuthProvider {
   return (
     typeof value === "string" &&

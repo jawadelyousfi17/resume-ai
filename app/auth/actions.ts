@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { syncUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { siteOrigin } from "@/lib/site-url";
@@ -9,6 +10,7 @@ import { credentialsSchema } from "@/lib/validation";
 import {
   CREDENTIALS_ENABLED,
   isProviderEnabled,
+  OAUTH_NEXT_COOKIE,
   SIGN_IN_DISABLED,
 } from "@/lib/auth-providers";
 
@@ -95,12 +97,26 @@ export async function signInWithProviderAction(formData: FormData) {
   const origin = await siteOrigin();
   const next = safeNext(formData.get("next"));
 
+  // Stash the destination rather than hanging it off the callback URL, which
+  // has to match the allow-listed entry exactly. `lax` so it still rides the
+  // top-level GET the provider sends the browser back on — `strict` would
+  // withhold it on a cross-site navigation and every sign-in would land on
+  // /dashboard regardless of where the user was headed.
+  const cookieStore = await cookies();
+  cookieStore.set(OAUTH_NEXT_COOKIE, next, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: origin.startsWith("https://"),
+    path: "/",
+    maxAge: 600,
+  });
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
-    options: {
-      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-    },
+    // Exactly the URL registered under Authentication → URL Configuration →
+    // Redirect URLs. No query string: see OAUTH_NEXT_COOKIE.
+    options: { redirectTo: `${origin}/auth/callback` },
   });
 
   if (error || !data.url) {
