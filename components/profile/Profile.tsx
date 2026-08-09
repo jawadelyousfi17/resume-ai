@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/plan-surface";
 import {
   CHECKOUT_ENABLED,
-  EARLY_SUPPORTER,
   planById,
   type PlanId,
 } from "@/lib/plans";

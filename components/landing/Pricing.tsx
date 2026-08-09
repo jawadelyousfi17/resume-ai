@@ -18,7 +18,6 @@ import { useState } from "react";
 
 import {
   CHECKOUT_ENABLED,
-  EARLY_SUPPORTER,
   PLANS,
   SELLABLE_CYCLES,
   bestSaving,

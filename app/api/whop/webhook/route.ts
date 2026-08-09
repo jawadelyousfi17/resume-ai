@@ -217,8 +217,22 @@ function plan(
  *
  * `canceling` is a live membership that won't renew, which is our `active`
  * with `cancelAtPeriodEnd` set — the same thing said in two fields rather than
- * one. Anything finished is `canceled`, and `effectivePlan()` stops honouring
- * it once the period runs out.
+ * one.
+ *
+ * `completed` is the one worth spelling out, because it reads like an ending
+ * and isn't: it's what a one-time purchase becomes the moment it's paid for,
+ * and what a split-payment plan becomes on the last instalment. Both are
+ * people who have paid in full. Mapping it to `canceled` — which is what
+ * "anything else is finished" used to do — put a paid account back on the free
+ * plan the instant it bought something, because a one-time purchase carries no
+ * renewal date and `effectivePlan()` reads a cancellation with no time left as
+ * free. How long that access lasts is still `currentPeriodEnd`'s business: a
+ * date means until then, and none means it doesn't expire, which is what
+ * buying something outright is.
+ *
+ * Every listing here is deliberate, and the default is the safe direction:
+ * a status nobody has taught this function about is treated as no access
+ * rather than as unlimited access.
  */
 function status(state: WhopMembership["status"]): SubscriptionStatus {
   switch (state) {
@@ -229,7 +243,12 @@ function status(state: WhopMembership["status"]): SubscriptionStatus {
       return "past_due";
     case "active":
     case "canceling":
+    case "completed":
       return "active";
+    case "canceled":
+    case "expired":
+    case "drafted":
+      return "canceled";
     default:
       return "canceled";
   }

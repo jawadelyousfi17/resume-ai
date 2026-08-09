@@ -56,7 +56,7 @@ export const ABOUT: LegalPage = {
     {
       heading: "Where it's going",
       body: [
-        "Paid plans are described on the pricing page but aren't on sale yet. While that's true the first hundred accounts get the top plan free for a year, because software this young is worth more in feedback than in revenue.",
+        "Paid plans are on sale from the pricing page, month by month. The free plan is not a trial and doesn't expire — one resume, every template, unlimited watermark-free exports — because the point at which you decide this is worth money should come after you've seen what it makes.",
         "What comes next is decided mostly by what people write in about. There's no roadmap worth publishing yet, and pretending otherwise would be marketing rather than fact.",
       ],
     },

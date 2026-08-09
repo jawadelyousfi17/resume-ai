@@ -182,7 +182,7 @@ export const LANDINGS: Landing[] = [
         heading: "What it costs",
         body: [
           "One CV is free forever, with every template and unlimited watermark-free PDF downloads. There is no trial period and nothing expires.",
-          "The paid plans add the writing tools, more documents at once, importing an existing file, the scored review and translation. They are described in full on the pricing page, and there is no checkout yet — while that is true, the first hundred accounts get the top plan free for a year.",
+          "The paid plans add the writing tools, more documents at once, importing an existing file, the scored review and translation. They are described in full on the pricing page, and they can be bought from there — the free plan carries on unchanged either way.",
         ],
       },
     ],
@@ -546,7 +546,7 @@ export const LANDINGS: Landing[] = [
         heading: "What it costs",
         body: [
           "Building, previewing and exporting a resume is free — one document, every template, unlimited watermark-free PDFs, no card. The AI writing tools are part of the Basic plan at $9 a month, or $3 a month billed yearly, and translation is part of Ultimate.",
-          "There is no checkout yet. While that is true the first hundred accounts are given Ultimate free for a year.",
+          "Both are bought from the pricing page, month by month, and cancelling leaves your documents where they are.",
         ],
       },
     ],
