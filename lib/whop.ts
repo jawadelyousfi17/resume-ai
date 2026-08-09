@@ -100,6 +100,37 @@ export function planFromWhopPlanId(
   return null;
 }
 
+/**
+ * A stand-in plan, for walking the real buttons end to end.
+ *
+ * Whop has no sandbox and no test cards, and its risk engine blocks a merchant
+ * buying their own product — which leaves no way to press "Get Basic" on the
+ * live site and watch a plan actually arrive. This swaps the plan behind the
+ * button for a free one, so the whole path runs for real: the same action, the
+ * same checkout, the same webhook, the same row written at the end. Only the
+ * charge is missing.
+ *
+ * Named accounts only, and never a blanket switch. `WHOP_TEST_PLAN_ID` alone
+ * does nothing: pointing the paid plans at a £0 plan on a live site is how you
+ * give away Basic to everyone who wanders past the pricing page, so the plan
+ * is only substituted for the addresses listed in `WHOP_TEST_EMAILS`.
+ *
+ * The metadata is left saying what they meant to buy, so what lands on the
+ * account is the plan the button offered rather than whatever the free plan is
+ * called — the point is to test fulfilment, not to invent a new outcome.
+ */
+export function testPlanFor(email: string | null | undefined): string | undefined {
+  const plan = process.env.WHOP_TEST_PLAN_ID?.trim();
+  if (!plan || !email) return undefined;
+
+  const allowed = (process.env.WHOP_TEST_EMAILS ?? "")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+
+  return allowed.includes(email.trim().toLowerCase()) ? plan : undefined;
+}
+
 /** The company the plans belong to, prefixed `biz_`. */
 export const whopAccountId = process.env.WHOP_ACCOUNT_ID?.trim() || undefined;
 
@@ -116,6 +147,11 @@ export function checkoutMisconfiguration(
   if (!target) return `nothing configured for ${plan} ${cycle}`;
   if (target.kind === "link") return null;
 
+  return apiMisconfiguration();
+}
+
+/** What's missing before a checkout can be built through the API at all. */
+export function apiMisconfiguration(): string | null {
   if (!process.env.WHOP_API_KEY?.trim()) return "WHOP_API_KEY is not set";
   if (!whopAccountId) return "WHOP_ACCOUNT_ID is not set";
   return null;

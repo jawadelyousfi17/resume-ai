@@ -284,11 +284,9 @@ export function PlanGrid({
 
       {!CHECKOUT_ENABLED && (
         <p className="mt-6 text-center text-[13.5px] text-ink-soft">
-          <span className="font-bold text-ink">Not on sale yet.</span>{" "}
-          {/* One string rather than words either side of `{places}`: the space
-              after the number was being eaten at the JSX boundary, and the
-              sentence read "the first 100accounts". */}
-          {`The first ${EARLY_SUPPORTER.places} accounts get Ultimate free for a year — sign up and it’s yours, no card involved.`}
+          <span className="font-bold text-ink">Not on sale yet.</span> The free
+          plan is open in the meantime — one resume, every template, and no
+          card.
         </p>
       )}
     </div>

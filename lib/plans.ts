@@ -202,9 +202,10 @@ export const SELLABLE_CYCLES: readonly BillingCycle[] = (
 export const canBuy = (plan: Plan, cycle: BillingCycle): boolean =>
   CHECKOUT_ENABLED && plan.monthly > 0 && SELLABLE_CYCLES.includes(cycle);
 
-/** The launch offer: the first hundred accounts are handed Ultimate for a
- *  year, no card involved. Granted in lib/early-supporter.ts; the number lives
- *  here because the pricing cards and the thank-you both quote it. */
+/** The launch offer, which is over: the first hundred accounts were handed
+ *  Ultimate for a year, no card involved. Nothing grants it any more — the
+ *  numbers stay because the accounts that were given theirs still have it, and
+ *  the thank-you still quotes both ("supporter no. 7 of the first 100"). */
 export const EARLY_SUPPORTER = { places: 100, months: 12 } as const;
 
 export const PLAN_LIMITS = Object.fromEntries(

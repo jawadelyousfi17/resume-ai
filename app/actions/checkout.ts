@@ -7,8 +7,10 @@ import { PLANS, type BillingCycle, type PlanId } from "@/lib/plans";
 import { siteOrigin } from "@/lib/site-url";
 import { planFor } from "@/lib/subscription";
 import {
+  apiMisconfiguration,
   checkoutMisconfiguration,
   checkoutTarget,
+  testPlanFor,
   whop,
   whopAccountId,
 } from "@/lib/whop";
@@ -60,7 +62,14 @@ export async function startCheckout(
     };
   }
 
-  const missing = checkoutMisconfiguration(parsedPlan.data, parsedCycle.data);
+  // A tester on the list buys the free stand-in instead, at the price of
+  // nothing, and gets the plan they asked for at the end of it. Everyone else
+  // buys what the card says.
+  const testPlan = testPlanFor(authUser.email);
+
+  const missing = testPlan
+    ? apiMisconfiguration()
+    : checkoutMisconfiguration(parsedPlan.data, parsedCycle.data);
   if (missing) {
     // Not the buyer's problem, and not something to spell out to them: the
     // sentence they read is the same one any other outage gets, and the reason
@@ -73,7 +82,16 @@ export async function startCheckout(
     return { ok: false, error: `You're already on ${parsedPlan.data}.` };
   }
 
-  const target = checkoutTarget(parsedPlan.data, parsedCycle.data)!;
+  const target = testPlan
+    ? ({ kind: "plan", planId: testPlan } as const)
+    : checkoutTarget(parsedPlan.data, parsedCycle.data)!;
+
+  if (testPlan) {
+    console.warn(
+      `Checkout for ${authUser.email} is using the free test plan ` +
+        `${testPlan} instead of ${parsedPlan.data} ${parsedCycle.data}.`,
+    );
+  }
 
   // A link out of the dashboard is already the answer, and there's nothing to
   // stamp it with. Whoever buys through it is matched back by their email when

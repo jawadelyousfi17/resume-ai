@@ -156,8 +156,7 @@ function Standing({
     ) : (
       <>
         One resume, every template, unlimited downloads — and nothing expires.
-        The paid plans aren&rsquo;t on sale yet; the first{" "}
-        {EARLY_SUPPORTER.places} accounts get Ultimate free for a year.
+        The paid plans aren&rsquo;t on sale yet.
       </>
     );
   }

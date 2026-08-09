@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { prisma } from "./prisma";
 import { randomAccountAvatarUrl } from "./avatar";
-import { grantEarlySupporter } from "./early-supporter";
 import { CREDENTIALS_ENABLED } from "./auth-providers";
 import { createClient } from "./supabase/server";
 import type { User } from "@/generated/prisma/client";
@@ -94,11 +93,10 @@ export async function syncUser(authUser: SupabaseUser): Promise<User> {
     },
   });
 
-  // The launch offer. Runs on every sign-in rather than only on the first:
-  // it settles into a single read once someone has a subscription, and an
-  // account that arrived while the offer was open still gets it if the grant
-  // was missed the first time round.
-  await grantEarlySupporter(user);
+  // The launch offer used to be granted here, on every sign-in. It's closed:
+  // checkout is open, so a new account is sold a plan rather than given one.
+  // The accounts that were given theirs keep it until it runs out — see
+  // lib/early-supporter.ts.
 
   return user;
 }
