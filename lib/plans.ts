@@ -159,12 +159,48 @@ export const PLANS: Plan[] = [
 /**
  * Whether a paid plan can actually be bought.
  *
- * There's no checkout yet, so the cards still say what's coming and what it
- * will cost, with the button held shut rather than pointing somewhere that
- * can't take the money. While this is false the first hundred accounts are
- * on Ultimate for a year anyway — see lib/early-supporter.ts.
+ * False and the cards still say what's coming and what it will cost, with the
+ * button held shut rather than pointing somewhere that can't take the money.
+ * While it's false the first hundred accounts are on Ultimate for a year
+ * anyway — see lib/early-supporter.ts.
+ *
+ * Read from the environment rather than edited here, because the answer is a
+ * property of the deployment and not of the code: the buttons should open on a
+ * site whose Whop plans exist and stay shut on one where they don't, and both
+ * are this repo. `NEXT_PUBLIC_` because the cards are a client component and
+ * this decides what they draw. It says nothing secret — only whether the shop
+ * is open, which anyone can see by looking at it.
+ *
+ * The plan ids themselves are server-side, in lib/whop.ts.
  */
-export const CHECKOUT_ENABLED = false;
+export const CHECKOUT_ENABLED =
+  process.env.NEXT_PUBLIC_CHECKOUT_ENABLED === "true";
+
+/**
+ * Which billing cycles can be bought, when checkout is open at all.
+ *
+ * A cycle can exist as a price without existing as something to buy: yearly is
+ * the better deal and the reason the toggle is worth pressing, so it keeps
+ * showing its figure and its saving while there's nothing behind it yet. The
+ * button under it is the part that has to be honest.
+ *
+ * Unset means both, so this only ever has to be written down to restrict.
+ * Public for the same reason `CHECKOUT_ENABLED` is: the cards are drawn on the
+ * client, and which periods a shop sells is not a secret.
+ */
+export const SELLABLE_CYCLES: readonly BillingCycle[] = (
+  process.env.NEXT_PUBLIC_CHECKOUT_CYCLES ?? "monthly,yearly"
+)
+  .split(",")
+  .map((cycle) => cycle.trim())
+  .filter((cycle): cycle is BillingCycle =>
+    ["monthly", "yearly"].includes(cycle),
+  );
+
+/** Whether this plan, billed this way, is actually for sale. The free plan is
+ *  never "bought", so it answers false and gets its own button. */
+export const canBuy = (plan: Plan, cycle: BillingCycle): boolean =>
+  CHECKOUT_ENABLED && plan.monthly > 0 && SELLABLE_CYCLES.includes(cycle);
 
 /** The launch offer: the first hundred accounts are handed Ultimate for a
  *  year, no card involved. Granted in lib/early-supporter.ts; the number lives

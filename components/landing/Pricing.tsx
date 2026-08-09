@@ -20,12 +20,15 @@ import {
   CHECKOUT_ENABLED,
   EARLY_SUPPORTER,
   PLANS,
+  SELLABLE_CYCLES,
   bestSaving,
+  canBuy,
   planPrice,
   type BillingCycle,
   type Plan,
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { CheckoutButton } from "@/components/plan/CheckoutButton";
 import { FlameMark } from "@/components/ui/plan-badge";
 import { PlanTicks, planAction, planSkin } from "@/components/ui/plan-surface";
 
@@ -108,9 +111,14 @@ export function BillingToggle({
 export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
   const price = planPrice(plan, cycle);
   const skin = planSkin(plan.id);
-  // The free plan is always available — it costs nothing to hand over. The
-  // paid ones need a checkout that doesn't exist yet.
-  const closed = !CHECKOUT_ENABLED && plan.monthly > 0;
+  // The free plan is always available — it costs nothing to hand over. A paid
+  // one is shut either because nothing is on sale yet or because this period
+  // isn't, and the two want different words: one is a shop that hasn't opened,
+  // the other is a shop that has, with a way in one click away.
+  const closed = plan.monthly > 0 && !canBuy(plan, cycle);
+  const shutBecause = CHECKOUT_ENABLED
+    ? `${cycle === "yearly" ? "Yearly" : "Monthly"} billing isn't open yet.`
+    : "Payments aren't open yet.";
   // One card, not a card on a slab: the plan's price and what it includes are
   // the same offer, and there's no reason to draw a seam between them.
   return (
@@ -156,23 +164,27 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
         <button
           type="button"
           disabled
-          title="Payments aren't open yet."
+          title={shutBecause}
           className={cn(planAction, skin.ctaShut, "cursor-not-allowed")}
         >
           {plan.cta}
         </button>
-      ) : (
-        <Link
-          href={plan.href}
-          // The free plan is the one nobody has to be sold: it gets the quiet
-          // button, and the paid ones get the filled one.
-          className={cn(
-            planAction,
-            plan.monthly === 0 ? skin.ctaQuiet : skin.cta,
-          )}
-        >
+      ) : plan.monthly === 0 ? (
+        // The free plan is the one nobody has to be sold: it gets the quiet
+        // button, and it goes to the app rather than to a checkout.
+        <Link href={plan.href} className={cn(planAction, skin.ctaQuiet)}>
           {plan.cta}
         </Link>
+      ) : (
+        // Whichever cycle the toggle is on is the one being bought — the
+        // headline figure above and the checkout below can't disagree.
+        <CheckoutButton
+          plan={plan.id}
+          cycle={cycle}
+          className={cn(planAction, skin.cta, "disabled:opacity-70")}
+        >
+          {plan.cta}
+        </CheckoutButton>
       )}
 
       {/* What's included, under a hairline rule rather than on a second
@@ -202,7 +214,16 @@ export function PlanGrid({
 }) {
   // Yearly first: it's the price the headline copy quotes, and the monthly
   // figure is one click away for anyone who doesn't want to commit a year.
-  const [cycle, setCycle] = useState<BillingCycle>("yearly");
+  //
+  // Unless yearly is the one thing that can't be bought, in which case opening
+  // on it would put a shut button in front of everybody who never touches the
+  // toggle. While nothing at all is for sale it stays yearly — there's no way
+  // in either way, and the better price is the one to be quoted.
+  const [cycle, setCycle] = useState<BillingCycle>(
+    !CHECKOUT_ENABLED || SELLABLE_CYCLES.includes("yearly")
+      ? "yearly"
+      : "monthly",
+  );
 
   return (
     // `min-w-0` matters inside the upgrade dialog: its content is a grid, and
@@ -241,6 +262,26 @@ export function PlanGrid({
 
       {/* Said once under the grid rather than on each shut card, so the three
           cards keep the same shape and the reason doesn't arrive twice. */}
+      {/* On sale, but not by the year. Said here rather than on each card for
+          the same reason the sentence below is: the two paid cards are shut
+          for one shared reason, and hearing it twice doesn't make it truer. */}
+      {CHECKOUT_ENABLED && !SELLABLE_CYCLES.includes(cycle) && (
+        <p className="mt-6 text-center text-[13.5px] text-ink-soft">
+          <span className="font-bold text-ink">
+            Yearly isn&rsquo;t open yet.
+          </span>{" "}
+          The price is what it will be —{" "}
+          <button
+            type="button"
+            onClick={() => setCycle("monthly")}
+            className="font-bold text-brand underline underline-offset-4"
+          >
+            switch to monthly
+          </button>{" "}
+          to start today.
+        </p>
+      )}
+
       {!CHECKOUT_ENABLED && (
         <p className="mt-6 text-center text-[13.5px] text-ink-soft">
           <span className="font-bold text-ink">Not on sale yet.</span>{" "}

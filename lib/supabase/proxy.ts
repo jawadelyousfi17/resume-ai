@@ -20,6 +20,13 @@ const PUBLIC_API_PATHS: string[] = [
   // every crawler — has to be able to fetch them. The route takes a style and
   // a seed, reads nothing and stores nothing.
   "/api/avatar",
+  // Whop telling us somebody paid. It's a server calling a server, so there is
+  // no session cookie and never will be — the route holds it to its signature
+  // instead, which is the stronger check: an HMAC over the exact bytes sent,
+  // verified before a single field is read. Left off this list it would 401
+  // every delivery, and plans nobody was given would look like a billing
+  // problem rather than a routing one.
+  "/api/whop/webhook",
 ];
 
 /** Exact matches only. A prefix match would have let `/api/compile/cover-letter`
