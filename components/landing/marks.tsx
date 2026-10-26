@@ -244,3 +244,15 @@ export function SocialIcon({
     </a>
   );
 }
+
+/** A filled five-point star — ratings, and the trust line in the hero. */
+export function Star({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        d="m12 2 3 6.5 7 .8-5.2 4.9 1.5 7-6.3-3.5-6.3 3.5 1.5-7L2 9.3l7-.8z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

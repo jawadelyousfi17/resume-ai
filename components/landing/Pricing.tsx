@@ -30,7 +30,12 @@ import { cn } from "@/lib/utils";
 import { segItem, segItemOn, segTrack } from "@/components/ui/segmented";
 import { CheckoutButton } from "@/components/plan/CheckoutButton";
 import { FlameMark } from "@/components/ui/plan-badge";
-import { PlanTicks, planAction, planSkin } from "@/components/ui/plan-surface";
+import {
+  PlanTicks,
+  planAction,
+  planSkin,
+  type PlanSkin,
+} from "@/components/ui/plan-surface";
 
 import { ArrowRight, eyebrow, h2, sectionGap, shell } from "./ui";
 
@@ -51,15 +56,61 @@ export function HotBadge({ className }: { className?: string }) {
   );
 }
 
+/**
+ * The landing page's dress for the same cards — .design/landing_page. Soft
+ * panels instead of ringed white ones, the recommended plan on the page's
+ * brown, pill actions, and the plan's qualifier as a pastel tag. Only the
+ * landing asks for it; /pricing and the upgrade dialog keep the app's look.
+ */
+function editorialSkin(plan: Plan): PlanSkin {
+  if (plan.featured) {
+    return {
+      dark: true,
+      card: "bg-lp-brown text-white",
+      title: "text-white",
+      soft: "text-white/75",
+      faint: "text-white/55",
+      tick: "text-lp-pink",
+      rule: "border-white/15",
+      cta: "bg-white text-ink hover:bg-white",
+      ctaQuiet: "bg-white text-ink",
+      ctaShut: "bg-white/10 text-white/55 ring-1 ring-white/15 ring-inset",
+      pill: "bg-lp-pink text-ink",
+    };
+  }
+  return {
+    dark: false,
+    card: "bg-canvas",
+    title: "text-ink",
+    soft: "text-ink-soft",
+    faint: "text-ink-faint",
+    tick: "text-ink",
+    rule: "border-divider",
+    cta: "btn-fill",
+    ctaQuiet: "btn-soft",
+    ctaShut: "bg-white text-ink-faint ring-1 ring-divider ring-inset",
+    pill: "bg-white text-ink",
+  };
+}
+
+/** The qualifier's tag colour, plan by plan, in the page's pastels. */
+const EDITORIAL_TAG: Record<string, string> = {
+  free: "bg-lp-mint",
+  basic: "bg-lp-blue",
+};
+
 /** Monthly or yearly, above the cards. */
 export function BillingToggle({
   cycle,
   onChange,
   className,
+  editorial = false,
 }: {
   cycle: BillingCycle;
   onChange: (cycle: BillingCycle) => void;
   className?: string;
+  /** The landing page's pill: an outlined track, the choice in ink. */
+  editorial?: boolean;
 }) {
   return (
     // A track and a marker, like the rest of the app's segmented controls:
@@ -70,7 +121,12 @@ export function BillingToggle({
     <div
       role="radiogroup"
       aria-label="Billing period"
-      className={cn(segTrack, "mx-auto inline-flex", className)}
+      className={cn(
+        segTrack,
+        "mx-auto inline-flex",
+        editorial && "rounded-full shadow-none ring-ink",
+        className,
+      )}
     >
       {(["monthly", "yearly"] as const).map((option) => (
         <button
@@ -82,6 +138,7 @@ export function BillingToggle({
           className={cn(
             segItem,
             "h-10 flex-none px-6 text-[15px]",
+            editorial && "rounded-full",
             cycle === option && segItemOn,
           )}
         >
@@ -90,7 +147,9 @@ export function BillingToggle({
             <span
               className={cn(
                 "rounded-full px-2 py-0.5 text-[11.5px] font-bold",
-                "bg-brand-soft text-brand",
+                editorial
+                  ? "bg-lp-mint text-ink"
+                  : "bg-brand-soft text-brand",
               )}
             >
               −{bestSaving}%
@@ -102,9 +161,18 @@ export function BillingToggle({
   );
 }
 
-export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
+export function PlanCard({
+  plan,
+  cycle,
+  editorial = false,
+}: {
+  plan: Plan;
+  cycle: BillingCycle;
+  /** The landing page's dress — see `editorialSkin`. */
+  editorial?: boolean;
+}) {
   const price = planPrice(plan, cycle);
-  const skin = planSkin(plan.id);
+  const skin = editorial ? editorialSkin(plan) : planSkin(plan.id);
   // The free plan is always available — it costs nothing to hand over. A paid
   // one is shut either because nothing is on sale yet or because this period
   // isn't, and the two want different words: one is a shop that hasn't opened,
@@ -118,7 +186,10 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
   return (
     <article
       className={cn(
-        "flex h-full flex-col rounded-2xl px-6 pt-6 pb-7",
+        "flex h-full flex-col",
+        editorial
+          ? "rounded-[28px] px-7 pt-7 pb-8 lg:px-8"
+          : "rounded-2xl px-6 pt-6 pb-7",
         skin.card,
       )}
     >
@@ -129,23 +200,54 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
         {plan.featured && <HotBadge className={skin.pill} />}
       </div>
 
-      <h3 className="mt-4 text-[24px] leading-[1.1] font-bold tracking-tight">
-        <span className={cn("block text-[14px] font-bold", skin.faint)}>
-          {plan.qualifier}
-        </span>
-        <span className={cn("mt-1 block", skin.title)}>{plan.name}</span>
-      </h3>
+      {editorial ? (
+        <h3 className="mt-4">
+          <span
+            className={cn(
+              "inline-block rounded-[3px] px-2 py-0.5 text-[11.5px] font-medium text-ink",
+              plan.featured ? "bg-lp-pink" : (EDITORIAL_TAG[plan.id] ?? "bg-white"),
+            )}
+          >
+            {plan.title}
+          </span>
+          {/* The qualifier and the name are one phrase — "For one well-made
+              resume" — so here they're set as one. */}
+          <span
+            className={cn(
+              "mt-3 block font-editorial text-[28px] leading-[1.1] font-normal tracking-[-0.02em]",
+              skin.title,
+            )}
+          >
+            {plan.qualifier} {plan.name}
+          </span>
+        </h3>
+      ) : (
+        <h3 className="mt-4 text-[24px] leading-[1.1] font-bold tracking-tight">
+          <span className={cn("block text-[14px] font-bold", skin.faint)}>
+            {plan.qualifier}
+          </span>
+          <span className={cn("mt-1 block", skin.title)}>{plan.name}</span>
+        </h3>
+      )}
 
       <div className="mt-7 flex items-baseline gap-1.5 whitespace-nowrap">
         <span
           className={cn(
-            "text-[42px] leading-none font-bold tracking-tight",
+            editorial
+              ? "font-editorial text-[60px] leading-none font-normal tracking-[-0.03em]"
+              : "text-[42px] leading-none font-bold tracking-tight",
             skin.title,
           )}
         >
           {price.amount}
         </span>
-        <span className={cn("text-[15px] font-bold", skin.soft)}>
+        <span
+          className={cn(
+            "text-[15px]",
+            editorial ? "font-medium" : "font-bold",
+            skin.soft,
+          )}
+        >
           {price.period}
         </span>
       </div>
@@ -202,9 +304,12 @@ export function PlanGrid({
   // the fold, where nobody goes. `swipe` lays them along instead, one card to a
   // screen with the next one peeking, so all three are a thumb apart.
   swipe = false,
+  editorial = false,
 }: {
   className?: string;
   swipe?: boolean;
+  /** The landing page's dress, for the toggle and every card. */
+  editorial?: boolean;
 }) {
   // Yearly first: it's the price the headline copy quotes, and the monthly
   // figure is one click away for anyone who doesn't want to commit a year.
@@ -225,7 +330,11 @@ export function PlanGrid({
     // would size the whole dialog to the row rather than scrolling inside it.
     <div className={cn("min-w-0", className)}>
       <div className="text-center">
-        <BillingToggle cycle={cycle} onChange={setCycle} />
+        <BillingToggle
+          cycle={cycle}
+          onChange={setCycle}
+          editorial={editorial}
+        />
       </div>
 
       <div
@@ -249,7 +358,7 @@ export function PlanGrid({
               swipe && "max-md:w-[86%] max-md:shrink-0 max-md:snap-center",
             )}
           >
-            <PlanCard plan={plan} cycle={cycle} />
+            <PlanCard plan={plan} cycle={cycle} editorial={editorial} />
           </div>
         ))}
       </div>
@@ -292,16 +401,20 @@ export function Pricing() {
   return (
     <section id="pricing" className={`${shell} ${sectionGap}`}>
       <div className="text-center">
-        <p className={eyebrow}>Pricing</p>
-        <h2 className={`${h2} mt-3`}>One resume free, forever</h2>
+        <span className={eyebrow}>{"// Pricing //"}</span>
+        <h2 className={`${h2} mt-4`}>One resume free, forever</h2>
+        <p className="mx-auto mt-4 max-w-[46ch] text-[16px] leading-[1.6] text-ink-soft">
+          No card to start and no watermark on the way out. Upgrade when you
+          want the AI.
+        </p>
       </div>
 
-      <PlanGrid className="mt-12 lg:mt-14" />
+      <PlanGrid editorial className="mt-10 lg:mt-12" />
 
-      <p className="mt-8 text-center text-[14px]">
+      <p className="mt-8 text-center">
         <Link
           href="/pricing"
-          className="inline-flex items-center gap-1.5 font-semibold text-brand transition hover:text-accent-2"
+          className="inline-flex items-center gap-2 border-b border-ink pb-0.5 text-[14px] font-medium text-ink transition hover:gap-3"
         >
           Compare plans
           <ArrowRight className="h-4 w-4" />

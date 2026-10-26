@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 
 import { JsonLd } from "@/components/content/ContentShell";
 import { Companies } from "@/components/landing/Companies";
+import { About } from "@/components/landing/About";
 import { Faq } from "@/components/landing/Faq";
-import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Pricing } from "@/components/landing/Pricing";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteNav } from "@/components/landing/SiteNav";
+import { Stats } from "@/components/landing/Stats";
+import { Stories } from "@/components/landing/Stories";
 import { Templates } from "@/components/landing/Templates";
-import { Testimonials } from "@/components/landing/Testimonials";
+import { Workflows } from "@/components/landing/Workflows";
 import { LANDING_FAQS } from "@/lib/content/faq";
 import { abs, faqPage, softwareApplication } from "@/lib/seo/schema";
 
@@ -34,7 +36,13 @@ export default function LandingPage() {
     // container, and a sticky child sticks to its scroll container — which is
     // this box, which never scrolls — so the header quietly stopped sticking.
     // `clip` trims the same overflow without becoming one.
-    <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-panel">
+    //
+    // `data-landing` scopes this page's palette — see the block at the end of
+    // app/globals.css.
+    <div
+      data-landing
+      className="flex min-h-dvh w-full flex-col overflow-x-clip bg-panel"
+    >
       {/* The product, its prices, and the questions actually rendered below.
           No BreadcrumbList — this is the root, and a one-item trail is noise. */}
       <JsonLd
@@ -56,11 +64,13 @@ export default function LandingPage() {
       <main className="grow">
         <Hero />
         <Companies />
-        <Features />
+        <Stats />
+        <Workflows />
         <HowItWorks />
+        <About />
+        <Stories />
         <Templates />
         <Pricing />
-        <Testimonials />
         <Faq />
       </main>
       <SiteFooter />

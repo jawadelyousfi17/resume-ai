@@ -1,4 +1,4 @@
-import { sectionGap, shell } from "./ui";
+import { shell } from "./ui";
 
 // Alphabetical, so nobody has to defend the running order. The files are
 // 180×60 with the glyph already inset, which is what keeps the row evenly
@@ -39,15 +39,13 @@ function label(slug: string) {
  */
 export function Companies() {
   return (
-    <section className={`${shell} ${sectionGap}`}>
+    <section className={`${shell} mt-12 lg:mt-16`}>
       {/* A paragraph, not a heading: this is a caption for the row beneath it,
           and slotting an h2 between the hero and the first real section would
           put a rung in the outline that leads nowhere. */}
-      <p className="text-center text-[13px] font-medium tracking-[0.08em] text-ink-faint uppercase">
-        Our users work at
-      </p>
+      <p className="sr-only">Our users work at</p>
 
-      <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 items-center gap-x-6 gap-y-8 sm:grid-cols-4 lg:mt-10 lg:max-w-none lg:grid-cols-8 lg:gap-x-8">
+      <div className="mx-auto grid max-w-5xl grid-cols-2 items-center gap-x-6 gap-y-8 sm:grid-cols-4 lg:max-w-none lg:grid-cols-8 lg:gap-x-8">
         {COMPANIES.map((slug) => (
           // The company names are the content here — "such as" promises a
           // list — so these carry their names rather than going decorative.
@@ -62,7 +60,7 @@ export function Companies() {
             // eight small SVGs are cheap enough not to gate the hero on.
             loading="lazy"
             decoding="async"
-            className="mx-auto w-full max-w-[130px] opacity-40 brightness-0 lg:max-w-[150px]"
+            className="mx-auto w-full max-w-[130px] opacity-80 brightness-0 lg:max-w-[150px]"
           />
         ))}
       </div>

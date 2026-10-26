@@ -12,6 +12,9 @@ import { ArrowRight as LucideArrowRight } from "lucide-react";
 /* Layout                                                                     */
 /* -------------------------------------------------------------------------- */
 
+/** The floating-card shadow: soft, warm, and low — the reference's one. */
+export const FLOAT = "shadow-[0_12px_32px_rgba(38,34,29,0.08)]";
+
 /** The column every section's content sits in. Width lives in globals.css as
  *  `--container-site`, so the nav and footer can't drift out of line with it. */
 export const shell = "mx-auto w-full max-w-site px-5 sm:px-8";
@@ -39,17 +42,29 @@ export const panelFlat = "rounded-2xl bg-panel ring-1 ring-divider";
 /* Type                                                                       */
 /* -------------------------------------------------------------------------- */
 
-/** Section heading. Tight and heavy, like the resume's own name line. */
+/** Section heading: the editorial serif, regular weight, tightly tracked. */
 export const h2 =
-  "text-[30px] leading-[1.08] font-bold tracking-[-0.03em] text-ink sm:text-[38px] lg:text-[46px]";
+  "font-editorial text-[34px] leading-[1.1] font-normal tracking-[-0.025em] text-ink sm:text-[42px] lg:text-[48px]";
 
 /** The line under a section heading — one sentence, not a paragraph. */
 export const lede =
   "mt-4 max-w-[56ch] text-[16px] leading-[1.6] text-ink-soft lg:text-[18px]";
 
-/** The small label above a heading: what the section is about, in a word. */
+/** The small label above a heading — an outlined tag, `// like this //`. */
 export const eyebrow =
-  "text-[13px] font-semibold tracking-[0.08em] text-brand uppercase";
+  "inline-flex rounded-full border border-ink px-2.5 py-0.5 text-[11.5px] font-medium text-ink";
+
+/** A filled tag in one of the page's pastels — the feature panels' label. */
+export const tag = (tone: "coral" | "blue" | "pink" | "mint") =>
+  cn(
+    "inline-block rounded-[3px] px-2 py-0.5 text-[11.5px] font-medium text-ink",
+    {
+      coral: "bg-lp-coral",
+      blue: "bg-lp-blue",
+      pink: "bg-lp-pink",
+      mint: "bg-lp-mint",
+    }[tone],
+  );
 
 /* -------------------------------------------------------------------------- */
 /* Controls                                                                   */

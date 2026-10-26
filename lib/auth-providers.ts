@@ -1,9 +1,10 @@
 // Kept out of app/auth/actions.ts because a "use server" module may only
 // export async functions.
 
-/** `linkedin_oidc` is LinkedIn's current OpenID Connect integration — the
- *  older `linkedin` provider is retired. Both must be enabled and given
- *  client credentials in the Supabase dashboard before they'll work.
+/** The ways in. Each needs enabling, with client credentials, in the Supabase
+ *  dashboard before it works. LinkedIn (`linkedin_oidc`) used to sit here
+ *  switched off; it's gone rather than greyed out, since nobody has ever been
+ *  able to sign in with it.
  *
  *  `enabled` is what the app offers today. A way in that's switched off is
  *  still drawn on the card, greyed out and labelled: people look for the
@@ -11,7 +12,6 @@
  *  account" where a disabled one reads as "not yet". */
 export const OAUTH_PROVIDERS = [
   { id: "google", label: "Google", enabled: true },
-  { id: "linkedin_oidc", label: "LinkedIn", enabled: false },
 ] as const;
 
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number]["id"];

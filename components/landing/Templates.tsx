@@ -20,8 +20,8 @@ export function Templates() {
       <div className={`${shell} text-center`}>
         {/* Built as one string: JSX drops the space between an expression and
             the text that follows it when the line wraps. */}
-        <p className={eyebrow}>Templates</p>
-        <h2 className={`${h2} mt-3`}>
+        <span className={eyebrow}>{"// Templates //"}</span>
+        <h2 className={`${h2} mt-4`}>
           {`${TEMPLATES.length} templates, one click apart`}
         </h2>
         <Link

@@ -16,18 +16,17 @@ import {
 import { cn } from "@/lib/utils";
 import { Input, Label } from "@/components/ui/fields";
 import { Spinner } from "@/components/ui/spinner";
-import { GoogleMark, LinkedInMark } from "./ProviderIcons";
+import { GoogleMark } from "./ProviderIcons";
 
 type Mode = "signin" | "signup";
 
 const MARKS = {
   google: GoogleMark,
-  linkedin_oidc: LinkedInMark,
 } as const;
 
 const COPY = {
   signin: {
-    heading: "Sign in",
+    heading: "Welcome back",
     submit: "Sign in",
     swapPrompt: "New here?",
     swapAction: "Create an account",
@@ -66,14 +65,14 @@ export function AuthCard({
   return (
     // Centred rather than flush left: on /login a flex parent does that, but in
     // the full-screen dialog the card is the only thing in a full-width box.
-    <div className="mx-auto w-full max-w-[380px]">
-      <h1 className="text-center text-2xl font-bold tracking-tight text-ink">
+    <div className="mx-auto w-full max-w-[360px]">
+      <h1 className="text-center font-editorial text-[38px] leading-[1.08] font-normal tracking-[-0.025em] text-ink">
         {copy.heading}
       </h1>
 
       {error && <Alert>{error}</Alert>}
 
-      <div className="mt-7 space-y-2.5">
+      <div className="mt-8 space-y-2.5">
         {OAUTH_PROVIDERS.map((provider) => {
           const Mark = MARKS[provider.id];
 
@@ -98,11 +97,10 @@ export function AuthCard({
         })}
       </div>
 
-      {!CREDENTIALS_ENABLED ? (
-        <ClosedButton className="mt-2.5 border-transparent bg-transparent">
-          Use email and password
-        </ClosedButton>
-      ) : showCredentials ? (
+      {/* Email and password, once it's open. Until then there's nothing to
+          draw: a greyed "soon" row is one more thing to read on a card whose
+          only job is the button above it. */}
+      {!CREDENTIALS_ENABLED ? null : showCredentials ? (
         /* Remounts on switch so a stale error doesn't hang around. */
         <CredentialsForm key={mode} mode={mode} next={next} />
       ) : (
@@ -115,20 +113,13 @@ export function AuthCard({
         </button>
       )}
 
-      {!CREDENTIALS_ENABLED && (
-        <p className="mt-3 text-center text-[13px] text-ink-faint">
-          Google is the only way in while we&rsquo;re opening up. Email and
-          LinkedIn follow shortly — and nothing you make now is lost when they
-          do.
-        </p>
-      )}
 
-      <p className="mt-7 text-center text-[14px] text-ink-soft">
+      <p className="mt-6 text-center text-[14px] text-ink-soft">
         {copy.swapPrompt}{" "}
         <button
           type="button"
           onClick={swapMode}
-          className="font-bold text-brand hover:underline"
+          className="border-b border-ink pb-px font-semibold text-ink transition hover:border-transparent"
         >
           {copy.swapAction}
         </button>
@@ -189,7 +180,7 @@ function ProviderButton({
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center gap-2.5 rounded-full border border-divider bg-white px-4 py-3 text-[15px] font-bold text-ink transition hover:bg-black/[0.03] disabled:cursor-wait disabled:opacity-70"
+      className="flex h-12 w-full items-center justify-center gap-2.5 rounded-full bg-white px-4 text-[15px] font-semibold text-ink ring-1 ring-ink transition hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0"
     >
       {pending ? (
         <>

@@ -24,6 +24,13 @@
      that separates one panel from the next. */
   --color-canvas: var(--app-canvas);
   --color-divider: var(--app-divider);
+  /* The landing page's own colours — defined only under [data-landing]. */
+  --color-lp-accent: var(--lp-accent);
+  --color-lp-brown: var(--lp-brown);
+  --color-lp-coral: var(--lp-coral);
+  --color-lp-blue: var(--lp-blue);
+  --color-lp-pink: var(--lp-pink);
+  --color-lp-mint: var(--lp-mint);
   --color-danger: #e11d48;
   /* Two more semantic hues, so a board with a column per stage can carry five
      distinct colours and still follow the theme. */
@@ -40,6 +47,9 @@
 
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  /* The landing page's headline face, as `font-editorial`. A system serif on
+     purpose: it's the reference's own choice, and it costs no download. */
+  --font-editorial: Georgia, "Times New Roman", serif;
 
   /* The column every public page's content sits in, as `max-w-site`. Named
      once because the nav, the footer, the landing sections and the written
@@ -676,6 +686,66 @@ html[data-ui-font="ibm-plex-sans"] {
      has to say "something is happening", which is its whole job. */
   .nav-progress-bar {
     animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The landing page's palette — .design/landing_page.
+
+   Scoped to the page's wrapper (`data-landing` on it in app/page.tsx), not a
+   theme: the app keeps Studio, and this is one page's art direction. Ink
+   takes over the primary action, the surfaces warm a shade, and the brown
+   and pastel label colours are this page's alone. Every shared component on
+   the page — nav, pricing, footer — follows through the tokens.
+   --------------------------------------------------------------------------- */
+
+[data-landing] {
+  --app-ink: #111210;
+  --app-ink-soft: #646660;
+  --app-ink-faint: #9a9b96;
+  --app-canvas: #f6f8f5;
+  --app-field: #f6f8f5;
+  --app-divider: #dedfdb;
+  --app-field-border: #dedfdb;
+  --app-brand: #111210;
+  --app-accent-2: #2e2f2b;
+  --app-brand-soft: #eceeea;
+  --app-navy: #111210;
+  /* The page's own colours, as `lp-*` below. */
+  --lp-accent: #244cec;
+  --lp-brown: #381610;
+  --lp-coral: #f7a78f;
+  --lp-blue: #b7c8ff;
+  --lp-pink: #f4b8ef;
+  --lp-mint: #9fdcc6;
+}
+
+[data-landing] ::selection {
+  background: var(--lp-pink);
+}
+
+/* The secondary action is an outline here rather than a soft fill. */
+[data-landing] .btn-soft {
+  background-color: #fff;
+  box-shadow: inset 0 0 0 1px var(--app-ink);
+}
+[data-landing] .btn-soft:hover:not(:disabled) {
+  background-color: #fff;
+}
+
+/* Actions lift a little under the pointer. */
+[data-landing] :is(.btn-fill, .btn-soft) {
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
+}
+[data-landing] :is(.btn-fill, .btn-soft):hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-landing] :is(.btn-fill, .btn-soft):hover:not(:disabled) {
     transform: none;
   }
 }

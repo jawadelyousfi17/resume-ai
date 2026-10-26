@@ -12,8 +12,8 @@ export function Faq() {
   return (
     <section className={`${shell} ${sectionGap}`}>
       <div className="mx-auto max-w-5xl">
-        <p className={eyebrow}>FAQ</p>
-        <h2 className={`${h2} mt-3`}>Questions, answered</h2>
+        <span className={eyebrow}>{"// FAQ //"}</span>
+        <h2 className={`${h2} mt-4`}>Questions, answered</h2>
 
         <FaqAccordion entries={LANDING_FAQS} className="mt-8 md:mt-12" />
 
