@@ -18,6 +18,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
       { label: "Resume review", href: "/resume-review" },
       { label: "ATS score", href: "/resume-ats-score" },
       { label: "Pricing", href: "/pricing" },
+      { label: "Students — free year", href: "/students" },
       { label: "FAQ", href: "/faq" },
     ],
   },

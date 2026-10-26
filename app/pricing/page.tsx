@@ -1,22 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
-import {
-  Breadcrumbs,
-  FaqAccordion,
-  JsonLd,
-} from "@/components/content/ContentShell";
-import { SiteFooter } from "@/components/landing/SiteFooter";
+import { FaqAccordion, JsonLd } from "@/components/content/ContentShell";
 import { SiteNav } from "@/components/landing/SiteNav";
 import { PlanComparison } from "@/components/landing/PlanComparison";
 import { PlanGrid } from "@/components/landing/Pricing";
-import { btnPrimary } from "@/components/landing/ui";
-import {
-  HOME,
-  breadcrumbList,
-  faqPage,
-  softwareApplication,
-} from "@/lib/seo/schema";
+import { ArrowRight, h2, shell } from "@/components/landing/ui";
+import { HOME, breadcrumbList, faqPage, softwareApplication } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   title: "Pricing — meniacv",
@@ -27,114 +18,69 @@ export const metadata: Metadata = {
 
 const FAQS = [
   {
-    question: "Is the free plan really free?",
-    answer:
-      "Yes. One resume, all templates, full layout control and unlimited watermark-free PDF downloads, with no card and no trial period. It doesn't expire and it doesn't upgrade itself.",
-  },
-  {
-    question: "What's the difference between monthly and yearly?",
-    answer:
-      "Only the price. Paid yearly, Basic works out at $3 a month and Ultimate at $5 a month; paid month to month they're $9 and $17. The features are identical either way.",
-  },
-  {
-    question: "What happens to my resumes if I stop paying?",
-    answer:
-      "Nothing is deleted. You keep editing and downloading one resume on the free plan, and the rest stay in your account, ready to unlock again if you come back.",
-  },
-  {
-    question: "Do I need an account to start?",
-    answer:
-      "No. You can build a resume, preview it and download the PDF without signing in — it's kept in your browser. Signing in later brings that resume with you.",
+    question: "How does yearly billing work?",
+    answer: "The monthly rate shown is billed as one annual payment. Monthly billing is charged each month. Features are the same for both billing periods.",
   },
   {
     question: "Can I cancel any time?",
-    answer:
-      "Yes, from your account, and you keep the paid features until the period you've already paid for runs out.",
+    answer: "Yes, from your account. You keep your paid features until the end of the period you've paid for.",
+  },
+  {
+    question: "What happens when my plan ends?",
+    answer: "You return to the free plan and can edit and download one resume. Your other documents stay saved in your account.",
   },
 ];
 
-const TRAIL = [HOME, { name: "Pricing", path: "/pricing" }];
-
 export default function PricingPage() {
   return (
-    // White, like the rest of the marketing pages: the plan cards bring all
-    // the colour this page needs, and a tint behind them was one surface too
-    // many.
-    //
-    // Composed directly rather than through <ContentPage> because the written
-    // pages sit in a 760px reading column and three plan cards need the full
-    // width. The gutters match the nav's, so the page lines up with it.
-    <div className="min-h-dvh bg-panel">
+    <div data-landing className="flex min-h-dvh flex-col bg-panel text-ink">
       <SiteNav />
+      <main className={`${shell} grow pt-10 pb-14 lg:pt-16 lg:pb-20`}>
+        <JsonLd data={{
+          "@context": "https://schema.org",
+          "@graph": [softwareApplication(), faqPage(FAQS), breadcrumbList([HOME, { name: "Pricing", path: "/pricing" }])],
+        }} />
 
-      <main className="px-5 pt-6 sm:px-8 lg:px-10">
-        <div className="mx-auto w-full max-w-site">
-          {/* The plans themselves belong on the page that lists them, which is
-              this one — the landing page carries the same graph because it also
-              shows the cards. */}
-          <JsonLd
-            data={{
-              "@context": "https://schema.org",
-              "@graph": [
-                softwareApplication(),
-                faqPage(FAQS),
-                breadcrumbList(TRAIL),
-              ],
-            }}
-          />
-
-          <Breadcrumbs trail={TRAIL} />
-
-          {/* The heading runs the full width; only the prose is held to a
-              readable measure. */}
-          <header className="mt-6 text-center">
-            <h1 className="mx-auto mt-5 max-w-[18ch] text-[34px] leading-[1.08] font-bold tracking-tight text-ink sm:text-[44px] lg:text-[52px]">
-              One resume free, forever
-            </h1>
-            <p className="mx-auto mt-5 max-w-[58ch] text-[17px] leading-relaxed text-ink-soft lg:text-[19px]">
-              No card to start and no watermark on the way out. Pay only when
-              you want the AI writing tools, or when one resume stops being
-              enough.
-            </p>
-          </header>
-
-          <PlanGrid className="mt-12 lg:mt-14" />
-
-          <p className="mt-8 text-center text-[13.5px] text-ink-soft">
-            Prices in USD. Cancel any time — your resumes stay downloadable on
-            the free plan.
+        <header className="text-center">
+          <h1 className="font-editorial text-[46px] leading-[1.05] font-normal tracking-[-0.035em] sm:text-[58px] lg:text-[64px]">
+            A plan for your job search.
+          </h1>
+          <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-ink-soft">
+            Start free. Upgrade for AI tools and more resumes.
           </p>
+        </header>
 
-          <PlanComparison className="mt-16 lg:mt-20" />
+        <PlanGrid editorial concise className="mt-9 lg:mt-11" />
+        <p className="mt-6 text-center text-sm text-ink-soft">Prices in USD. Cancel any time.</p>
 
-          {/* The landing page's accordion, not the grid of cards the written
-              pages use — these answers are long and only one is read at a time. */}
-          <section className="mt-16 lg:mt-20">
-            <div className="mx-auto max-w-5xl">
-              <h2 className="text-[26px] leading-tight font-bold tracking-tight text-ink sm:text-[32px]">
-                Questions about billing
-              </h2>
-              <FaqAccordion entries={FAQS} />
-            </div>
-          </section>
+        <Link href="/students" className="mt-10 flex items-center gap-4 rounded-2xl bg-lp-mint/25 px-5 py-4 transition hover:bg-lp-mint/40 sm:gap-6 sm:px-7">
+          <Image src="/images/students/student-verification.png" alt="" width={1024} height={1024} sizes="64px" className="h-14 w-14 shrink-0 object-contain sm:h-16 sm:w-16" />
+          <div className="min-w-0 flex-1">
+            <h2 className="font-editorial text-2xl leading-tight tracking-[-0.025em]">Free year for students</h2>
+            <p className="mt-1 text-sm text-ink-soft">Verify your email to claim.</p>
+          </div>
+          <ArrowRight aria-hidden="true" className="h-5 w-5 shrink-0" />
+        </Link>
 
-          {/* Closing action. */}
-          <section className="mt-16 text-center lg:mt-20">
-            <h2 className="text-[26px] leading-tight font-bold tracking-tight text-ink sm:text-[32px]">
-              Start with the free plan
-            </h2>
-            <p className="mx-auto mt-3 max-w-[46ch] text-[15.5px] leading-relaxed text-ink-soft">
-              Build a resume first, decide about paying later. Nothing here asks
-              for a card.
-            </p>
-            <Link href="/dashboard" className={`${btnPrimary} mt-7`}>
-              Get started for free ✨
-            </Link>
-          </section>
-        </div>
+        <details className="group mt-10 border-y border-divider">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-6 text-lg font-medium [&::-webkit-details-marker]:hidden">
+            Compare all features
+            <ArrowRight aria-hidden="true" className="h-5 w-5 rotate-90 transition-transform group-open:-rotate-90" />
+          </summary>
+          <PlanComparison className="pb-8" />
+        </details>
+
+        <section className="mx-auto mt-14 max-w-4xl lg:mt-20">
+          <h2 className={h2}>Billing questions</h2>
+          <FaqAccordion entries={FAQS} className="mt-5" />
+          <Link href="/contact" className="mt-6 inline-block text-sm text-ink-soft underline underline-offset-4 hover:text-ink">Need help choosing? Contact us.</Link>
+        </section>
       </main>
-
-      <SiteFooter />
+      <footer className={`${shell} flex flex-wrap gap-5 border-t border-divider py-6 text-sm text-ink-soft`}>
+        <Link href="/" className="hover:text-ink">MeniaCV</Link>
+        <Link href="/terms" className="hover:text-ink">Terms</Link>
+        <Link href="/privacy" className="hover:text-ink">Privacy</Link>
+      </footer>
     </div>
   );
 }

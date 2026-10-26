@@ -188,3 +188,31 @@ model CoverLetter {
   @@index([userId, updatedAt(sort: Desc)])
   @@map("cover_letters")
 }
+
+// Verification and rate limits survive server restarts and multiple instances.
+model StudentVerification {
+  userId String @id @db.Uuid
+  email String
+  codeHash String
+  expiresAt DateTime
+  attempts Int @default(0)
+  @@map("student_verifications")
+}
+
+model StudentEmailLimit {
+  key String @id
+  windowStart DateTime
+  lastSentAt DateTime
+  count Int
+  @@map("student_email_limits")
+}
+
+// Intentionally retained after account deletion to prevent repeat claims.
+// Email is stored as a hash; unverified addresses only live in verification rows.
+model StudentClaim {
+  userId String @id @db.Uuid
+  emailHash String @unique
+  claimedAt DateTime @default(now())
+  expiresAt DateTime
+  @@map("student_claims")
+}

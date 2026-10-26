@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/resume-examples", priority: 0.9 },
     { path: "/resume-templates", priority: 0.9 },
     { path: "/pricing", priority: 0.9 },
+    { path: "/students", priority: 0.8 },
     // The public cover letter pages. /cover-letters — plural — is the
     // signed-in editor and stays out of the sitemap.
     { path: "/cover-letter", priority: 0.9 },

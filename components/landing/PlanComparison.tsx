@@ -18,14 +18,12 @@ export function PlanComparison({ className }: { className?: string }) {
       <div className="text-center">
         <h2
           id="compare-plans"
-          className="text-[26px] leading-tight font-bold tracking-tight text-ink sm:text-[32px]"
+          className="font-editorial text-[32px] leading-tight font-normal tracking-[-0.025em] text-ink sm:text-[40px]"
         >
           Compare plans
         </h2>
         <p className="mx-auto mt-3 max-w-[52ch] text-[15.5px] leading-relaxed text-ink-soft">
-          Every plan builds the same resume with the same templates and the same
-          export. What you pay for is how many of them, and how much of the
-          writing you want help with.
+          All plans include every template and watermark-free PDFs.
         </p>
       </div>
 

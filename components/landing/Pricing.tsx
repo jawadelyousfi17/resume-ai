@@ -60,7 +60,7 @@ export function HotBadge({ className }: { className?: string }) {
  * The landing page's dress for the same cards — .design/landing_page. Soft
  * panels instead of ringed white ones, the recommended plan on the page's
  * brown, pill actions, and the plan's qualifier as a pastel tag. Only the
- * landing asks for it; /pricing and the upgrade dialog keep the app's look.
+ * landing and pricing pages use it; upgrade dialogs keep the app’s look.
  */
 function editorialSkin(plan: Plan): PlanSkin {
   if (plan.featured) {
@@ -69,7 +69,7 @@ function editorialSkin(plan: Plan): PlanSkin {
       card: "bg-lp-brown text-white",
       title: "text-white",
       soft: "text-white/75",
-      faint: "text-white/55",
+      faint: "text-white/75",
       tick: "text-lp-pink",
       rule: "border-white/15",
       cta: "bg-white text-ink hover:bg-white",
@@ -83,7 +83,7 @@ function editorialSkin(plan: Plan): PlanSkin {
     card: "bg-canvas",
     title: "text-ink",
     soft: "text-ink-soft",
-    faint: "text-ink-faint",
+    faint: "text-ink-soft",
     tick: "text-ink",
     rule: "border-divider",
     cta: "btn-fill",
@@ -165,7 +165,9 @@ export function PlanCard({
   plan,
   cycle,
   editorial = false,
+  concise = false,
 }: {
+  concise?: boolean;
   plan: Plan;
   cycle: BillingCycle;
   /** The landing page's dress — see `editorialSkin`. */
@@ -200,7 +202,9 @@ export function PlanCard({
         {plan.featured && <HotBadge className={skin.pill} />}
       </div>
 
-      {editorial ? (
+      {concise ? (
+        <h3 className={cn("mt-4 font-editorial text-[32px] leading-tight font-normal tracking-[-0.025em]", skin.title)}>{plan.title}</h3>
+      ) : editorial ? (
         <h3 className="mt-4">
           <span
             className={cn(
@@ -305,9 +309,12 @@ export function PlanGrid({
   // screen with the next one peeking, so all three are a thumb apart.
   swipe = false,
   editorial = false,
+  concise = false,
 }: {
   className?: string;
   swipe?: boolean;
+  /** Use plan names without marketing qualifiers on the pricing page. */
+  concise?: boolean;
   /** The landing page's dress, for the toggle and every card. */
   editorial?: boolean;
 }) {
@@ -358,7 +365,7 @@ export function PlanGrid({
               swipe && "max-md:w-[86%] max-md:shrink-0 max-md:snap-center",
             )}
           >
-            <PlanCard plan={plan} cycle={cycle} editorial={editorial} />
+            <PlanCard plan={plan} cycle={cycle} editorial={editorial} concise={concise} />
           </div>
         ))}
       </div>

@@ -1,0 +1,11 @@
+# Student illustrations
+
+Generated using the built-in GPT Image tool. Transparent PNG originals are used by `/students` with Next.js image optimization.
+
+## student-next-chapter.png
+
+Use case: illustration-story. Asset: transparent illustration for the MeniaCV students landing page. Create one beautiful, professionally art-directed FLAT editorial illustration, square composition, isolated on a genuinely transparent background. A university student with dark curly hair in a cobalt blue sweater sits comfortably cross-legged working on an open cream laptop, with a large cream resume sheet with simple dark typographic bars behind the shoulder, a small stack of coral and mint textbooks beside them, and a small graduation cap. Cheerful but mature, expressive silhouette, confident clean shapes, thin dark charcoal contour details, limited solid fills, Swiss editorial meets contemporary university magazine illustration. Palette exactly cobalt #244cec, pale blue #b7c8ff, mint #9fdcc6, coral #f7a78f, cream #fffaf2 and charcoal #111210. Flat 2D, no 3D, no shadows, no gradients, no texture. Plenty of breathing room around the isolated composition, full figure and objects visible, no clipping. No text, letters, numbers, logos or watermarks. This is a website asset, not a full page mockup.
+
+## student-verification.png
+
+Use case: illustration-story. Create a flat 2D editorial illustration for a university student email verification form on MeniaCV. Square, isolated on genuinely transparent background. One open pale blue envelope with a cream student ID card emerging from it, a small friendly cobalt blue graduation cap perched on the card's corner, and a large mint green circular seal with a charcoal checkmark at lower right. Student ID has a simple coral circular avatar silhouette and two short charcoal bars, absolutely no letters or numbers. Confident clean flat shapes, thin charcoal contour details, restrained contemporary editorial illustration matching a student in a cobalt sweater. Palette cobalt #244cec, pale blue #b7c8ff, mint #9fdcc6, coral #f7a78f, warm cream #fffaf2, charcoal #111210. Flat solid fills only, no 3D, no texture, no gradients, no drop shadows. Three well-composed objects forming one cohesive silhouette, centered with generous transparent margins. No text, logos, watermark, background or UI mockup.

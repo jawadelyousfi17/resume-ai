@@ -111,3 +111,39 @@ matches the screen. Install the browser on the server with
 `PDF_ORIGIN` overrides where the renderer fetches pages from; it defaults to the
 site origin, and wants the local server when the public URL goes through a proxy
 or CDN.
+
+## Student offer
+
+`/students` lets a signed-in free account verify a school email and claim one
+non-renewing year of Ultimate. Set `STUDENT_PLAN=basic` to offer Basic instead.
+
+Before deploying, apply the migration with `npm run db:deploy`, then configure
+`RESEND_API_KEY` and `RESEND_FROM_EMAIL` (a sender on a domain verified in
+Resend). Email is sent through [Resend's email API](https://resend.com/docs/api-reference/emails/send-email).
+For temporary testing, set `STUDENT_ALLOW_ALL_EMAILS=true` to accept any valid
+email address (including + aliases). Set it back to `false` to restore school-only
+eligibility. Verification codes and claim/send limits still apply.
+
+`.edu` addresses are eligible by default; add exact international school domains
+with `STUDENT_EMAIL_DOMAINS`, comma-separated. Include student subdomains
+explicitly. This verifies school inbox access, not current enrollment; schools
+may also issue addresses to staff and alumni.
+
+Codes expire after 10 minutes and allow five attempts. Sends are limited to one
+per minute and five per rolling 24-hour window, per account and email, backed by
+Postgres. A replacement code invalidates the previous one. Codes are HMAC-hashed
+with the Resend API key, so rotating that key invalidates outstanding codes.
+Claims are committed in a serializable transaction, expire after one calendar
+year, and cannot replace an active plan or an existing billing subscription.
+Claim records retain a hashed email and account ID after account deletion to
+prevent repeated claims; include this retention in your privacy policy before
+launching the offer. The three student tables have RLS enabled without public
+policies; the server database connection must have the intended owner access.
+
+Run policy checks with `npx tsx --test tests/student-policy.test.ts`. For a release
+smoke test, use a test database and a deliverable, eligible school inbox: sign in,
+request a code, try an incorrect code, then verify the correct code. Confirm the
+plan is yearly with a future expiry, no billing provider ID, and no renewal.
+Confirm that code replay and another account using the same school email cannot
+claim again. Also check resend throttling and the expired-code error. Do not use
+a production student's account for this test.
