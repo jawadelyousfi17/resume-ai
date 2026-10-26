@@ -53,8 +53,8 @@ export default async function StudentsPage() {
       <SiteNav />
       <main>
         <section className={`${shell} pt-8 lg:pt-14`}>
-          <div className="grid gap-10 md:grid-cols-2 lg:gap-16">
-            <header>
+          <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+            <header className="rounded-[28px] bg-lp-blue/40 p-6 sm:p-10">
               <Image
                 src="/images/students/student-next-chapter.png"
                 alt=""
@@ -73,7 +73,7 @@ export default async function StudentsPage() {
               </p>
               <dl className="mt-8 flex flex-wrap gap-2.5">
                 {[["Price", <><s className="text-ink-soft">${plan.yearly * 12}</s> $0</>], ["Length", "12 months"], ["Card", "No card"], ["Renewal", "No renewal"]].map(([term, value]) => (
-                  <div key={term as string} className="rounded-full bg-canvas px-4 py-2 text-[14px]">
+                  <div key={term as string} className="rounded-full bg-panel px-4 py-2 text-[14px]">
                     <dt className="sr-only">{term}</dt>
                     <dd className="font-semibold">{value}</dd>
                   </div>
