@@ -37,7 +37,7 @@ export function LetterCard({
 
   return (
     <div className="w-full">
-      <div className="group relative overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-black/15">
+      <div className="relative overflow-hidden rounded-none bg-white ring-1 ring-divider transition hover:ring-2 hover:ring-brand/60">
         <LetterThumb data={letter.data} />
 
         {/* Under the menu rather than around it — an anchor can't contain
@@ -49,34 +49,18 @@ export function LetterCard({
           className="absolute inset-0"
         />
 
-        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-black/65 p-4 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 md:flex">
-          <div className="pointer-events-auto w-full max-w-[170px]">
-            <CardAction href={href} icon={PencilIcon}>
-              Edit
-            </CardAction>
-            <CardAction onClick={onDuplicate} icon={CopyIcon}>
-              Duplicate
-            </CardAction>
-            <CardAction onClick={onRename} icon={TagIcon}>
-              Rename
-            </CardAction>
-            <CardAction onClick={onDelete} icon={TrashIcon} destructive>
-              Delete
-            </CardAction>
-          </div>
-        </div>
       </div>
 
-      <div className="mt-3 flex items-start justify-between gap-2">
+      <div className="mt-2.5 flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-bold text-ink">
+          <p className="truncate text-[14.5px] font-semibold text-ink">
             {letter.name}
           </p>
-          <p className="truncate text-[13px] text-ink-soft">
+          <p className="truncate text-[12.5px] text-ink-faint">
             {/* Which job it's for is what tells two letters apart; the edit
                 time only matters once you already know that. */}
             {company ? `${company} · ` : ""}
-            edited {formatRelative(letter.updatedAt)}
+            {formatRelative(letter.updatedAt)}
           </p>
         </div>
 
@@ -84,13 +68,19 @@ export function LetterCard({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-black/10 text-ink-soft transition hover:bg-black/5"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-canvas hover:text-ink"
               aria-label="Cover letter options"
             >
               <DotsIcon className="h-[18px] w-[18px]" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem asChild>
+              <Link href={href}>
+                <PencilIcon />
+                Edit
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={onRename}>
               <TagIcon />
               Rename
@@ -107,46 +97,5 @@ export function LetterCard({
         </DropdownMenu>
       </div>
     </div>
-  );
-}
-
-const actionClass =
-  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[14px] font-bold transition";
-
-function CardAction({
-  href,
-  icon: Icon,
-  destructive = false,
-  onClick,
-  children,
-}: {
-  href?: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  destructive?: boolean;
-  onClick?: () => void;
-  children: React.ReactNode;
-}) {
-  const className = `${actionClass} text-white/90 hover:text-white ${
-    destructive ? "hover:bg-danger" : "hover:bg-white/15"
-  }`;
-  const inner = (
-    <>
-      <Icon className="h-[17px] w-[17px]" />
-      {children}
-    </>
-  );
-
-  if (href) {
-    return (
-      <Link href={href} className={className}>
-        {inner}
-      </Link>
-    );
-  }
-
-  return (
-    <button type="button" onClick={onClick} className={className}>
-      {inner}
-    </button>
   );
 }

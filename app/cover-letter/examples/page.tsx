@@ -112,7 +112,7 @@ export default function CoverLetterExamplesPage() {
                 id={example.id}
                 className="scroll-mt-24"
               >
-                <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+                <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
                   {example.role} cover letter
                 </h2>
                 <p
@@ -126,7 +126,7 @@ export default function CoverLetterExamplesPage() {
 
                 {/* The letter itself, set on paper rather than in a panel, so it
                     reads as the document it is. */}
-                <div className="mt-5 rounded-xl bg-white px-7 py-8 shadow-[var(--shadow-paper)] ring-1 ring-black/5 sm:px-10 sm:py-10">
+                <div className="mt-5 rounded-xl bg-white px-7 py-8 shadow-[var(--shadow-paper)] ring-1 ring-divider sm:px-10 sm:py-10">
                   <p className="text-[15.5px] leading-[1.75] text-ink">
                     {example.greeting}
                   </p>
@@ -164,7 +164,7 @@ export default function CoverLetterExamplesPage() {
         </div>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqList entries={EXAMPLE_FAQS} />

@@ -109,7 +109,7 @@ function Shell({ resume }: { resume: Resume | null }) {
         onClick={() => setPreviewing((v) => !v)}
         aria-pressed={previewing}
         aria-label={previewing ? "Back to editing" : "Preview the letter"}
-        className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-navy text-white shadow-[0_10px_28px_rgba(15,23,42,0.3)] transition active:scale-95 lg:hidden"
+        className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-[var(--shadow-float)] transition active:scale-95 lg:hidden"
       >
         {previewing ? (
           <PencilIcon className="h-6 w-6" />
@@ -119,7 +119,7 @@ function Shell({ resume }: { resume: Resume | null }) {
       </button>
 
       {/* The tabs, where a thumb can reach them. */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-divider bg-panel pb-[env(safe-area-inset-bottom)] lg:hidden">
         {TABS.map((t) => {
           const on = t.id === tab && !previewing;
           return (
@@ -173,7 +173,7 @@ function TopBar({
   const { download, busy } = useDownloadLetter();
 
   return (
-    <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-black/5 bg-panel px-3 py-2">
+    <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-divider bg-panel px-3 py-2">
       <div className="flex items-center gap-2">
         <Link
           href="/cover-letters"
@@ -242,7 +242,7 @@ function TopBar({
             type="button"
             onClick={download}
             disabled={busy}
-            className="inline-flex h-auto items-center gap-2 rounded-lg bg-navy px-3.5 py-2 text-[14px] font-bold text-white transition hover:bg-navy/90 disabled:opacity-60"
+            className="inline-flex h-auto items-center gap-2 btn-fill px-3.5 py-2 text-[14px] font-bold transition disabled:opacity-60"
           >
             <DownloadIcon className="h-[18px] w-[18px]" />
             <span className="hidden sm:inline">

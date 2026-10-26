@@ -43,8 +43,8 @@ export function Companies() {
       {/* A paragraph, not a heading: this is a caption for the row beneath it,
           and slotting an h2 between the hero and the first real section would
           put a rung in the outline that leads nowhere. */}
-      <p className="text-center text-[15px] font-bold tracking-tight text-ink-soft lg:text-[17px]">
-        Helping users land jobs at 1,000+ companies such as
+      <p className="text-center text-[13px] font-medium tracking-[0.08em] text-ink-faint uppercase">
+        Our users work at
       </p>
 
       <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 items-center gap-x-6 gap-y-8 sm:grid-cols-4 lg:mt-10 lg:max-w-none lg:grid-cols-8 lg:gap-x-8">
@@ -62,7 +62,7 @@ export function Companies() {
             // eight small SVGs are cheap enough not to gate the hero on.
             loading="lazy"
             decoding="async"
-            className="mx-auto w-full max-w-[150px] opacity-55 brightness-0 lg:max-w-full"
+            className="mx-auto w-full max-w-[130px] opacity-40 brightness-0 lg:max-w-[150px]"
           />
         ))}
       </div>

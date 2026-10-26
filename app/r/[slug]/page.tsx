@@ -80,7 +80,7 @@ export default async function SharedResumePage(props: PageProps<"/r/[slug]">) {
 
       <header
         data-share-chrome
-        className="sticky top-0 z-10 border-b border-black/5 bg-cream/85 backdrop-blur-sm"
+        className="sticky top-0 z-10 border-b border-divider bg-cream/85 backdrop-blur-sm"
       >
         <div className="mx-auto flex w-full max-w-site items-center gap-3 px-5 py-3 sm:px-8">
           <Link href="/" aria-label="meniacv" className="shrink-0">
@@ -110,7 +110,7 @@ export default async function SharedResumePage(props: PageProps<"/r/[slug]">) {
 
       <footer
         data-share-chrome
-        className="border-t border-black/5 px-5 py-6 text-center text-[13.5px] text-ink-soft"
+        className="border-t border-divider px-5 py-6 text-center text-[13.5px] text-ink-soft"
       >
         Made with{" "}
         <Link href="/" className="font-bold text-ink hover:text-brand">

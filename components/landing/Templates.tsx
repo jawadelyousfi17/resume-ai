@@ -4,7 +4,7 @@ import { TemplateThumb } from "@/components/content/TemplateCard";
 import { TEMPLATES } from "@/lib/templates";
 
 import { TemplateFan } from "./TemplateFan";
-import { h2, lede, sectionGap, shell } from "./ui";
+import { ArrowRight, eyebrow, h2, sectionGap, shell } from "./ui";
 
 // The pages in the carousel.
 //
@@ -20,17 +20,17 @@ export function Templates() {
       <div className={`${shell} text-center`}>
         {/* Built as one string: JSX drops the space between an expression and
             the text that follows it when the line wraps. */}
-        <h2 className={h2}>
-          {`Choose from ${TEMPLATES.length} resume templates`}
+        <p className={eyebrow}>Templates</p>
+        <h2 className={`${h2} mt-3`}>
+          {`${TEMPLATES.length} templates, one click apart`}
         </h2>
-        <p className={`${lede} mx-auto`}>
-          Every one is ATS-friendly and fully customizable — same content, a
-          different look in a click.{" "}
-          <Link href="/resume-templates" className="underline">
-            Browse all templates
-          </Link>
-          .
-        </p>
+        <Link
+          href="/resume-templates"
+          className="mt-5 inline-flex items-center gap-1.5 text-[15px] font-semibold text-brand transition hover:text-accent-2"
+        >
+          Browse all
+          <ArrowRight className="h-4 w-4" />
+        </Link>
       </div>
 
       {/* A plain row of real pages, running the full width of the window:

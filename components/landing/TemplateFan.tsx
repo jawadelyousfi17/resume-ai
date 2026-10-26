@@ -76,7 +76,7 @@ export function TemplateFan({
             <span className="grid h-11 w-11 place-items-center rounded-full bg-brand text-white">
               <ArrowRight className="h-4 w-4" />
             </span>
-            <span className="text-[15px] leading-snug font-extrabold text-ink">
+            <span className="text-[15px] leading-snug font-bold text-ink">
               {`See all ${total} templates`}
             </span>
             <span className="text-[13px] leading-relaxed text-ink-soft">
@@ -87,7 +87,7 @@ export function TemplateFan({
       </div>
 
       <div className="mt-8 flex justify-center">
-        <div className="inline-flex items-center gap-1 rounded-full bg-panel p-1.5 shadow-[var(--shadow-panel)] ring-1 ring-black/5">
+        <div className="inline-flex items-center gap-1 rounded-full bg-panel p-1.5 shadow-[var(--shadow-panel)] ring-1 ring-divider">
           <button
             type="button"
             onClick={() => step(-1)}

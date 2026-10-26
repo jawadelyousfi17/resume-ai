@@ -283,19 +283,25 @@ export function Dashboard({
   };
 
   return (
-    <DashboardShell active="resumes" account={account}>
-      {/* The bar along the bottom already says Resume, so on a phone this
-          takes no room — but a page still has to have an <h1>. */}
-      <div className="max-sm:sr-only">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-          My Resumes
-        </h1>
-        <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
-          {guest
-            ? "Building as a guest — this resume is saved in this browser only. Sign in to keep it and build more."
-            : "Build as many as you like — they save automatically to your account."}
-        </p>
-      </div>
+    <DashboardShell
+      active="resumes"
+      account={account}
+      header={{
+        title: "Resumes",
+        count: list.length,
+        action: (
+          <button
+            type="button"
+            onClick={handleNew}
+            disabled={pending}
+            className="btn-fill flex h-11 items-center gap-2 px-5 text-[15px] font-medium transition disabled:opacity-60"
+          >
+            <PlusIcon className="h-[18px] w-[18px]" />
+            {atGuestLimit ? "Sign in for more" : "New resume"}
+          </button>
+        ),
+      }}
+    >
       {!guest && <GuestImport />}
 
       <NewResumeDialog
@@ -318,34 +324,29 @@ export function Dashboard({
         type="button"
         onClick={handleNew}
         disabled={pending}
-        className={`mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink-faint/40 text-[15px] font-bold text-ink-soft transition disabled:opacity-60 md:hidden ${
-          atGuestLimit ? "opacity-60" : "active:border-purple/50"
+        className={`flex h-12 w-full items-center justify-center gap-2 rounded-[10px] border border-dashed border-field-border text-[15px] font-semibold text-ink-soft transition disabled:opacity-60 md:hidden ${
+          atGuestLimit ? "opacity-60" : "active:border-brand/50 active:text-brand"
         }`}
       >
         <PlusIcon className="h-5 w-5" />
         {atGuestLimit ? "Sign in for more" : "New resume"}
       </button>
 
-      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:mt-8 md:grid-cols-[repeat(auto-fill,minmax(190px,1fr))] md:gap-x-6 md:gap-y-8">
+      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 md:mt-0 md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] md:gap-x-6 md:gap-y-8">
         <button
           type="button"
           onClick={handleNew}
           disabled={pending}
-          title={
-            atGuestLimit
-              ? "Guests get one resume — sign in to build more."
-              : undefined
-          }
-          className={`group hidden aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink-faint/40 text-ink-soft transition disabled:opacity-60 md:flex ${
+          className={`group hidden aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-none border border-dashed border-field-border bg-canvas text-ink-soft transition disabled:opacity-60 md:flex ${
             atGuestLimit
               ? "opacity-60"
-              : "hover:border-purple/50 hover:text-purple"
+              : "hover:border-brand/50 hover:bg-brand-soft/40 hover:text-brand"
           }`}
         >
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white transition group-hover:scale-105">
-            <PlusIcon className="h-6 w-6" />
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-panel ring-1 ring-divider transition group-hover:ring-brand/40">
+            <PlusIcon className="h-5 w-5" />
           </span>
-          <span className="text-[15px] font-bold">
+          <span className="text-[14px] font-semibold">
             {atGuestLimit ? "Sign in for more" : "New resume"}
           </span>
         </button>

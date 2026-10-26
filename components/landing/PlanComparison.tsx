@@ -18,7 +18,7 @@ export function PlanComparison({ className }: { className?: string }) {
       <div className="text-center">
         <h2
           id="compare-plans"
-          className="text-[26px] leading-tight font-extrabold tracking-tight text-ink sm:text-[32px]"
+          className="text-[26px] leading-tight font-bold tracking-tight text-ink sm:text-[32px]"
         >
           Compare plans
         </h2>
@@ -64,7 +64,7 @@ export function PlanComparison({ className }: { className?: string }) {
                       </span>
                     )}
                   </span>
-                  <span className="mt-2 block text-[17px] font-extrabold tracking-tight text-ink">
+                  <span className="mt-2 block text-[17px] font-bold tracking-tight text-ink">
                     {plan.id.toUpperCase()}
                   </span>
                   <Link
@@ -83,7 +83,7 @@ export function PlanComparison({ className }: { className?: string }) {
               <tr key={row.feature}>
                 <th
                   scope="row"
-                  className="border-t border-black/[0.07] py-4 pr-6 text-[15px] font-bold text-ink"
+                  className="border-t border-divider py-4 pr-6 text-[15px] font-bold text-ink"
                 >
                   {row.feature}
                 </th>
@@ -91,7 +91,7 @@ export function PlanComparison({ className }: { className?: string }) {
                   <td
                     key={PLANS[i].id}
                     className={cn(
-                      "border-t border-black/[0.07] px-6 py-4 text-center text-[14.5px] leading-snug text-ink-soft",
+                      "border-t border-divider px-6 py-4 text-center text-[14.5px] leading-snug text-ink-soft",
                       PLANS[i].featured && "bg-brand-soft/60",
                     )}
                   >

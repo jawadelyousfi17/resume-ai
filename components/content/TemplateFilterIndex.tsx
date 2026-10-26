@@ -57,7 +57,7 @@ export function TemplateFilterIndex({
 }) {
   return (
     <section className="mt-14">
-      <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+      <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
         {heading}
       </h2>
       {/* Fourteen of these, so the row is the unit rather than the card: a
@@ -65,7 +65,7 @@ export function TemplateFilterIndex({
           which at this size read as a sheet of buttons. Square, like the
           template cards — the rounded pills were the last thing on these pages
           still shaped like an app control. */}
-      <div className="mt-6 grid gap-px overflow-hidden bg-black/[0.09] ring-1 ring-black/[0.09] sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid gap-px overflow-hidden bg-black/[0.09] ring-1 ring-divider sm:grid-cols-2 lg:grid-cols-3">
         {filterChips().map((chip) => {
           const Icon = ICONS[chip.slug];
           const icon = filterIcon(chip.slug);
@@ -102,7 +102,7 @@ export function TemplateFilterIndex({
                 </span>
               )}
               <span className="min-w-0">
-                <span className="block truncate text-[17px] leading-snug font-extrabold text-ink">
+                <span className="block truncate text-[17px] leading-snug font-bold text-ink">
                   {chip.label}
                 </span>
                 <span className="mt-1 block text-[13.5px] font-semibold text-ink-faint">

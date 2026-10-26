@@ -103,7 +103,7 @@ export function Toaster() {
         // The app's panel, not the library's white box. Full width on a phone,
         // where the container's gutters already set the margin.
         className:
-          "!bg-panel !text-ink !text-[14px] !font-semibold !rounded-xl !shadow-[var(--shadow-panel)] !ring-1 !ring-black/5 !max-w-[420px] max-sm:!w-full",
+          "!bg-panel !text-ink !text-[14px] !font-semibold !rounded-xl !shadow-[var(--shadow-panel)] !ring-1 !ring-divider !max-w-[420px] max-sm:!w-full",
         duration: 4000,
         success: {
           iconTheme: { primary: "var(--app-brand)", secondary: "#fff" },

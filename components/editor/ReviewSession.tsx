@@ -37,18 +37,45 @@ interface ReviewValue {
    *  here so the Fix buttons don't forget on the way out of the tab. */
   fixes: Record<number, FixState>;
   recordFixes: (fixes: Record<number, FixState>) => void;
+  /** The overall score this resume got the time before, so the report can
+   *  show the move — 62 → 81 — rather than a number on its own. Null on a
+   *  first review. */
+  previous: number | null;
+}
+
+/** Per resume, in this browser. It's a before-and-after, not a record: losing
+ *  it costs one comparison. */
+const scoreKey = (id: string) => `meniacv:review-score:${id}`;
+
+function readScore(id: string): number | null {
+  try {
+    const raw = localStorage.getItem(scoreKey(id));
+    const n = raw === null ? NaN : Number(raw);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeScore(id: string, score: number) {
+  try {
+    localStorage.setItem(scoreKey(id), String(score));
+  } catch {
+    // Private mode or full storage: the next review just won't compare.
+  }
 }
 
 const ReviewContext = createContext<ReviewValue | null>(null);
 
 export function ReviewProvider({ children }: { children: React.ReactNode }) {
-  const { data } = useResume();
+  const { id, data } = useResume();
   const plan = usePlan();
 
   const [report, setReport] = useState<ReviewReport | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fixes, setFixes] = useState<Record<number, FixState>>({});
+  const [previous, setPrevious] = useState<number | null>(null);
   const controller = useRef<AbortController | null>(null);
 
   // Only fires when the editor itself goes, not on a tab change.
@@ -80,6 +107,9 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
         if (!res.ok || !("scores" in payload)) {
           throw new Error(payload.error || `Server error ${res.status}`);
         }
+        // What it scored last time, read before this score replaces it.
+        setPrevious(readScore(id));
+        writeScore(id, payload.overall);
         setReport(payload);
         // A new report indexes its issues afresh, so what was fixed under the
         // old one means nothing under this one.
@@ -93,15 +123,15 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
         if (!ctrl.signal.aborted) setBusy(false);
       }
     })();
-  }, [data, plan]);
+  }, [id, data, plan]);
 
   const recordFixes = useCallback((applied: Record<number, FixState>) => {
     setFixes((current) => ({ ...current, ...applied }));
   }, []);
 
   const value = useMemo(
-    () => ({ report, busy, error, run, fixes, recordFixes }),
-    [report, busy, error, run, fixes, recordFixes],
+    () => ({ report, busy, error, run, fixes, recordFixes, previous }),
+    [report, busy, error, run, fixes, recordFixes, previous],
   );
 
   return (

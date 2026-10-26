@@ -8,6 +8,12 @@
 
 export const THEMES = [
   {
+    id: "studio",
+    name: "Studio",
+    note: "White panels, one blue",
+    swatch: ["#244cec", "#111111", "#f8f8f8"],
+  },
+  {
     id: "ocean",
     name: "Ocean",
     note: "The original blue",
@@ -41,7 +47,7 @@ export const THEMES = [
 
 export type ThemeId = (typeof THEMES)[number]["id"];
 
-export const DEFAULT_THEME: ThemeId = "graphite";
+export const DEFAULT_THEME: ThemeId = "studio";
 
 /** Where the choice is kept. Read by the inline script in the layout too, so
  *  the page paints in the right colours rather than flashing the default. */

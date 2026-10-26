@@ -95,7 +95,7 @@ export default function ResumeTemplatesPage() {
             longer reads behind six of them — the argument for a style rather
             than the grid of it. */}
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Read about a style
           </h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -105,7 +105,7 @@ export default function ResumeTemplatesPage() {
                 href={`/${collection.slug}`}
                 className={cn(panelFlat, "px-5 py-4 transition hover:ring-ink/15")}
               >
-                <span className="block text-[15px] font-extrabold text-ink">
+                <span className="block text-[15px] font-bold text-ink">
                   {collection.title}
                 </span>
                 <span className="mt-1 block text-[13px] font-semibold text-ink-faint">
@@ -117,7 +117,7 @@ export default function ResumeTemplatesPage() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Choosing between them
           </h2>
           <p
@@ -152,7 +152,7 @@ export default function ResumeTemplatesPage() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqAccordion entries={FAQS} />

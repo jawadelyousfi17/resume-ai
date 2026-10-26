@@ -53,7 +53,7 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
       {/* A row of six tabs wraps into three lines on a phone and pushes the
           examples off the screen — so there it scrolls instead. The rule runs
           the full width underneath either way. */}
-      <div className="mt-10 border-b border-black/10">
+      <div className="mt-10 border-b border-divider">
         <div className="scroll-slim -mx-5 flex gap-7 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
           <Tab active={active === "all"} onClick={() => setActive("all")}>
             All
@@ -100,7 +100,7 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
                 width={1672}
                 height={941}
                 sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 90vw"
-                className="block w-full border-b border-black/[0.07] bg-field/40"
+                className="block w-full border-b border-divider bg-field/40"
               />
             )}
 
@@ -111,7 +111,7 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
                 card over its neighbour. It still leads each role's own page,
                 where it's the answer to a question that has been asked. */}
             <span className="block px-6 py-5">
-              <span className="block text-[17px] leading-snug font-extrabold text-ink">
+              <span className="block text-[17px] leading-snug font-bold text-ink">
                 {example.role}
               </span>
               <span className="mt-1.5 block text-[12.5px] leading-relaxed font-semibold text-ink-faint">

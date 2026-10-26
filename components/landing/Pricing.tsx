@@ -27,11 +27,12 @@ import {
   type Plan,
 } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { segItem, segItemOn, segTrack } from "@/components/ui/segmented";
 import { CheckoutButton } from "@/components/plan/CheckoutButton";
 import { FlameMark } from "@/components/ui/plan-badge";
 import { PlanTicks, planAction, planSkin } from "@/components/ui/plan-surface";
 
-import { h2, lede, sectionGap, shell } from "./ui";
+import { ArrowRight, eyebrow, h2, sectionGap, shell } from "./ui";
 
 /** The mark on the plan we'd point someone at. Says what it means rather than
  *  only glowing: a flame on its own is decoration, a flame with a word is a
@@ -69,10 +70,7 @@ export function BillingToggle({
     <div
       role="radiogroup"
       aria-label="Billing period"
-      className={cn(
-        "mx-auto inline-flex items-center gap-1 rounded-xl bg-field p-1 ring-1 ring-black/[0.06]",
-        className,
-      )}
+      className={cn(segTrack, "mx-auto inline-flex", className)}
     >
       {(["monthly", "yearly"] as const).map((option) => (
         <button
@@ -82,10 +80,9 @@ export function BillingToggle({
           aria-checked={cycle === option}
           onClick={() => onChange(option)}
           className={cn(
-            "inline-flex h-11 items-center gap-2 rounded-lg px-6 text-[15px] font-bold transition",
-            cycle === option
-              ? "bg-navy text-white"
-              : "text-ink-soft hover:text-ink",
+            segItem,
+            "h-10 flex-none px-6 text-[15px]",
+            cycle === option && segItemOn,
           )}
         >
           {option === "monthly" ? "Monthly" : "Yearly"}
@@ -93,9 +90,7 @@ export function BillingToggle({
             <span
               className={cn(
                 "rounded-full px-2 py-0.5 text-[11.5px] font-bold",
-                cycle === "yearly"
-                  ? "bg-white/15 text-white"
-                  : "bg-brand-soft text-brand",
+                "bg-brand-soft text-brand",
               )}
             >
               −{bestSaving}%
@@ -134,7 +129,7 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
         {plan.featured && <HotBadge className={skin.pill} />}
       </div>
 
-      <h3 className="mt-4 text-[24px] leading-[1.1] font-extrabold tracking-tight">
+      <h3 className="mt-4 text-[24px] leading-[1.1] font-bold tracking-tight">
         <span className={cn("block text-[14px] font-bold", skin.faint)}>
           {plan.qualifier}
         </span>
@@ -144,7 +139,7 @@ export function PlanCard({ plan, cycle }: { plan: Plan; cycle: BillingCycle }) {
       <div className="mt-7 flex items-baseline gap-1.5 whitespace-nowrap">
         <span
           className={cn(
-            "text-[42px] leading-none font-extrabold tracking-tight",
+            "text-[42px] leading-none font-bold tracking-tight",
             skin.title,
           )}
         >
@@ -297,25 +292,20 @@ export function Pricing() {
   return (
     <section id="pricing" className={`${shell} ${sectionGap}`}>
       <div className="text-center">
-        <h2 className={h2}>Simple pricing. One free resume, forever.</h2>
-        <p className={`${lede} mx-auto`}>
-          Start free and without a card. Upgrade only when you want the AI to
-          write with you, or when one resume stops being enough.
-        </p>
+        <p className={eyebrow}>Pricing</p>
+        <h2 className={`${h2} mt-3`}>One resume free, forever</h2>
       </div>
 
       <PlanGrid className="mt-12 lg:mt-14" />
 
-      <p className="mt-8 text-center text-[13.5px] text-ink-soft">
-        Prices in USD. Cancel any time — your resumes stay downloadable on the
-        free plan.{" "}
+      <p className="mt-8 text-center text-[14px]">
         <Link
           href="/pricing"
-          className="font-bold text-brand underline underline-offset-4"
+          className="inline-flex items-center gap-1.5 font-semibold text-brand transition hover:text-accent-2"
         >
-          Compare the plans in full
+          Compare plans
+          <ArrowRight className="h-4 w-4" />
         </Link>
-        .
       </p>
     </section>
   );

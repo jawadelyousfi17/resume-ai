@@ -182,13 +182,13 @@ export default function ResumeExamplesIndexPage() {
         />
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             How to use a resume example without sounding like one
           </h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {HOW_TO_USE.map((item) => (
               <div key={item.heading} className={cn(panelFlat, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-extrabold text-ink">
+                <h3 className="text-[16.5px] font-bold text-ink">
                   {item.heading}
                 </h3>
                 <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
@@ -200,7 +200,7 @@ export default function ResumeExamplesIndexPage() {
         </section>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqAccordion entries={FAQS} />

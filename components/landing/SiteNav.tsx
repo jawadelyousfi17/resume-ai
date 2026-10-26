@@ -56,7 +56,7 @@ export function SiteNav() {
     <header
       className={`sticky top-0 z-30 w-full border-b transition-colors duration-200 ${
         scrolled
-          ? "border-black/5 bg-panel/90 backdrop-blur-md"
+          ? "border-divider bg-panel/90 backdrop-blur-md"
           : "border-transparent bg-transparent"
       }`}
     >
@@ -85,7 +85,7 @@ export function SiteNav() {
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:gap-3">
           <Link
             href="/login"
-            className="hidden h-11 items-center rounded-xl border border-black/10 px-5 text-[14.5px] font-bold text-ink transition hover:bg-black/5 sm:inline-flex lg:h-12 lg:text-[15px]"
+            className="btn-soft hidden h-11 items-center px-5 text-[14.5px] font-semibold transition sm:inline-flex lg:h-12 lg:text-[15px]"
           >
             Log In
           </Link>

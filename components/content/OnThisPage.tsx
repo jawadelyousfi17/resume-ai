@@ -94,7 +94,7 @@ export function OnThisPage({
                   "block border-l-2 py-1.5 pl-4 text-[14px] leading-snug font-bold transition",
                   on
                     ? "border-brand text-brand"
-                    : "border-black/10 text-ink-faint hover:border-ink/30 hover:text-ink",
+                    : "border-divider text-ink-faint hover:border-ink/30 hover:text-ink",
                 )}
               >
                 {link.label}

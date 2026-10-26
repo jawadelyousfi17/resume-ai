@@ -1,7 +1,10 @@
+import { Star } from "lucide-react";
+
+import { icon } from "@/components/ui/icons";
 import { TEMPLATES } from "@/lib/templates";
 
 import { Avatar } from "./marks";
-import { h2, sectionGap, shell } from "./ui";
+import { eyebrow, h2, sectionGap, shell } from "./ui";
 
 // Illustrative quotes, not attributed to any review platform — swap them for
 // real ones (with the reviewer's permission) when there are some to show.
@@ -61,6 +64,44 @@ const ROW_TWO: Quote[] = [
   },
 ];
 
+/** Placeholder, like the quotes above: swap in the real average with the real
+ *  reviews. Deliberately not in the page's structured data — a rating with no
+ *  reviews behind it is exactly what search engines penalise. */
+const RATING = 4.7;
+
+/** Five stars, filled to `value` — the last one only partly, so 4.7 looks
+ *  like 4.7 and not like 5. */
+function Rating({ value }: { value: number }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="flex gap-0.5" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => {
+          const fill = Math.max(0, Math.min(1, value - i));
+          return (
+            <span key={i} className="relative h-6 w-6">
+              <StarIcon className="absolute inset-0 h-6 w-6 fill-divider text-divider" />
+              <span
+                className="absolute inset-0 overflow-hidden"
+                style={{ width: `${fill * 100}%` }}
+              >
+                <StarIcon className="h-6 w-6 fill-[#f5a623] text-[#f5a623]" />
+              </span>
+            </span>
+          );
+        })}
+      </span>
+      <p className="text-[15px] text-ink-soft">
+        <span className="text-[20px] font-bold tracking-tight text-ink tabular-nums">
+          {value.toFixed(1)}
+        </span>{" "}
+        out of 5
+      </p>
+    </div>
+  );
+}
+
+const StarIcon = icon(Star);
+
 const STATS = [
   { value: "100K+", label: "Resumes built" },
   { value: `${TEMPLATES.length}`, label: "Templates, all free" },
@@ -81,20 +122,20 @@ function QuoteMark({ className }: { className?: string }) {
 
 function Card({ q }: { q: Quote }) {
   return (
-    <figure className="mx-2.5 flex w-[300px] shrink-0 flex-col justify-between rounded-3xl bg-panel p-6 ring-1 ring-black/[0.09] sm:mx-3 sm:w-[360px] lg:w-[420px] lg:p-8">
+    <figure className="mx-2 flex w-[300px] shrink-0 flex-col justify-between rounded-[14px] bg-panel p-6 ring-1 ring-divider sm:w-[340px] lg:w-[380px] lg:p-7">
       <div>
-        <QuoteMark className="h-5 w-7 text-brand lg:h-6 lg:w-8" />
-        <blockquote className="mt-5 text-[17px] leading-[1.45] font-bold tracking-[-0.02em] text-ink lg:text-[20px]">
+        <QuoteMark className="h-4 w-5 text-ink-faint" />
+        <blockquote className="mt-4 text-[15.5px] leading-[1.55] font-medium text-ink lg:text-[16.5px]">
           {q.quote}
         </blockquote>
       </div>
-      <figcaption className="mt-8 flex items-center gap-3.5">
-        <Avatar name={q.name} className="h-12 w-12" />
+      <figcaption className="mt-6 flex items-center gap-3">
+        <Avatar name={q.name} className="h-9 w-9" />
         <div className="min-w-0">
-          <p className="truncate text-[16px] font-bold text-ink lg:text-[17px]">
+          <p className="truncate text-[14px] font-semibold text-ink">
             {q.name}
           </p>
-          <p className="truncate text-[13px] text-ink-soft">{q.role}</p>
+          <p className="truncate text-[12.5px] text-ink-faint">{q.role}</p>
         </div>
       </figcaption>
     </figure>
@@ -122,7 +163,9 @@ function Row({
   reverse?: boolean;
 }) {
   return (
-    <div className="lp-rail-mask scroll-slim overflow-x-auto">
+    // Padded top and bottom: a horizontal scroller clips vertically too, and
+    // without the room the cards' own top and bottom edges were cut off.
+    <div className="lp-rail-mask scroll-slim overflow-x-auto py-1.5">
       <div
         className={`lp-rail ${duration} ${reverse ? "[animation-direction:reverse]" : ""}`}
       >
@@ -144,37 +187,25 @@ export function Testimonials() {
       <div className={`${shell} flex flex-col items-center text-center`}>
         {/* Placeholder social proof, same as the quotes below: the number is
             the one the stats row already claims, not a review-site rating. */}
-        <span className="inline-flex items-center gap-3 rounded-full bg-navy py-1.5 pr-6 pl-1.5 text-[15px] font-bold text-white shadow-[0_18px_30px_rgba(32,26,46,0.18)]">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-brand">
-            <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
-              <path
-                d="m10 1.6 2.4 5 5.5.8-4 3.8.95 5.4L10 14l-4.85 2.6.95-5.4-4-3.8 5.5-.8z"
-                fill="currentColor"
-              />
-            </svg>
-          </span>
-          Loved by 100K+ job seekers
-        </span>
+        <Rating value={RATING} />
+        <p className={`${eyebrow} mt-6`}>Reviews</p>
 
-        <h2 className={`${h2} mt-9`}>
-          Loved &amp; trusted
-          <br className="block md:hidden" /> by job seekers everywhere
-        </h2>
+        <h2 className={`${h2} mt-3`}>Loved by job seekers</h2>
       </div>
 
-      <div className="mt-10 grid gap-5 sm:gap-6 lg:mt-12">
+      <div className="mt-10 grid gap-4 lg:mt-12">
         <Row quotes={ROW_ONE} duration="[--rail-duration:110s]" reverse />
         <Row quotes={ROW_TWO} duration="[--rail-duration:125s]" />
       </div>
 
       <div className={`${shell} mt-12 lg:mt-16`}>
-        <div className="grid gap-8 rounded-2xl bg-panel px-6 py-11 ring-1 ring-black/[0.09] sm:grid-cols-3">
+        <div className="grid border-y border-divider sm:grid-cols-3 sm:divide-x sm:divide-divider">
           {STATS.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-[34px] font-extrabold tracking-tight text-ink sm:text-[40px]">
+            <div key={s.label} className="py-8 text-center">
+              <div className="text-[34px] font-bold tracking-[-0.03em] text-ink sm:text-[40px]">
                 {s.value}
               </div>
-              <div className="mt-1.5 text-[13px] font-semibold text-ink-soft">
+              <div className="mt-1 text-[13px] text-ink-soft">
                 {s.label}
               </div>
             </div>

@@ -89,18 +89,25 @@ export function CoverLetters({
   };
 
   return (
-    <DashboardShell account={account} active="letters">
-      {/* The bottom bar names the section on a phone, so this takes no room
-          there — but a page still has to have an <h1>. */}
-      <div className="max-sm:sr-only">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-          Cover Letters
-        </h1>
-        <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
-          One letter per job. Paste the posting and it&rsquo;s written from what
-          your resume already says.
-        </p>
-      </div>
+    <DashboardShell
+      account={account}
+      active="letters"
+      header={{
+        title: "Cover Letters",
+        count: letters.length,
+        action: (
+          <button
+            type="button"
+            onClick={startLetter}
+            disabled={pending}
+            className="btn-fill flex h-11 items-center gap-2 px-5 text-[15px] font-medium transition disabled:opacity-60"
+          >
+            <PlusIcon className="h-[18px] w-[18px]" />
+            New letter
+          </button>
+        ),
+      }}
+    >
 
       <NewLetterDialog
         open={adding}
@@ -116,23 +123,23 @@ export function CoverLetters({
         type="button"
         onClick={startLetter}
         disabled={pending}
-        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink-faint/40 text-[15px] font-bold text-ink-soft transition active:border-purple/50 disabled:opacity-60 md:hidden"
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-[10px] border border-dashed border-field-border text-[15px] font-semibold text-ink-soft transition active:border-brand/50 active:text-brand disabled:opacity-60 md:hidden"
       >
         <PlusIcon className="h-5 w-5" />
         New cover letter
       </button>
 
-      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:mt-8 md:grid-cols-[repeat(auto-fill,minmax(190px,1fr))] md:gap-x-6 md:gap-y-8">
+      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 md:mt-0 md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] md:gap-x-6 md:gap-y-8">
         <button
           type="button"
           onClick={startLetter}
           disabled={pending}
-          className="group hidden aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink-faint/40 text-ink-soft transition hover:border-purple/50 hover:text-purple disabled:opacity-60 md:flex"
+          className="group hidden aspect-[210/297] w-full flex-col items-center justify-center gap-3 rounded-none border border-dashed border-field-border bg-canvas text-ink-soft transition hover:border-brand/50 hover:bg-brand-soft/40 hover:text-brand disabled:opacity-60 md:flex"
         >
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white transition group-hover:scale-105">
-            <PlusIcon className="h-6 w-6" />
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-panel ring-1 ring-divider transition group-hover:ring-brand/40">
+            <PlusIcon className="h-5 w-5" />
           </span>
-          <span className="text-[15px] font-bold">New cover letter</span>
+          <span className="text-[14px] font-semibold">New cover letter</span>
         </button>
 
         {letters.map((letter) => (

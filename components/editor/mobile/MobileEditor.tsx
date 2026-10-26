@@ -19,13 +19,13 @@ import {
   DownloadIcon,
   EyeIcon,
   FileTextIcon,
-  PencilIcon,
   TargetIcon,
   WandIcon,
 } from "@/components/ui/icons";
 import { Logo } from "@/components/ui/logo";
 import { useResume } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { segItem, segItemOn, segTrack } from "@/components/ui/segmented";
 
 import { AIPanel } from "../ai/AIPanel";
 import { ContentPanel } from "../ContentPanel";
@@ -37,13 +37,20 @@ import { TailorPanel } from "../TailorPanel";
 import { TailorOverlay } from "../TailorSession";
 import { SetupFlow } from "./SetupFlow";
 
-type MobileTab = "content" | "customize" | "ai" | "review" | "tailor";
+type MobileTab =
+  | "preview"
+  | "content"
+  | "customize"
+  | "ai"
+  | "review"
+  | "tailor";
 
 const TABS: {
   id: MobileTab;
   label: string;
   icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
 }[] = [
+  { id: "preview", label: "Preview", icon: EyeIcon },
   { id: "content", label: "Edit", icon: FileTextIcon },
   { id: "customize", label: "Design", icon: WandIcon },
   { id: "ai", label: "AI", icon: ChipIcon },
@@ -61,10 +68,9 @@ export function MobileEditor() {
     const value = params.get("setup");
     return value === "new" || value === "import" ? value : null;
   });
-  const [tab, setTab] = useState<MobileTab>("content");
-  // The page itself isn't one of the tabs — it's the floating eye, so looking
-  // at the resume never costs you the panel you were working in.
-  const [previewing, setPreviewing] = useState(true);
+  // The page is a tab like the rest, and the first one open.
+  const [tab, setTab] = useState<MobileTab>("preview");
+  const previewing = tab === "preview";
 
   if (setup) {
     return (
@@ -73,7 +79,7 @@ export function MobileEditor() {
         onDone={() => {
           setSetup(null);
           // Finishing the walk-through lands on the finished page.
-          setPreviewing(true);
+          setTab("preview");
           // Drop the parameter so a refresh lands in the editor, not back at
           // step one.
           router.replace(window.location.pathname);
@@ -83,7 +89,7 @@ export function MobileEditor() {
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-cream">
+    <div className="flex h-dvh flex-col bg-canvas">
       <MobileTopBar />
 
       <div className="scroll-slim min-h-0 flex-1 overflow-y-auto">
@@ -95,7 +101,10 @@ export function MobileEditor() {
         )}
         {!previewing && tab === "customize" && (
           <div className="px-3 py-4">
-            <CustomizePanel />
+            {/* Flat sections, gathered into one sheet on the grey. */}
+            <div className="@container overflow-hidden rounded-[10px] bg-panel ring-1 ring-divider">
+              <CustomizePanel />
+            </div>
           </div>
         )}
         {!previewing && tab === "ai" && (
@@ -115,45 +124,33 @@ export function MobileEditor() {
         )}
       </div>
 
-      {/* Look at the page, or go back to what you were editing. It floats
-          clear of the tab bar so it's reachable from anywhere. */}
-      <button
-        type="button"
-        onClick={() => setPreviewing((v) => !v)}
-        aria-pressed={previewing}
-        aria-label={previewing ? "Back to editing" : "Preview the resume"}
-        className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 flex h-14 w-14 items-center justify-center rounded-full bg-navy text-white shadow-[0_10px_28px_rgba(15,23,42,0.3)] transition active:scale-95"
-      >
-        {previewing ? (
-          <PencilIcon className="h-6 w-6" />
-        ) : (
-          <EyeIcon className="h-6 w-6" />
-        )}
-      </button>
-
-      <nav className="grid shrink-0 grid-cols-5 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)]">
-        {TABS.map((t) => {
-          const Icon = t.icon;
-          const on = t.id === tab && !previewing;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => {
-                setTab(t.id);
-                setPreviewing(false);
-              }}
-              aria-current={on ? "page" : undefined}
-              className={cn(
-                "flex flex-col items-center gap-1 py-2.5 text-[10.5px] font-bold transition",
-                on ? "text-brand" : "text-ink-faint",
-              )}
-            >
-              <Icon className="h-[22px] w-[22px]" />
-              {t.label}
-            </button>
-          );
-        })}
+      {/* The theme's segmented control, along the bottom: a pale track with
+          the open tab lifted out of it in white, its icon in the blue. */}
+      <nav className="shrink-0 border-t border-divider bg-panel px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+        <div className={segTrack}>
+          {TABS.map((t) => {
+            const Icon = t.icon;
+            const on = t.id === tab;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                aria-current={on ? "page" : undefined}
+                className={cn(
+                  segItem,
+                  "h-auto flex-col gap-0.5 px-0 py-1.5 text-[10.5px]",
+                  on && segItemOn,
+                )}
+              >
+                <Icon
+                  className={cn("h-5 w-5", on ? "text-white" : "text-ink-faint")}
+                />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
@@ -164,7 +161,7 @@ function MobileTopBar() {
   const { download, busy } = useDownloadPdf();
 
   return (
-    <header className="flex shrink-0 items-center gap-2 border-b border-black/5 bg-panel px-3 py-2.5">
+    <header className="flex shrink-0 items-center gap-2 border-b border-divider bg-panel px-3 py-2.5">
       <Link
         href="/dashboard"
         aria-label="Back to my resumes"
@@ -181,7 +178,7 @@ function MobileTopBar() {
         type="button"
         onClick={download}
         disabled={busy}
-        className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-navy px-3.5 text-[14px] font-bold text-white transition disabled:opacity-60"
+        className="btn-fill inline-flex h-10 shrink-0 items-center gap-1.5 px-4 text-[14px] font-semibold transition disabled:opacity-60"
       >
         <DownloadIcon className="h-[18px] w-[18px]" />
         {busy ? "Building…" : "PDF"}
@@ -195,7 +192,7 @@ function PreviewTab() {
   const { data, format } = useResume();
 
   return (
-    <div className="px-3 pt-4 pb-24">
+    <div className="px-3 pt-4 pb-6">
       {/* Its own positioning context, so an overlay covers the paper rather
           than the padding around it. */}
       <div className="relative">

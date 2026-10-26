@@ -185,7 +185,7 @@ export default function ResumeReviewPage() {
         </div>
 
         <article className="mt-12 max-w-[72ch] space-y-4">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Why you can&rsquo;t review your own resume
           </h2>
           <p className="text-[16px] leading-[1.75] text-ink-soft">
@@ -207,7 +207,7 @@ export default function ResumeReviewPage() {
         </article>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Six passes, in this order
           </h2>
           <ol className="mt-6 space-y-3">
@@ -215,12 +215,12 @@ export default function ResumeReviewPage() {
               <li key={pass.title} className={cn(panel, "flex gap-5 px-6 py-5")}>
                 <span
                   aria-hidden="true"
-                  className="shrink-0 text-[26px] leading-none font-extrabold text-brand/30"
+                  className="shrink-0 text-[26px] leading-none font-bold text-brand/30"
                 >
                   {i + 1}
                 </span>
                 <div>
-                  <h3 className="text-[16.5px] font-extrabold text-ink">
+                  <h3 className="text-[16.5px] font-bold text-ink">
                     {pass.title}
                   </h3>
                   <p className="mt-1 text-[14.5px] font-semibold text-brand">
@@ -236,7 +236,7 @@ export default function ResumeReviewPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Who to ask, and what each is good for
           </h2>
           <p className="mt-3 max-w-[72ch] text-[16px] leading-[1.75] text-ink-soft">
@@ -248,7 +248,7 @@ export default function ResumeReviewPage() {
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {SOURCES.map((item) => (
               <div key={item.source} className={cn(panel, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-extrabold text-ink">
+                <h3 className="text-[16.5px] font-bold text-ink">
                   {item.source}
                 </h3>
                 <p className="mt-2.5 text-[15px] leading-relaxed text-ink-soft">
@@ -265,7 +265,7 @@ export default function ResumeReviewPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             How to ask for a review that&rsquo;s worth having
           </h2>
           <div className="mt-5 max-w-[72ch] space-y-4">
@@ -299,7 +299,7 @@ export default function ResumeReviewPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             What the review in the editor gives you
           </h2>
           <div className="mt-5 max-w-[72ch] space-y-4">
@@ -340,14 +340,14 @@ export default function ResumeReviewPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Resume review FAQs
           </h2>
           <FaqList entries={FAQS} />
         </section>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Keep going
           </h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -373,7 +373,7 @@ export default function ResumeReviewPage() {
                 href={item.href}
                 className={cn(panel, "px-6 py-5 transition hover:ring-ink/15")}
               >
-                <span className="block text-[16px] font-extrabold text-ink">
+                <span className="block text-[16px] font-bold text-ink">
                   {item.title}
                 </span>
                 <span className="mt-1.5 block text-[14px] leading-relaxed text-ink-soft">

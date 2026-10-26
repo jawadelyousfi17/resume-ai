@@ -44,7 +44,7 @@ export default function FaqPage() {
 
         {FAQ_GROUPS.map((group) => (
           <section key={group.title} className="mt-12">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {group.title}
             </h2>
             <FaqList entries={group.entries} />
@@ -52,7 +52,7 @@ export default function FaqPage() {
         ))}
 
         <section className="mt-12">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Questions about writing a resume
           </h2>
           <p
@@ -66,7 +66,7 @@ export default function FaqPage() {
               <li key={guide.slug}>
                 <Link
                   href={`/guides/${guide.slug}`}
-                  className="inline-flex rounded-lg border border-black/10 bg-panel px-3 py-2 text-[13.5px] font-bold text-ink transition hover:border-ink/25"
+                  className="inline-flex rounded-lg border border-divider bg-panel px-3 py-2 text-[13.5px] font-bold text-ink transition hover:border-ink/25"
                 >
                   {guide.title}
                 </Link>

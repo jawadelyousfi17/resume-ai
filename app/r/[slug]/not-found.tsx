@@ -12,7 +12,7 @@ export default function SharedResumeNotFound() {
         <LogoLockup className="h-11" />
       </Link>
       <div>
-        <p className="text-[21px] font-extrabold tracking-tight text-ink">
+        <p className="text-[21px] font-bold tracking-tight text-ink">
           This link isn&apos;t available
         </p>
         <p className="mt-1.5 max-w-[38ch] text-[15px] text-ink-soft">

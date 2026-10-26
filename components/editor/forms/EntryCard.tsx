@@ -49,6 +49,25 @@ export function useEntryList<T extends { id: string }>(
   };
 }
 
+/** The closed rows of a section, gathered into one inset group under its
+ *  heading — so an entry reads as belonging to the section above it rather
+ *  than as another section. An open entry has the column to itself and needs
+ *  no frame. A section with nothing in it draws no empty box (`:empty`). */
+export function EntryList({
+  editing,
+  children,
+}: {
+  editing: boolean;
+  children: React.ReactNode;
+}) {
+  if (editing) return <div>{children}</div>;
+  return (
+    <div className="mx-5 mt-0.5 overflow-hidden rounded-[10px] border border-divider bg-panel empty:hidden [&>*:first-child]:border-t-0">
+      {children}
+    </div>
+  );
+}
+
 /** Drag-to-reorder for the closed rows — the same hook the section list uses,
  *  so an entry and a section are dragged the same way. */
 export { useListDrag as useEntryDrag } from "../reorder";
@@ -118,7 +137,7 @@ export function EntryCard({
           e.preventDefault();
           drag?.onDragEnd();
         }}
-        className={`flex items-center gap-2 border-t border-black/5 px-5 py-3 transition ${
+        className={`flex items-center gap-2 border-t border-divider px-3 py-2 transition hover:bg-canvas ${
           hidden ? "opacity-60" : ""
         } ${drag?.dragging ? "opacity-40" : ""}`}
       >
@@ -150,11 +169,11 @@ export function EntryCard({
           onClick={onOpen}
           className="min-w-0 flex-1 py-1 text-left transition hover:text-brand"
         >
-          <span className="block truncate text-[17px] font-medium text-ink">
+          <span className="block truncate text-[14px] font-semibold text-ink">
             {summary || title}
           </span>
           {meta && (
-            <span className="mt-0.5 block truncate text-[13.5px] font-medium text-ink-faint">
+            <span className="mt-0.5 block truncate text-[12.5px] text-ink-faint">
               {meta}
             </span>
           )}
@@ -170,7 +189,7 @@ export function EntryCard({
       className={
         flat
           ? "overflow-hidden"
-          : "overflow-hidden rounded-2xl bg-panel shadow-[var(--shadow-panel)]"
+          : "bg-panel"
       }
     >
       <div
@@ -180,7 +199,7 @@ export function EntryCard({
         {flat ? (
           <span className="flex-1" />
         ) : (
-          <p className="min-w-0 flex-1 truncate text-[22px] font-bold tracking-tight text-ink">
+          <p className="min-w-0 flex-1 truncate text-[16px] font-bold text-ink">
             Edit Entry
           </p>
         )}
@@ -244,7 +263,7 @@ function IconButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-field text-ink-soft transition hover:bg-black/[0.06] ${
+      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-canvas ${
         danger ? "hover:text-danger" : "hover:text-ink"
       }`}
     >

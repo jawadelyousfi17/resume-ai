@@ -7,7 +7,7 @@ export default function ResumeNotFound() {
       <p className="text-lg font-bold text-ink">Resume not found</p>
       <Link
         href="/dashboard"
-        className="rounded-lg bg-navy px-4 py-2 text-sm font-bold text-white"
+        className="btn-fill px-4 py-2 text-sm font-bold"
       >
         Back to My Resumes
       </Link>

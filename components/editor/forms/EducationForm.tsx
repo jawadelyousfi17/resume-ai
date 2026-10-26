@@ -2,7 +2,12 @@
 
 import { useResume } from "@/lib/store";
 import { Field, Input } from "@/components/ui/fields";
-import { EntryCard, useEntryDrag, useEntryList } from "./EntryCard";
+import {
+  EntryCard,
+  EntryList,
+  useEntryDrag,
+  useEntryList,
+} from "./EntryCard";
 import { formatRange } from "@/lib/format";
 import { isMarkdownEmpty, markdownToText } from "@/lib/markdown";
 import { AssistedField } from "@/components/editor/ai/AssistedField";
@@ -78,7 +83,7 @@ export function EducationForm({ section }: { section: EducationSection }) {
   );
 
   return (
-    <div>
+    <EntryList editing={entries.editing}>
       {entries.items.map((item) => (
         <EntryCard
           key={item.id}
@@ -182,6 +187,6 @@ export function EducationForm({ section }: { section: EducationSection }) {
           </div>
         </EntryCard>
       ))}
-    </div>
+    </EntryList>
   );
 }

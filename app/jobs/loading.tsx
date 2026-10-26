@@ -6,12 +6,12 @@ import { BottomNav, SidebarNav } from "@/components/dashboard/nav";
 export default function Loading() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-app pb-16 md:pb-0">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-black/5 px-4 py-6 md:flex">
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-divider px-4 py-6 md:flex">
         <SidebarNav active="jobs" />
       </aside>
 
       <main className="min-w-0 flex-1 px-4 py-5 sm:px-10 sm:py-8 lg:px-14">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Job Tracker
         </h1>
         <div className="mt-8 flex gap-3 overflow-hidden">

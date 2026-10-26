@@ -29,6 +29,8 @@ export function PreviewCanvas({
   format = "A4",
   guides = true,
   marginY = DEFAULT_SETTINGS.marginY,
+  zoom = "fit",
+  onScale,
   children,
 }: {
   format?: PageFormat;
@@ -40,6 +42,12 @@ export function PreviewCanvas({
    *  every page and over every page but the first, so it decides how much of
    *  the document each sheet holds. */
   marginY?: number;
+  /** "fit" sizes the paper to the width it's given, never past 100%; a number
+   *  is a fixed scale, and the paper overflows its box when it's larger. */
+  zoom?: "fit" | number;
+  /** Told the scale the paper is actually drawn at — for a zoom control that
+   *  shows a percentage while it's fitting. */
+  onScale?: (scale: number) => void;
   children: React.ReactNode;
 }) {
   const { width: PAGE_W, height: PAGE_H } = PAGE_SIZES[format];
@@ -63,7 +71,7 @@ export function PreviewCanvas({
 
     const compute = () => {
       const available = wrap.clientWidth;
-      setScale(Math.min(1, available / PAGE_W));
+      setScale(zoom === "fit" ? Math.min(1, available / PAGE_W) : zoom);
       // offsetHeight ignores the CSS transform, so it's the true height.
       setCuts(pageCuts(doc, doc.offsetHeight, firstFit, restFit));
     };
@@ -76,7 +84,11 @@ export function PreviewCanvas({
     // `children` is in the deps because the cuts depend on what was laid out,
     // not only on how big the box around it is — a re-flow that leaves the
     // total height alone still moves the line the break lands on.
-  }, [PAGE_W, firstFit, restFit, children]);
+  }, [PAGE_W, firstFit, restFit, zoom, children]);
+
+  useEffect(() => {
+    onScale?.(scale);
+  }, [scale, onScale]);
 
   /** For each sheet: how far into the document it starts, how tall its window
    *  is, and how far down the sheet that window sits. */

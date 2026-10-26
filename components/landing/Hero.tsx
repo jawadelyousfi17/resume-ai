@@ -1,85 +1,81 @@
 import Link from "next/link";
 
-import { Avatar } from "./marks";
-import { btnHero, shell } from "./ui";
+import { CheckIcon } from "@/components/ui/icons";
 
-// The page in the hero. Ledger is the one the editor opens on and the first in
-// the library, so the hero shows what a new resume actually looks like rather
-// than a composite of the product's chrome.
+import { Avatar } from "./marks";
+import { HeroShowcase } from "./HeroShowcase";
+import { ArrowRight, btnCompact, btnQuiet, shell } from "./ui";
+
+// The page in the showcase. Ledger is the one the editor opens on and the
+// first in the library, so the hero shows what a new resume actually looks
+// like.
 const HERO_TEMPLATE = "ledger";
 
-const FACES = [
-  "Priya Nair",
-  "Tomas Ruiz",
-  "Ada Chen",
-  "Jonas Weber",
-  "Maya Okafor",
-];
+const FACES = ["Priya Nair", "Tomas Ruiz", "Ada Chen", "Jonas Weber"];
+
+/** The free plan, in three words each — what used to be a section of its own. */
+const PROMISES = ["Free forever", "No watermark", "Unlimited PDFs"];
 
 export function Hero() {
   return (
-    <section className={`${shell} pt-8 lg:pt-14`}>
-      <div className="grid grid-cols-1 items-start gap-y-16 md:grid-cols-[42%_58%] lg:grid-cols-[38%_62%]">
-        {/* The finished page, which is what someone is here for — the editor's
-            chrome is a means to it, not the promise. A desktop thing only: on a
-            phone it would be a postage stamp of a resume pushing the button off
-            the screen, so the hero there is the words and the button, and the
-            product is one tap away. */}
-        <div className="hidden justify-center md:order-2 md:flex">
-          {/* Decorative: the heading beside it already says what this is, and
-              a screen reader announcing a sample resume's contents here would
-              be reading somebody else's CV aloud. Square corners and a hairline
-              edge, like every other sheet of paper on the site. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/templates/${HERO_TEMPLATE}.png`}
-            alt=""
-            aria-hidden="true"
-            width={1588}
-            height={2256}
-            // Above the fold, so it is fetched at once rather than lazily —
-            // this is the largest paint on the page.
-            fetchPriority="high"
-            decoding="async"
-            className="w-full max-w-[400px] border border-black/[0.09] bg-white lg:max-w-[440px]"
-          />
-        </div>
+    <section className={`${shell} pt-10 text-center lg:pt-16`}>
+      {/* The keyword line is the h1 — it's what the page ranks for — and the
+          big claim under it is the h2, sized as the headline. */}
+      <h1 className="inline-flex items-center gap-2 rounded-full bg-panel py-1 pr-3.5 pl-1 text-[13px] font-medium text-ink-soft ring-1 ring-divider">
+        <span className="rounded-full bg-brand px-2 py-0.5 text-[11.5px] font-semibold text-white">
+          Free
+        </span>
+        Online resume builder
+      </h1>
 
-        {/* Copy */}
-        <div className="md:pr-6 lg:pr-10">
-          <h1 className="text-[15px] font-bold tracking-tight text-ink-soft uppercase lg:text-lg">
-            Free online resume builder
-          </h1>
+      <h2 className="mx-auto mt-6 max-w-[16ch] text-[42px] leading-[1.02] font-bold tracking-[-0.04em] text-ink sm:text-[56px] lg:text-[72px]">
+        Build a job-winning resume
+      </h2>
 
-          <h2 className="mt-3 text-[40px] leading-[1.04] font-black tracking-[-0.035em] text-ink sm:text-[52px] lg:mt-4 lg:text-[62px] xl:text-[72px]">
-            Build a job-winning resume for&nbsp;free
-          </h2>
+      <p className="mx-auto mt-5 max-w-[50ch] text-[17px] leading-[1.6] text-ink-soft lg:text-[19px]">
+        Pick a template, write with AI, and download a clean PDF in minutes.
+      </p>
 
-          <p className="mt-5 max-w-[500px] text-[17px] leading-[1.7] text-ink-soft lg:mt-6 lg:text-[20px] lg:leading-[1.75]">
-            Your first resume is 100% free forever. Unlimited downloads. No
-            hidden fees.
-            <span className="block">Yes, really 🚀</span>
-          </p>
+      <div className="mt-8 flex flex-nowrap justify-center gap-3">
+        <Link
+          href="/dashboard"
+          className={`btn-fill ${btnCompact} inline-flex h-12 min-w-[9.5rem] items-center justify-center gap-2 px-6 text-[15px] font-semibold transition lg:text-base`}
+        >
+          Start for free
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link href="/resume-templates" className={`${btnQuiet} ${btnCompact}`}>
+          Browse templates
+        </Link>
+      </div>
 
-          <Link href="/dashboard" className={`${btnHero} mt-8 lg:mt-10`}>
-            Get started for free ✨
-          </Link>
+      <ul className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[14px] text-ink-soft">
+        {PROMISES.map((p) => (
+          <li key={p} className="flex items-center gap-1.5">
+            <CheckIcon className="h-4 w-4 text-brand" strokeWidth={2.25} />
+            {p}
+          </li>
+        ))}
+      </ul>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5 lg:mt-12">
-            <span className="flex -space-x-2.5">
-              {FACES.map((name) => (
-                <Avatar
-                  key={name}
-                  name={name}
-                  className="h-11 w-11 ring-4 ring-cream"
-                />
-              ))}
-            </span>
-            <p className="text-[15px] font-bold text-ink lg:text-[17px]">
-              Trusted by 100k+ job seekers
-            </p>
-          </div>
-        </div>
+      <div className="mt-12 lg:mt-16">
+        <HeroShowcase template={HERO_TEMPLATE} />
+      </div>
+
+      <div className="mt-10 flex items-center justify-center gap-3">
+        <span className="flex -space-x-2">
+          {FACES.map((name) => (
+            <Avatar
+              key={name}
+              name={name}
+              className="h-8 w-8 ring-2 ring-panel"
+            />
+          ))}
+        </span>
+        <p className="text-[14px] font-medium text-ink-soft">
+          Trusted by <span className="font-semibold text-ink">100k+</span> job
+          seekers
+        </p>
       </div>
     </section>
   );

@@ -8,11 +8,10 @@
 import Link from "next/link";
 
 import {
-  BriefcaseIcon,
-  FileTextIcon,
-  MailIcon,
+  LettersIcon,
+  ResumesIcon,
+  TrackerIcon,
 } from "@/components/ui/icons";
-import { LogoLockup } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
 /** "profile" is a place the sidebar can be on without being a place it can
@@ -25,36 +24,56 @@ export const NAV: {
   id: DashboardSection;
   label: string;
   href?: string;
-  icon: typeof FileTextIcon;
+  icon: typeof ResumesIcon;
 }[] = [
-  { id: "resumes", label: "Resume", href: "/dashboard", icon: FileTextIcon },
+  { id: "resumes", label: "Resumes", href: "/dashboard", icon: ResumesIcon },
   {
     id: "letters",
-    label: "Cover Letter",
+    label: "Cover Letters",
     href: "/cover-letters",
-    icon: MailIcon,
+    icon: LettersIcon,
   },
-  { id: "jobs", label: "Job Tracker", href: "/jobs", icon: BriefcaseIcon },
+  { id: "jobs", label: "Job Tracker", href: "/jobs", icon: TrackerIcon },
 ];
 
 /** The sidebar as it looks with no account loaded — the shape a fallback
  *  renders so the real one lands in the same place. */
-export function SidebarNav({ active }: { active: DashboardSection }) {
+export function SidebarNav({
+  active,
+  top,
+}: {
+  active: DashboardSection;
+  /** What heads the column — the account, on a live page. A loading page has
+   *  no account yet, so it gets the same row's shape in grey instead, and the
+   *  real one lands in its place. */
+  top?: React.ReactNode;
+}) {
   return (
     <>
-      <div className="mb-8 flex items-center px-2">
-        <LogoLockup className="h-14" />
+      {/* The toolbar's height, so it sits level with the page title — but no
+          rule under it: the sidebar is one column, top to bottom, and only
+          the main area is divided. */}
+      <div className="mb-2 flex h-[72px] shrink-0 items-center">
+        {top ?? (
+          <span className="flex w-full items-center gap-2.5 px-2.5">
+            <span className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-canvas" />
+            <span className="flex-1 space-y-1.5">
+              <span className="block h-3 w-20 animate-pulse rounded bg-canvas" />
+              <span className="block h-2.5 w-32 animate-pulse rounded bg-canvas" />
+            </span>
+          </span>
+        )}
       </div>
 
-      <nav className="space-y-1.5">
+      <nav className="space-y-0.5">
         {NAV.map((item) => {
           const Icon = item.icon;
           const on = item.id === active;
           const className = cn(
-            "flex w-full items-center gap-3 rounded-xl px-3.5 py-3.5 text-left text-[16px] font-bold transition",
+            "group/nav flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left text-[14.5px] font-semibold transition",
             on
-              ? "bg-white text-ink"
-              : "text-ink-soft hover:bg-white/60 hover:text-ink",
+              ? "bg-canvas text-ink"
+              : "text-ink-soft hover:bg-canvas hover:text-ink",
           );
 
           return item.href ? (
@@ -65,7 +84,9 @@ export function SidebarNav({ active }: { active: DashboardSection }) {
               aria-current={on ? "page" : undefined}
               className={className}
             >
-              <Icon className="h-5 w-5" />
+              <Icon
+                className={cn("h-5 w-5", on ? "text-brand" : "text-ink-faint")}
+              />
               {item.label}
             </Link>
           ) : (
@@ -84,12 +105,12 @@ export function SidebarNav({ active }: { active: DashboardSection }) {
  *  the loading fallbacks — the bar isn't loading, so it shouldn't vanish. */
 export function BottomNav({ active }: { active: DashboardSection }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-divider bg-panel pb-[env(safe-area-inset-bottom)] md:hidden">
       {NAV.map((item) => {
         const Icon = item.icon;
         const on = item.id === active;
         const className = cn(
-          "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-bold transition",
+          "flex flex-col items-center gap-1 py-2.5 text-[11.5px] font-semibold transition",
           on ? "text-brand" : "text-ink-faint",
         );
 

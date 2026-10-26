@@ -19,6 +19,8 @@ import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
 import { ResumePreview } from "@/components/preview/ResumePreview";
 import { MagicIcon } from "@/components/ui/svg-icons";
 import { AIPanel } from "./AIPanel";
+import { icon } from "@/components/ui/icons";
+import { X } from "lucide-react";
 
 /** The assistant's own gradient. Shared with the marks inside the panel — see
  *  the note on `ORB` there for why this one colour ignores the theme. */
@@ -64,7 +66,7 @@ export function AgentOverlay() {
       aria-label="AI assistant"
       className="fixed inset-0 z-[60] flex flex-col bg-cream"
     >
-      <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-black/[0.07] bg-panel px-5">
+      <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-divider bg-panel px-5">
         <div className="flex items-center gap-3">
           <span
             aria-hidden="true"
@@ -99,7 +101,7 @@ export function AgentOverlay() {
             visible where it landed rather than described. Dropped below `lg`,
             where there isn't room for two columns and the conversation is the
             one worth keeping. */}
-        <div className="scroll-slim hidden flex-1 overflow-y-auto border-l border-black/[0.07] bg-cream px-5 py-6 lg:block">
+        <div className="scroll-slim hidden flex-1 overflow-y-auto border-l border-divider bg-cream px-5 py-6 lg:block">
           <div
             className="mx-auto w-full"
             style={{ maxWidth: PAGE_SIZES[format].width }}
@@ -114,15 +116,4 @@ export function AgentOverlay() {
   );
 }
 
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="m6 6 12 12M18 6 6 18"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+const CloseIcon = icon(X);

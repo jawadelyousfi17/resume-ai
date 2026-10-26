@@ -25,7 +25,7 @@ export function LetterTemplateCard({
           // outermost ring of pixels in the screenshot is antialiased edge,
           // and cropping it is what keeps the corners looking cut rather than
           // softened.
-          className="block overflow-hidden border border-black/[0.09] bg-white transition group-hover:border-black/20 group-hover:shadow-[var(--shadow-paper)]"
+          className="block overflow-hidden border border-divider bg-white transition group-hover:border-black/20 group-hover:shadow-[var(--shadow-paper)]"
         >
           {/* Screenshots of the real render, captured off each design's own
               page by scripts/shoot-letter-templates.mjs. Intrinsic size as
@@ -65,7 +65,7 @@ export function LetterTemplateCard({
         href={`/cover-letter/templates/${template.id}`}
         className="block"
       >
-        <span className="mt-3 block text-[16px] font-extrabold text-ink">
+        <span className="mt-3 block text-[16px] font-bold text-ink">
           {template.name}
         </span>
         <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">

@@ -1,6 +1,19 @@
 "use client";
 
+// The page's properties: the right-hand panel on a wide editor, the Design tab
+// everywhere else. Built like a properties inspector — short sections on
+// hairlines, a label beside each control, values you can type — rather than a
+// stack of explained cards. The controls say what they do; nothing here needs
+// a sentence under it.
+
 import { useMemo, useRef, useState } from "react";
+import {
+  ALargeSmall,
+  ArrowLeftRight,
+  ArrowUpDown,
+  MoveVertical,
+  RotateCcw,
+} from "lucide-react";
 import { useResume } from "@/lib/store";
 import type {
   DateFormat,
@@ -42,36 +55,42 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { StepperSlider } from "@/components/ui/stepper-slider";
-import { CheckIcon, SearchIcon } from "@/components/ui/icons";
+import {
+  CheckIcon,
+  icon,
+  ImageIcon,
+  SearchIcon,
+  TrashIcon,
+} from "@/components/ui/icons";
 import { ChevronDownIcon } from "@/components/ui/svg-icons";
 import { removePhoto, uploadPhoto } from "@/lib/upload-image";
 import { ColorWheel } from "@/components/ui/color-picker";
+import { RangeSlider } from "@/components/ui/range-slider";
+import { cn } from "@/lib/utils";
+import {
+  segItem,
+  segItemOn,
+  Segmented,
+  segTrack,
+} from "@/components/ui/segmented";
 import { FontPicker } from "./FontPicker";
 import { ContactIcon } from "@/components/preview/contact-icons";
 
-const GROUPS = [
-  { id: "cz-document", label: "Document" },
-  { id: "cz-template", label: "Template" },
-  { id: "cz-font-size", label: "Font Size" },
-  { id: "cz-spacing", label: "Spacing" },
-  { id: "cz-headings", label: "Headings" },
-  { id: "cz-icons", label: "Icons" },
-  { id: "cz-skills", label: "Skills" },
-  { id: "cz-font", label: "Font" },
-  { id: "cz-colors", label: "Colors" },
-  { id: "cz-background", label: "Background" },
-];
+const ResetIcon = icon(RotateCcw);
+const SizeIcon = icon(ALargeSmall);
+const LineIcon = icon(MoveVertical);
+const SidesIcon = icon(ArrowLeftRight);
+const EndsIcon = icon(ArrowUpDown);
 
 const ACCENTS = [
-  "#2563eb",
+  "#244cec",
   "#0ea5e9",
   "#0d9488",
   "#059669",
   "#7c3aed",
   "#e11d48",
   "#d97706",
-  "#0f172a",
+  "#111111",
 ];
 
 /** Papers. Off-whites and one near-black, because a resume printed on a
@@ -101,47 +120,40 @@ const INKS = [
  *  wide, so this survives a retina preview and a PDF. */
 const BACKGROUND_EDGE = 1600;
 
-const PAGE_FORMATS: { value: PageFormat; label: string; note: string }[] = [
-  { value: "A4", label: "A4", note: "210 × 297 mm" },
-  { value: "Letter", label: "US Letter", note: "8.5 × 11 in" },
+const PAGE_FORMATS: { value: PageFormat; label: string }[] = [
+  { value: "A4", label: "A4" },
+  { value: "Letter", label: "Letter" },
 ];
 
-/** Each style is previewed with a real date so the difference is visible
- *  rather than described. */
-const DATE_FORMATS: { value: DateFormat; label: string }[] = [
-  { value: "short", label: "Short month" },
-  { value: "long", label: "Full month" },
-  { value: "numeric", label: "Numeric" },
-  { value: "iso", label: "ISO" },
-];
+/** Each style is shown as a real date — the sample is the label. */
+const DATE_FORMATS: DateFormat[] = ["short", "long", "numeric", "iso"];
 
 const HEADINGS: { value: ResumeSettings["headingStyle"]; label: string }[] = [
-  { value: "underline", label: "Underline" },
+  { value: "underline", label: "Rule" },
   { value: "plain", label: "Plain" },
-  { value: "uppercase", label: "Uppercase" },
+  { value: "uppercase", label: "Caps" },
 ];
 
-const ICON_STYLES: { value: IconStyle; label: string; hint: string }[] = [
-  { value: "solid", label: "Solid", hint: "Filled, with brand marks" },
-  { value: "line", label: "Line", hint: "Feather" },
-  { value: "rounded", label: "Rounded", hint: "Phosphor" },
-  { value: "classic", label: "Classic", hint: "Font Awesome" },
-  { value: "none", label: "None", hint: "Text only" },
+/** Shown by their marks; the name is only the tooltip. */
+const ICON_STYLES: { value: IconStyle; label: string }[] = [
+  { value: "solid", label: "Solid" },
+  { value: "line", label: "Line" },
+  { value: "rounded", label: "Rounded" },
+  { value: "classic", label: "Classic" },
+  { value: "none", label: "None" },
 ];
 
-/** The kinds worth showing in the picker: the two everyone has, and the two
- *  where the difference between one set and the next is most obvious. */
-const ICON_SAMPLE: IconKind[] = ["email", "phone", "github", "linkedin"];
+const ICON_SAMPLE: IconKind[] = ["email", "linkedin"];
 
-const TAG_LAYOUTS: { value: TagLayout; label: string; hint: string }[] = [
-  { value: "auto", label: "Template's own", hint: "Whatever it was drawn with" },
-  { value: "columns-1", label: "One column", hint: "A bullet a line" },
-  { value: "columns-2", label: "Two columns", hint: "Bulleted, side by side" },
-  { value: "columns-3", label: "Three columns", hint: "Tighter still" },
-  { value: "columns-4", label: "Four columns", hint: "For long lists" },
-  { value: "inline", label: "One line", hint: "Condensed, separated" },
-  { value: "dots", label: "Dots", hint: "A five-dot meter" },
-  { value: "bars", label: "Bars", hint: "A filled meter bar" },
+const TAG_LAYOUTS: { value: TagLayout; label: string }[] = [
+  { value: "auto", label: "Template default" },
+  { value: "columns-1", label: "One column" },
+  { value: "columns-2", label: "Two columns" },
+  { value: "columns-3", label: "Three columns" },
+  { value: "columns-4", label: "Four columns" },
+  { value: "inline", label: "One line" },
+  { value: "dots", label: "Dots" },
+  { value: "bars", label: "Bars" },
 ];
 
 const TAG_SEPARATOR_OPTIONS: { value: TagSeparator; label: string }[] = [
@@ -153,11 +165,15 @@ const TAG_SEPARATOR_OPTIONS: { value: TagSeparator; label: string }[] = [
   { value: "dash", label: "–" },
 ];
 
+type Wheel = "accent" | "pageColor" | "textColor" | "headingColor";
+
 export function CustomizePanel() {
   const { data, format, setFormat, update } = useResume();
   const s = data.settings ?? DEFAULT_SETTINGS;
-  const [active, setActive] = useState(GROUPS[0].id);
   const [pickerOpen, setPickerOpen] = useState(false);
+  // One colour open at a time: four wheels at once is a wall of gradients.
+  const [wheel, setWheel] = useState<Wheel | null>(null);
+  const toggleWheel = (w: Wheel) => setWheel(wheel === w ? null : w);
 
   const activeTemplate =
     TEMPLATES.find((t) => t.id === (s.template ?? "classic")) ?? TEMPLATES[0];
@@ -166,12 +182,6 @@ export function CustomizePanel() {
     key: K,
     value: ResumeSettings[K],
   ) => update((d) => void (d.settings[key] = value));
-
-  // Which colour is being picked, if any. One at a time: four wheels open at
-  // once is a wall of gradients, and only one of them is the one you meant.
-  const [wheel, setWheel] = useState<
-    "accent" | "pageColor" | "textColor" | "headingColor" | null
-  >(null);
 
   const activeLang = language(s.language);
 
@@ -191,182 +201,68 @@ export function CustomizePanel() {
   const pickTemplate = (t: Template) =>
     update((d) => applyTemplate(d.settings, t));
 
-  const goto = (id: string) => {
-    setActive(id);
-    document
-      .getElementById(id)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  /** Back to how the template draws it: its font, heading and accent, the
+   *  default sizes, and no colour overrides. Content and the background image
+   *  are left alone — and undo is one keystroke away. */
+  const resetStyle = () =>
+    update((d) => {
+      applyTemplate(d.settings, activeTemplate);
+      d.settings.fontSize = DEFAULT_SETTINGS.fontSize;
+      d.settings.lineHeight = DEFAULT_SETTINGS.lineHeight;
+      d.settings.marginX = DEFAULT_SETTINGS.marginX;
+      d.settings.marginY = DEFAULT_SETTINGS.marginY;
+      d.settings.tagStyle = "auto";
+      d.settings.pageColor = undefined;
+      d.settings.textColor = undefined;
+      d.settings.headingColor = undefined;
+    });
+
+  // The separator only means something between entries on one line.
+  const inlineTags =
+    s.tagStyle === "inline" ||
+    ((!s.tagStyle || s.tagStyle === "auto") &&
+      activeTemplate.tags === "inline");
 
   return (
-    <div className="flex gap-5">
-      <nav className="sticky top-0 hidden w-28 shrink-0 flex-col self-start border-l border-black/5 sm:flex">
-        {GROUPS.map((g) => {
-          const on = active === g.id;
-          return (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => goto(g.id)}
-              className={`relative -ml-px border-l-2 py-2.5 pl-4 text-left text-[15px] font-bold transition ${
-                on
-                  ? "border-brand text-brand"
-                  : "border-transparent text-ink-soft hover:text-ink"
-              }`}
-            >
-              {g.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="min-w-0 flex-1 space-y-4">
-        <Group id="cz-document" title="Document">
-          <span className="mb-2 block text-[13px] font-bold text-ink">
-            Language
+    <div>
+      <Group title="Template">
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          className="group flex w-full items-center gap-3 rounded-[10px] border border-field-border p-2 pr-3 text-left transition hover:border-brand/50"
+        >
+          <span className="block w-11 shrink-0 overflow-hidden rounded-[4px] ring-1 ring-divider">
+            <TemplateThumb template={activeTemplate} />
           </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl border border-field-border px-3.5 py-2.5 text-left text-[14px] font-bold text-ink transition hover:border-ink/30"
-              >
-                <span className="text-[18px] leading-none">
-                  {activeLang.flag}
-                </span>
-                <span dir={activeLang.dir}>{activeLang.label}</span>
-                <span className="ml-auto text-[12.5px] font-medium text-ink-faint">
-                  {activeLang.english}
-                </span>
-                <ChevronDownIcon className="h-4 w-4 shrink-0 text-ink-faint" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="max-h-80 w-full">
-              {LANGUAGES.map((l) => (
-                <DropdownMenuItem
-                  key={l.code}
-                  onClick={() => setLanguage(l.code)}
-                >
-                  <span className="text-[17px] leading-none">{l.flag}</span>
-                  <span dir={l.dir} className="font-bold">
-                    {l.label}
-                  </span>
-                  <span className="ml-auto pl-3 text-[12px] font-medium text-ink-faint">
-                    {l.english}
-                  </span>
-                  {l.code === activeLang.code && (
-                    <CheckIcon className="h-4 w-4 text-brand" />
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <span className="mt-5 mb-2 block text-[13px] font-bold text-ink">
-            Page size
+          <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-ink">
+            {activeTemplate.name}
           </span>
-          <div className="grid grid-cols-2 gap-2">
-            {PAGE_FORMATS.map((f) => (
-              <button
-                key={f.value}
-                type="button"
-                onClick={() => setFormat(f.value)}
-                aria-pressed={format === f.value}
-                className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                  format === f.value
-                    ? "border-brand bg-brand-soft"
-                    : "border-field-border hover:border-ink/25"
-                }`}
-              >
-                <span
-                  className={`block text-[14px] font-bold ${
-                    format === f.value ? "text-brand" : "text-ink"
-                  }`}
-                >
-                  {f.label}
-                </span>
-                <span className="mt-0.5 block text-[11.5px] text-ink-faint">
-                  {f.note}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <span className="mt-5 mb-2 block text-[13px] font-bold text-ink">
-            Date format
+          <span className="shrink-0 text-[13px] font-medium text-brand">
+            Change
           </span>
-          <div className="grid grid-cols-2 gap-2">
-            {DATE_FORMATS.map((f) => {
-              const selected = (s.dateFormat ?? "short") === f.value;
-              return (
-                <button
-                  key={f.value}
-                  type="button"
-                  onClick={() => set("dateFormat", f.value)}
-                  aria-pressed={selected}
-                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                    selected
-                      ? "border-brand bg-brand-soft"
-                      : "border-field-border hover:border-ink/25"
-                  }`}
-                >
-                  <span
-                    className={`block text-[14px] font-bold ${
-                      selected ? "text-brand" : "text-ink"
-                    }`}
-                  >
-                    {f.label}
-                  </span>
-                  <span className="mt-0.5 block text-[11.5px] text-ink-faint">
-                    {formatMonth("2021-09", s.language, f.value)}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </Group>
+        </button>
 
-        <Group id="cz-template" title="Template">
-          {/* The pages themselves are the button: three of them behind a
-              single call to action, the one in use first. */}
-          <button
-            type="button"
-            onClick={() => setPickerOpen(true)}
-            className="group relative block w-full overflow-hidden rounded-xl border border-field-border transition hover:border-ink/30"
-          >
-            <span className="grid grid-cols-3 gap-2 p-2">
-              {previewTemplates(activeTemplate).map((t) => (
-                <span
-                  key={t.id}
-                  className="block overflow-hidden rounded-lg border border-field-border"
-                >
-                  <TemplateThumb template={t} accent={s.accent} />
-                </span>
-              ))}
-            </span>
+        <TemplatePicker
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          selectedId={activeTemplate.id}
+          accent={s.accent}
+          onPick={(t) => {
+            pickTemplate(t);
+            setPickerOpen(false);
+          }}
+        />
+      </Group>
 
-            <span className="absolute inset-0 flex items-center justify-center bg-ink/45 transition group-hover:bg-ink/55">
-              <span className="rounded-xl bg-white px-5 py-2.5 text-[14.5px] font-bold text-ink shadow-lg">
-                Browse templates
-              </span>
-            </span>
-          </button>
-
-          <TemplatePicker
-            open={pickerOpen}
-            onOpenChange={setPickerOpen}
-            selectedId={activeTemplate.id}
-            accent={s.accent}
-            onPick={(t) => {
-              pickTemplate(t);
-              setPickerOpen(false);
-            }}
+      <Group title="Text">
+        <div className="space-y-4">
+          <FontPicker
+            value={s.fontFamily}
+            onChange={(v) => set("fontFamily", v)}
           />
-        </Group>
-
-        <Group id="cz-font-size" title="Font Size">
-          <StepperSlider
-            label="Base font size"
+          <RangeRow
+            label="Size"
+            icon={SizeIcon}
             value={s.fontSize}
             unit="pt"
             min={9}
@@ -374,81 +270,187 @@ export function CustomizePanel() {
             step={0.5}
             onChange={(v) => set("fontSize", v)}
           />
-        </Group>
-
-        <Group id="cz-spacing" title="Spacing">
-          <div className="space-y-5">
-            <StepperSlider
-              label="Line height"
-              value={s.lineHeight}
-              min={1}
-              max={1.7}
-              step={0.05}
-              format={(v) => v.toFixed(2)}
-              onChange={(v) => set("lineHeight", v)}
-            />
-            <StepperSlider
-              label="Left & right margin"
-              value={s.marginX}
-              unit="mm"
-              min={8}
-              max={30}
-              step={1}
-              onChange={(v) => set("marginX", v)}
-            />
-            <StepperSlider
-              label="Top & bottom margin"
-              value={s.marginY}
-              unit="mm"
-              min={8}
-              max={28}
-              step={1}
-              onChange={(v) => set("marginY", v)}
-            />
-          </div>
-        </Group>
-
-        <Group id="cz-headings" title="Headings">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
-            Section heading style
-          </p>
+          <RangeRow
+            label="Line height"
+            icon={LineIcon}
+            value={s.lineHeight}
+            min={1}
+            max={1.7}
+            step={0.05}
+            digits={2}
+            onChange={(v) => set("lineHeight", v)}
+          />
+        </div>
+        <Row label="Headings" className="mt-3">
           <Segmented
             value={s.headingStyle}
             options={HEADINGS}
             onChange={(v) => set("headingStyle", v)}
           />
-        </Group>
+        </Row>
+      </Group>
 
-        <Group id="cz-icons" title="Icons">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
-            Contact icon style
-          </p>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-            {ICON_STYLES.map((o) => {
-              const selected = (s.iconStyle ?? "solid") === o.value;
-              return (
-                <button
-                  key={o.value}
-                  type="button"
-                  onClick={() => set("iconStyle", o.value)}
-                  aria-pressed={selected}
-                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                    selected
-                      ? "border-brand/50 bg-brand-soft"
-                      : "border-field-border bg-field hover:border-ink-faint/40"
-                  }`}
+      <Group title="Color">
+        <div className="flex flex-wrap items-center gap-2">
+          {ACCENTS.map((color) => (
+            <Swatch
+              key={color}
+              color={color}
+              selected={s.accent.toLowerCase() === color.toLowerCase()}
+              onClick={() => set("accent", color)}
+            />
+          ))}
+          <WheelButton
+            open={wheel === "accent"}
+            color={s.accent}
+            onClick={() => toggleWheel("accent")}
+            label="accent color"
+          />
+        </div>
+        {wheel === "accent" && (
+          <WheelPanel>
+            <ColorWheel value={s.accent} onChange={(v) => set("accent", v)} />
+          </WheelPanel>
+        )}
+
+        {/* Overrides. Unset, the template decides — shown as "Auto". */}
+        <div className="mt-4 space-y-2">
+          <ColorRow
+            label="Page"
+            swatches={PAPERS}
+            value={s.pageColor}
+            fallback="#ffffff"
+            open={wheel === "pageColor"}
+            onToggle={() => toggleWheel("pageColor")}
+            onChange={(v) => set("pageColor", v)}
+          />
+          <ColorRow
+            label="Text"
+            swatches={INKS}
+            value={s.textColor}
+            fallback="#374151"
+            open={wheel === "textColor"}
+            onToggle={() => toggleWheel("textColor")}
+            onChange={(v) => set("textColor", v)}
+          />
+          <ColorRow
+            label="Headings"
+            swatches={INKS}
+            value={s.headingColor}
+            fallback="#111827"
+            open={wheel === "headingColor"}
+            onToggle={() => toggleWheel("headingColor")}
+            onChange={(v) => set("headingColor", v)}
+          />
+        </div>
+      </Group>
+
+      <Group title="Page">
+        <div className="space-y-3">
+          <Row label="Size">
+            <Segmented
+              value={format}
+              options={PAGE_FORMATS}
+              onChange={setFormat}
+            />
+          </Row>
+          <RangeRow
+            label="Sides"
+            icon={SidesIcon}
+            value={s.marginX}
+            unit="mm"
+            min={8}
+            max={30}
+            step={1}
+            onChange={(v) => set("marginX", v)}
+          />
+          <RangeRow
+            label="Top & bottom"
+            icon={EndsIcon}
+            value={s.marginY}
+            unit="mm"
+            min={8}
+            max={28}
+            step={1}
+            onChange={(v) => set("marginY", v)}
+          />
+          <Row label="Language">
+            <Select
+              label={
+                <>
+                  <span className="text-[16px] leading-none">
+                    {activeLang.flag}
+                  </span>
+                  <span dir={activeLang.dir} className="truncate">
+                    {activeLang.label}
+                  </span>
+                </>
+              }
+            >
+              {LANGUAGES.map((l) => (
+                <DropdownMenuItem
+                  key={l.code}
+                  onClick={() => setLanguage(l.code)}
                 >
-                  {/* The sample is the label that matters — the names are only
-                      there to say which set it is. Drawn by the same component
-                      the page uses, so the row can't promise a mark the resume
-                      won't print. */}
-                  <span
-                    className="flex h-5 items-center gap-2 text-[17px]"
-                    style={{ color: s.accent }}
+                  <span className="text-[16px] leading-none">{l.flag}</span>
+                  <span dir={l.dir}>{l.label}</span>
+                  {l.code === activeLang.code && <Tick />}
+                </DropdownMenuItem>
+              ))}
+            </Select>
+          </Row>
+          <Row label="Dates">
+            <Select
+              label={formatMonth(
+                "2021-09",
+                s.language,
+                s.dateFormat ?? "short",
+              )}
+            >
+              {DATE_FORMATS.map((f) => (
+                <DropdownMenuItem
+                  key={f}
+                  onClick={() => set("dateFormat", f)}
+                >
+                  {formatMonth("2021-09", s.language, f)}
+                  {(s.dateFormat ?? "short") === f && <Tick />}
+                </DropdownMenuItem>
+              ))}
+            </Select>
+          </Row>
+          <Row label="Image">
+            <BackgroundImage
+              value={s.pageImage}
+              onChange={(v) => set("pageImage", v)}
+            />
+          </Row>
+        </div>
+      </Group>
+
+      <Group title="Layout">
+        <div className="space-y-3">
+          <Row label="Icons">
+            <div className={segTrack}>
+              {ICON_STYLES.map((o) => {
+                const selected = (s.iconStyle ?? "solid") === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => set("iconStyle", o.value)}
+                    aria-pressed={selected}
+                    aria-label={`${o.label} icons`}
+                    title={o.label}
+                    className={cn(
+                      segItem,
+                      "gap-0.5 px-0",
+                      selected ? segItemOn : "opacity-60 hover:opacity-100",
+                    )}
+                    style={{ color: selected ? "#ffffff" : undefined }}
                   >
                     {o.value === "none" ? (
-                      <span className="text-[13px] font-semibold text-ink-faint">
-                        No icons
+                      <span className="text-[12px] font-semibold text-ink-soft">
+                        Off
                       </span>
                     ) : (
                       ICON_SAMPLE.map((kind) => (
@@ -460,71 +462,32 @@ export function CustomizePanel() {
                         />
                       ))
                     )}
-                  </span>
-                  <span
-                    className={`mt-1.5 block text-[13.5px] font-semibold ${
-                      selected ? "text-brand" : "text-ink"
-                    }`}
-                  >
-                    {o.label}
-                  </span>
-                  <span className="block text-[12px] text-ink-faint">
-                    {o.hint}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </Group>
-
-        <Group id="cz-skills" title="Skills">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
-            Skills layout
-          </p>
-          <p className="mb-2.5 text-[12.5px] text-ink-faint">
-            Applies to Skills, Languages and Interests.
-          </p>
-          <div className="grid grid-cols-2 gap-2.5">
-            {TAG_LAYOUTS.map((o) => {
-              const selected = (s.tagStyle ?? "auto") === o.value;
-              return (
-                <button
+                  </button>
+                );
+              })}
+            </div>
+          </Row>
+          <Row label="Skills">
+            <Select
+              label={
+                TAG_LAYOUTS.find((o) => o.value === (s.tagStyle ?? "auto"))
+                  ?.label
+              }
+            >
+              {TAG_LAYOUTS.map((o) => (
+                <DropdownMenuItem
                   key={o.value}
-                  type="button"
                   onClick={() => set("tagStyle", o.value)}
-                  aria-pressed={selected}
-                  className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                    selected
-                      ? "border-brand/50 bg-brand-soft"
-                      : "border-field-border bg-field hover:border-ink-faint/40"
-                  }`}
                 >
-                  <span
-                    className={`block text-[13.5px] font-semibold ${
-                      selected ? "text-brand" : "text-ink"
-                    }`}
-                  >
-                    {o.label}
-                  </span>
-                  <span className="block text-[12px] text-ink-faint">
-                    {o.hint}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Only the one-line layout has anything between its entries, so the
-              choice appears with it rather than sitting inert the rest of the
-              time. */}
-          {(s.tagStyle === "inline" ||
-            (!(s.tagStyle && s.tagStyle !== "auto") &&
-              activeTemplate.tags === "inline")) && (
-            <>
-              <p className="mt-5 mb-2.5 text-[13.5px] font-bold text-ink">
-                Separator
-              </p>
-              <div className="flex flex-wrap gap-2">
+                  {o.label}
+                  {(s.tagStyle ?? "auto") === o.value && <Tick />}
+                </DropdownMenuItem>
+              ))}
+            </Select>
+          </Row>
+          {inlineTags && (
+            <Row label="Separator">
+              <div className={segTrack}>
                 {TAG_SEPARATOR_OPTIONS.map((o) => {
                   const selected = (s.tagSeparator ?? "pipe") === o.value;
                   return (
@@ -534,126 +497,191 @@ export function CustomizePanel() {
                       onClick={() => set("tagSeparator", o.value)}
                       aria-label={o.value}
                       aria-pressed={selected}
-                      className={`h-10 w-10 rounded-xl border text-[16px] font-semibold transition ${
-                        selected
-                          ? "border-brand/50 bg-brand-soft text-brand"
-                          : "border-field-border bg-field text-ink-soft hover:text-ink"
-                      }`}
+                      className={cn(
+                        segItem,
+                        "px-0 text-[15px]",
+                        selected && segItemOn,
+                      )}
                     >
                       {o.label}
                     </button>
                   );
                 })}
               </div>
-            </>
+            </Row>
           )}
-        </Group>
+        </div>
+      </Group>
 
-        <Group id="cz-font" title="Font">
-          <FontPicker
-            value={s.fontFamily}
-            onChange={(v) => set("fontFamily", v)}
-          />
-        </Group>
-
-        <Group id="cz-colors" title="Colors">
-          <p className="mb-2.5 text-[13.5px] font-bold text-ink">
-            Accent color
-          </p>
-          <div className="flex flex-wrap items-center gap-2.5">
-            {ACCENTS.map((color) => {
-              const selected = s.accent.toLowerCase() === color.toLowerCase();
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => set("accent", color)}
-                  aria-label={color}
-                  className="flex h-9 w-9 items-center justify-center rounded-full transition hover:scale-105"
-                  style={{
-                    backgroundColor: color,
-                    boxShadow: selected
-                      ? `0 0 0 2px #fff, 0 0 0 4px ${color}`
-                      : undefined,
-                  }}
-                >
-                  {selected && <CheckIcon className="h-4 w-4 text-white" />}
-                </button>
-              );
-            })}
-            <WheelButton
-              open={wheel === "accent"}
-              color={s.accent}
-              onClick={() => setWheel(wheel === "accent" ? null : "accent")}
-              label="accent color"
-            />
-          </div>
-
-          {wheel === "accent" && (
-            <WheelPanel>
-              <ColorWheel value={s.accent} onChange={(v) => set("accent", v)} />
-            </WheelPanel>
-          )}
-
-          {/* The three below are overrides, and each says so: unset, the
-              template decides, which is what most people should leave them at.
-              Clearing one is a button rather than a colour you have to guess. */}
-          <ColorRow
-            label="Page background"
-            swatches={PAPERS}
-            value={s.pageColor}
-            fallback="#ffffff"
-            open={wheel === "pageColor"}
-            onToggle={() =>
-              setWheel(wheel === "pageColor" ? null : "pageColor")
-            }
-            onChange={(v) => set("pageColor", v)}
-          />
-
-          <ColorRow
-            label="Text color"
-            swatches={INKS}
-            value={s.textColor}
-            fallback="#374151"
-            open={wheel === "textColor"}
-            onToggle={() =>
-              setWheel(wheel === "textColor" ? null : "textColor")
-            }
-            onChange={(v) => set("textColor", v)}
-          />
-
-          <ColorRow
-            label="Heading color"
-            swatches={INKS}
-            value={s.headingColor}
-            fallback="#111827"
-            open={wheel === "headingColor"}
-            onToggle={() =>
-              setWheel(wheel === "headingColor" ? null : "headingColor")
-            }
-            onChange={(v) => set("headingColor", v)}
-          />
-        </Group>
-
-        <Group id="cz-background" title="Background image">
-          <BackgroundImage
-            value={s.pageImage}
-            onChange={(v) => set("pageImage", v)}
-          />
-        </Group>
-      </div>
+      <button
+        type="button"
+        onClick={resetStyle}
+        className="flex w-full items-center justify-between px-5 py-4 text-[13.5px] text-ink-soft transition hover:bg-canvas hover:text-ink"
+      >
+        Reset style
+        <ResetIcon className="h-4 w-4" />
+      </button>
     </div>
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Layout pieces                                                              */
+/* -------------------------------------------------------------------------- */
+
+function Group({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="border-b border-divider px-5 py-5">
+      <h3 className="mb-3 text-[15px] font-bold text-ink">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+/** A label on the left, its control filling the rest. */
+function Row({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn("grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3", className)}
+    >
+      <span className="text-[13px] text-ink-soft">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+/** A value set by dragging: the label and the number on one line, the
+ *  slider under them. */
+function RangeRow({
+  label,
+  icon: Icon,
+  value,
+  unit,
+  min,
+  max,
+  step,
+  digits,
+  onChange,
+}: {
+  label: string;
+  icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
+  value: number;
+  unit?: string;
+  min: number;
+  max: number;
+  step: number;
+  /** Fixed decimals — line height reads as 1.35, not 1.3500001. */
+  digits?: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center gap-2 text-[13px]">
+        <Icon className="h-4 w-4 text-ink-faint" />
+        <span className="text-ink-soft">{label}</span>
+        <span className="ml-auto font-medium text-ink tabular-nums">
+          {digits === undefined ? value : value.toFixed(digits)}
+          {unit && <span className="ml-0.5 text-ink-faint">{unit}</span>}
+        </span>
+      </div>
+      <RangeSlider
+        aria-label={label}
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
+
+/** A dropdown that looks like a field. */
+function Select({
+  label,
+  children,
+}: {
+  label: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex h-[42px] w-full min-w-0 items-center gap-2 rounded-md border border-field-border px-3 text-left text-[14px] font-medium text-ink transition hover:border-ink/25 aria-expanded:border-brand"
+        >
+          <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
+            {label}
+          </span>
+          <ChevronDownIcon className="h-4 w-4 shrink-0 text-ink-faint" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="max-h-80 min-w-48">
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function Tick() {
+  return <CheckIcon className="ml-auto h-4 w-4 text-brand" />;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Colour                                                                     */
+/* -------------------------------------------------------------------------- */
+
+function Swatch({
+  color,
+  selected,
+  onClick,
+}: {
+  color: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={color}
+      aria-pressed={selected}
+      className="flex h-7 w-7 items-center justify-center rounded-full ring-1 ring-black/10 ring-inset transition hover:scale-110"
+      style={{
+        backgroundColor: color,
+        boxShadow: selected ? `0 0 0 2px #fff, 0 0 0 3.5px ${color}` : undefined,
+      }}
+    >
+      {selected && (
+        <CheckIcon
+          className="h-3.5 w-3.5"
+          strokeWidth={2.5}
+          style={{ color: readableOn(color) }}
+        />
+      )}
+    </button>
+  );
+}
+
 /**
- * One optional colour: a row of swatches, a custom picker, and a way back to
- * the template's own choice.
- *
- * `undefined` is a real state here, not a missing value — it means "whatever
- * the template does", so a resume keeps following its template until somebody
- * deliberately overrules it. The picker needs *some* colour to show, which is
- * what `fallback` is for; picking from it is what sets the override.
+ * One optional colour, as a field: the colour and its hex, or "Auto" while the
+ * template decides. Opening it shows the swatches and the wheel; the reset
+ * icon hands the choice back to the template.
  */
 function ColorRow({
   label,
@@ -673,60 +701,60 @@ function ColorRow({
   onChange: (value: string | undefined) => void;
 }) {
   return (
-    <div className="mt-5">
-      <div className="mb-2.5 flex items-center gap-3">
-        <p className="text-[13.5px] font-bold text-ink">{label}</p>
-        {value ? (
+    <div>
+      <Row label={label}>
+        <div
+          className={cn(
+            "flex h-[42px] min-w-0 items-center rounded-md border transition",
+            open ? "border-brand" : "border-field-border hover:border-ink/25",
+          )}
+        >
           <button
             type="button"
-            onClick={() => onChange(undefined)}
-            className="text-[12.5px] font-bold text-ink-faint transition hover:text-ink"
+            onClick={onToggle}
+            aria-expanded={open}
+            aria-label={`${label} color`}
+            className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3 text-left"
           >
-            Reset
-          </button>
-        ) : (
-          <span className="text-[12.5px] font-medium text-ink-faint">
-            From template
-          </span>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2.5">
-        {swatches.map((color) => {
-          const selected = value?.toLowerCase() === color.toLowerCase();
-          return (
-            <button
-              key={color}
-              type="button"
-              onClick={() => onChange(color)}
-              aria-label={color}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 transition hover:scale-105"
-              style={{
-                backgroundColor: color,
-                boxShadow: selected
-                  ? `0 0 0 2px #fff, 0 0 0 4px ${color}`
-                  : undefined,
-              }}
-            >
-              {selected && (
-                <CheckIcon
-                  className="h-4 w-4"
-                  style={{ color: readableOn(color) }}
-                />
+            <span
+              className="h-[18px] w-[18px] shrink-0 rounded-[5px] ring-1 ring-black/10 ring-inset"
+              style={{ backgroundColor: value ?? fallback }}
+            />
+            <span
+              className={cn(
+                "truncate text-[14px] font-medium uppercase tabular-nums",
+                value ? "text-ink" : "text-ink-faint normal-case",
               )}
+            >
+              {value ?? "Auto"}
+            </span>
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(undefined)}
+              aria-label={`Reset ${label.toLowerCase()} color`}
+              title="Reset"
+              className="flex h-full w-10 shrink-0 items-center justify-center border-l border-field-border text-ink-faint transition hover:text-ink"
+            >
+              <ResetIcon className="h-4 w-4" />
             </button>
-          );
-        })}
-        <WheelButton
-          open={open}
-          color={value ?? fallback}
-          onClick={onToggle}
-          label={label.toLowerCase()}
-        />
-      </div>
+          )}
+        </div>
+      </Row>
 
       {open && (
         <WheelPanel>
+          <div className="mb-3 flex flex-wrap justify-center gap-2">
+            {swatches.map((color) => (
+              <Swatch
+                key={color}
+                color={color}
+                selected={value?.toLowerCase() === color.toLowerCase()}
+                onClick={() => onChange(color)}
+              />
+            ))}
+          </div>
           <ColorWheel value={value ?? fallback} onChange={onChange} />
         </WheelPanel>
       )}
@@ -753,15 +781,15 @@ function WheelButton({
       onClick={onClick}
       aria-expanded={open}
       aria-label={`Custom ${label}`}
-      className="ml-1 grid h-9 w-9 place-items-center rounded-full transition hover:scale-105"
+      className="grid h-7 w-7 place-items-center rounded-full transition hover:scale-110"
       style={{
         background:
           "conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)",
-        boxShadow: open ? "0 0 0 2px #fff, 0 0 0 4px #111827" : undefined,
+        boxShadow: open ? "0 0 0 2px #fff, 0 0 0 3.5px #111111" : undefined,
       }}
     >
       <span
-        className="h-[18px] w-[18px] rounded-full border-2 border-white shadow-sm"
+        className="h-3.5 w-3.5 rounded-full border-2 border-white"
         style={{ backgroundColor: color }}
       />
     </button>
@@ -770,7 +798,7 @@ function WheelButton({
 
 function WheelPanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-4 flex justify-center rounded-2xl bg-field/70 p-4">
+    <div className="mt-2 flex flex-col items-center rounded-[10px] bg-canvas p-3">
       {children}
     </div>
   );
@@ -838,45 +866,43 @@ function BackgroundImage({
   };
 
   return (
-    <div>
-      {/* The card's own title names this, so the row goes straight to the
-          controls rather than saying it twice. */}
-      <div className="flex items-center gap-3">
+    <div className="min-w-0">
+      <div className="flex h-[42px] min-w-0 items-center rounded-md border border-field-border transition hover:border-ink/25">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={busy}
-          className="h-11 rounded-xl bg-field px-4 text-[13.5px] font-bold text-ink transition hover:bg-field/70 disabled:opacity-60"
+          className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3 text-left text-[14px] font-medium disabled:opacity-60"
         >
-          {busy ? "Uploading…" : value ? "Replace image" : "Upload an image"}
-        </button>
-
-        {value && (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={value}
               alt=""
-              className="h-11 w-11 rounded-lg object-cover ring-1 ring-black/10"
+              className="h-[18px] w-[18px] shrink-0 rounded-[5px] object-cover ring-1 ring-divider"
             />
-            <button
-              type="button"
-              onClick={clear}
-              className="text-[13px] font-bold text-ink-faint transition hover:text-ink"
-            >
-              Remove
-            </button>
-          </>
+          ) : (
+            <ImageIcon className="h-4 w-4 shrink-0 text-ink-faint" />
+          )}
+          <span className={cn("truncate", value ? "text-ink" : "text-ink-faint")}>
+            {busy ? "Uploading…" : value ? "Replace" : "Upload"}
+          </span>
+        </button>
+        {value && (
+          <button
+            type="button"
+            onClick={clear}
+            aria-label="Remove background image"
+            title="Remove"
+            className="flex h-full w-10 shrink-0 items-center justify-center border-l border-field-border text-ink-faint transition hover:text-danger"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
         )}
       </div>
 
-      {error ? (
-        <p className="mt-2 text-[12px] font-medium text-danger">{error}</p>
-      ) : (
-        <p className="mt-2 text-[12px] text-ink-faint">
-          Sits behind everything and prints with the page. Keep it faint —
-          anything busy costs you the words on top of it.
-        </p>
+      {error && (
+        <p className="mt-1.5 text-[12px] font-medium text-danger">{error}</p>
       )}
 
       <input
@@ -958,13 +984,13 @@ export function TemplatePicker({
             puts it back where it was. */}
         {/* Back and the filters ride together at the top; only the grid
             underneath them moves. */}
-        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl border-b border-black/5 bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:border-0 max-sm:px-4 max-sm:pt-3 sm:rounded-none">
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl border-b border-divider bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:border-0 max-sm:px-4 max-sm:pt-3 sm:rounded-none">
           <DialogBack className="mb-3 sm:hidden" />
 
           <div className="flex items-center gap-4 max-sm:hidden">
             <DialogHeader>
               {/* The Back button says what this is on a phone. */}
-              <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">
+              <DialogTitle className="text-2xl font-bold text-ink max-sm:sr-only">
                 Choose a template
               </DialogTitle>
             </DialogHeader>
@@ -979,7 +1005,7 @@ export function TemplatePicker({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search — serif, two column, photo…"
-                className="h-11 w-full rounded-xl bg-field pr-4 pl-10 text-[14.5px] font-semibold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:ring-2 focus:ring-ink/80"
+                className="h-[42px] w-full rounded-md border border-field-border bg-panel pr-3.5 pl-10 text-[14px] text-ink outline-none transition placeholder:text-ink-faint focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15"
               />
             </label>
           </div>
@@ -1086,7 +1112,7 @@ function FilterChip({
       aria-pressed={active}
       className={`shrink-0 rounded-full px-5 py-3 text-[15.5px] font-bold whitespace-nowrap transition ${
         active
-          ? "bg-navy text-white"
+          ? "bg-brand text-white"
           : "bg-field text-ink-soft hover:bg-black/[0.06] hover:text-ink"
       }`}
     >
@@ -1100,12 +1126,6 @@ function FilterChip({
       </span>
     </button>
   );
-}
-
-/** The one in use, then whatever comes next — enough to say "there are more". */
-function previewTemplates(active: Template): Template[] {
-  const at = TEMPLATES.findIndex((t) => t.id === active.id);
-  return [0, 1, 2].map((i) => TEMPLATES[(at + i) % TEMPLATES.length]);
 }
 
 function TemplateThumb({ template }: { template: Template; accent?: string }) {
@@ -1126,56 +1146,5 @@ function TemplateThumb({ template }: { template: Template; accent?: string }) {
         objectPosition: "top",
       }}
     />
-  );
-}
-
-function Group({
-  id,
-  title,
-  children,
-}: {
-  id: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      className="scroll-mt-4 rounded-2xl bg-panel p-6 shadow-[var(--shadow-panel)]"
-    >
-      <h3 className="mb-4 text-xl font-extrabold tracking-tight text-ink">
-        {title}
-      </h3>
-      {children}
-    </section>
-  );
-}
-
-function Segmented<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex gap-2">
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          onClick={() => onChange(o.value)}
-          className={`flex-1 rounded-xl border px-3 py-2.5 text-[14px] font-semibold transition ${
-            value === o.value
-              ? "border-brand/50 bg-brand-soft text-brand"
-              : "border-field-border bg-field text-ink-soft hover:text-ink"
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
   );
 }

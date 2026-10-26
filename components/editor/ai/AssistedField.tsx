@@ -67,12 +67,12 @@ export function AssistedField({
   if (guest) {
     return (
       <div>
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <span className="text-[14px] font-bold text-ink">{label}</span>
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <span className="text-[13px] font-semibold text-ink">{label}</span>
           <button
             type="button"
             onClick={() => auth.open("signup")}
-            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-bold text-purple transition hover:bg-purple-soft"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] font-medium text-brand transition hover:bg-brand-soft"
           >
             <SparklesIcon className="h-4 w-4" />
             Sign in to use AI
@@ -95,14 +95,14 @@ export function AssistedField({
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="text-[14px] font-bold text-ink">{label}</span>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="text-[13px] font-semibold text-ink">{label}</span>
         <button
           type="button"
           onClick={gen.busy ? gen.cancel : start}
           disabled={disabled && !gen.busy}
           title={disabled && !gen.busy ? disabledHint : undefined}
-          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-bold text-purple transition hover:bg-purple-soft disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-transparent"
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] font-medium text-brand transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-transparent"
         >
           <SparklesIcon
             className={`h-4 w-4 ${gen.busy ? "animate-pulse" : ""}`}
@@ -127,7 +127,7 @@ export function AssistedField({
       />
 
       {gen.error && (
-        <div className="mt-2 flex items-start justify-between gap-3 rounded-xl bg-field px-3.5 py-2.5">
+        <div className="mt-2 flex items-start justify-between gap-3 rounded-md bg-danger/5 px-3.5 py-2.5">
           <p className="text-[13px] leading-relaxed text-danger">{gen.error}</p>
           <button
             type="button"

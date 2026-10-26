@@ -22,7 +22,7 @@ export function LegalArticle({ page }: { page: LegalPage }) {
         <article className="mt-10 max-w-[72ch] space-y-10">
           {page.sections.map((section) => (
             <section key={section.heading}>
-              <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+              <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
                 {section.heading}
               </h2>
               {section.body.map((paragraph) => (

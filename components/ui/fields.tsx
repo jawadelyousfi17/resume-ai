@@ -8,10 +8,11 @@ import { cn } from "@/lib/utils";
 import { Input as BaseInput } from "@/components/ui/input";
 import { Textarea as BaseTextarea } from "@/components/ui/textarea";
 
-// Focus is signalled with a dark ring drawn around the control — the fill
-// stays put, so the field doesn't flash as it gains and loses focus.
+// White, a hairline border, modest corners. Focus turns the border blue and
+// adds a soft halo — the only colour a field ever carries, so the one being
+// typed into is the one that stands out.
 const controlBase =
-  "h-auto rounded-xl border-transparent bg-field px-4 py-3 text-base md:text-base text-ink placeholder:text-ink-faint focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-ink/80";
+  "h-auto rounded-md border-field-border bg-panel px-3.5 py-2.5 text-[14px] md:text-[14px] text-ink placeholder:text-ink-faint focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15";
 
 export function Label({
   children,
@@ -22,7 +23,7 @@ export function Label({
 }) {
   return (
     <span
-      className={cn("mb-2 block text-[14px] font-bold text-ink", className)}
+      className={cn("mb-1.5 block text-[13px] font-semibold text-ink", className)}
     >
       {children}
     </span>

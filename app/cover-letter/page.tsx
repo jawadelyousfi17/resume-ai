@@ -113,7 +113,7 @@ export default function CoverLetterHubPage() {
         </div>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Is it worth writing one?
           </h2>
           <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
@@ -124,7 +124,7 @@ export default function CoverLetterHubPage() {
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {WORTH_IT.map((column) => (
               <div key={column.verdict} className={cn(panel, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-extrabold text-ink">
+                <h3 className="text-[16.5px] font-bold text-ink">
                   {column.verdict}
                 </h3>
                 <ul className="mt-3 space-y-2">
@@ -147,7 +147,7 @@ export default function CoverLetterHubPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             The four paragraphs
           </h2>
           <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
@@ -162,7 +162,7 @@ export default function CoverLetterHubPage() {
                   <span className="text-[13px] font-bold text-ink-faint">
                     {i + 1}
                   </span>
-                  <h3 className="text-[17px] font-extrabold text-ink">
+                  <h3 className="text-[17px] font-bold text-ink">
                     {part.name}
                   </h3>
                 </div>
@@ -182,7 +182,7 @@ export default function CoverLetterHubPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Examples by role
           </h2>
           <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
@@ -196,7 +196,7 @@ export default function CoverLetterHubPage() {
                 href={`/cover-letter/examples#${example.id}`}
                 className={cn(panel, "px-5 py-4 transition hover:ring-ink/15")}
               >
-                <span className="block text-[15px] font-extrabold text-ink">
+                <span className="block text-[15px] font-bold text-ink">
                   {example.role}
                 </span>
                 <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
@@ -208,7 +208,7 @@ export default function CoverLetterHubPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqList entries={HUB_FAQS} />

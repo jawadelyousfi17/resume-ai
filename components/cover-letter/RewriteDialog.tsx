@@ -107,7 +107,7 @@ function Body({
   if (!resume) {
     return (
       <>
-        <DialogTitle className="text-[21px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[21px] font-bold tracking-tight text-ink">
           No resume to write from
         </DialogTitle>
         <DialogDescription className="text-[14.5px] leading-relaxed text-ink-soft">
@@ -120,7 +120,7 @@ function Body({
           <button
             type="button"
             onClick={onDone}
-            className="rounded-lg bg-navy px-5 py-2.5 text-[14.5px] font-bold text-white transition hover:bg-navy/90"
+            className="btn-fill px-5 py-2.5 text-[14.5px] font-bold transition"
           >
             Close
           </button>
@@ -131,7 +131,7 @@ function Body({
 
   return (
     <>
-      <DialogTitle className="text-[21px] font-extrabold tracking-tight text-ink">
+      <DialogTitle className="text-[21px] font-bold tracking-tight text-ink">
         Rewrite this letter
       </DialogTitle>
       <DialogDescription className="sr-only">

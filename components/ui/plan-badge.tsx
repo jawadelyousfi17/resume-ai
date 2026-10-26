@@ -38,7 +38,7 @@ export function PlanBadge({
       className={cn(
         "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-[3px] text-[10px] font-bold tracking-[0.08em] uppercase",
         featured
-          ? "bg-navy text-white"
+          ? "bg-brand text-white"
           : plan === "free"
             ? "bg-black/[0.06] text-ink-soft"
             : "bg-brand-soft text-brand",

@@ -92,7 +92,7 @@ export function GuideGallery({
                 width={1672}
                 height={941}
                 sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 90vw"
-                className="mb-4 block aspect-[16/9] w-full rounded-2xl bg-field/40 object-cover ring-1 ring-black/[0.06] transition group-hover:ring-ink/20"
+                className="mb-4 block aspect-[16/9] w-full rounded-2xl bg-field/40 object-cover ring-1 ring-divider transition group-hover:ring-ink/20"
               />
             )}
 
@@ -112,7 +112,7 @@ export function GuideGallery({
               {guide.minutes} min read
             </span>
 
-            <span className="mt-2 block text-[19px] leading-snug font-extrabold text-ink group-hover:underline group-hover:decoration-ink/25 group-hover:underline-offset-4">
+            <span className="mt-2 block text-[19px] leading-snug font-bold text-ink group-hover:underline group-hover:decoration-ink/25 group-hover:underline-offset-4">
               {guide.title}
             </span>
 
@@ -159,7 +159,7 @@ function Pill({
         "inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[14px] font-bold whitespace-nowrap transition",
         active
           ? "bg-brand-soft text-brand ring-1 ring-brand/30"
-          : "text-ink ring-1 ring-black/[0.09] hover:ring-ink/25",
+          : "text-ink ring-1 ring-divider hover:ring-ink/25",
       )}
     >
       {children}

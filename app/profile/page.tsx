@@ -28,6 +28,7 @@ export default async function ProfilePage() {
     <PlanProvider plan={plan}>
       <DashboardShell
         active="profile"
+        header={{ title: "Account" }}
         account={{
           email: user.email,
           name: user.name,

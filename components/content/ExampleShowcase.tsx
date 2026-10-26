@@ -133,7 +133,7 @@ export function ExampleShowcase({
           down rather than pushing the row wider than the window. */}
       <div className="max-lg:mt-10 max-lg:flex max-lg:justify-center lg:w-[52%] lg:shrink-0">
         <div
-          className="resume-page overflow-hidden border border-black/[0.09] bg-white shadow-[var(--shadow-paper)]"
+          className="resume-page overflow-hidden border border-divider bg-white shadow-[var(--shadow-paper)]"
           style={{ width: PAGE_SIZES.A4.width, maxWidth: "100%" }}
         >
           <ResumePreview data={shown} />
@@ -158,10 +158,10 @@ function Chip({
       onClick={onClick}
       aria-pressed={on}
       className={cn(
-        "h-8 rounded-lg px-3 text-[13.5px] font-bold transition",
+        "h-8 px-3 text-[13.5px] font-bold transition",
         on
-          ? "bg-navy text-white"
-          : "bg-field text-ink-soft hover:text-ink ring-1 ring-black/[0.07] ring-inset",
+          ? "bg-brand text-white"
+          : "bg-field text-ink-soft hover:text-ink ring-1 ring-divider ring-inset",
       )}
     >
       {children}

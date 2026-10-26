@@ -138,7 +138,7 @@ function Body({
     const canDraft = resumes.length > 0;
     return (
       <>
-        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
+        <DialogTitle className="text-[22px] font-bold tracking-tight text-ink max-sm:text-center">
           New cover letter
         </DialogTitle>
         <DialogDescription className="sr-only">
@@ -155,7 +155,7 @@ function Body({
                 ? undefined
                 : "Build a resume first — the letter is written from it."
             }
-            className="flex w-full items-center gap-4 rounded-xl bg-navy px-6 py-5 text-left text-[17px] font-bold text-white transition hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex w-full items-center gap-4 rounded-[14px] bg-brand px-6 py-5 text-left text-white hover:bg-accent-2 text-[17px] font-bold transition disabled:cursor-not-allowed disabled:opacity-45"
           >
             <span className="text-[24px] leading-none">✨</span>
             Write it from a job posting
@@ -195,7 +195,7 @@ function Body({
 
   return (
     <>
-      <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
+      <DialogTitle className="text-[22px] font-bold tracking-tight text-ink max-sm:text-center">
         What are you applying for?
       </DialogTitle>
       <DialogDescription className="sr-only">
@@ -210,7 +210,7 @@ function Body({
               value={resumeId}
               onChange={(e) => setResumeId(e.target.value)}
               disabled={drafting}
-              className="h-auto w-full rounded-xl bg-field px-4 py-3 text-[15px] text-ink focus-visible:ring-2 focus-visible:ring-ink/80 focus-visible:outline-none"
+              className="h-auto w-full rounded-md border border-field-border bg-panel px-3.5 py-2.5 text-[15px] text-ink focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15 focus-visible:outline-none"
             >
               {resumes.map((r) => (
                 <option key={r.id} value={r.id}>

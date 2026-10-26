@@ -87,7 +87,7 @@ export function FirstExportCelebration() {
             <button
               type="button"
               onClick={close}
-              className="mt-6 h-12 w-full rounded-xl bg-navy text-[15px] font-bold text-white transition hover:opacity-90"
+              className="mt-6 h-12 w-full btn-fill text-[15px] font-bold transition"
             >
               Back to it
             </button>

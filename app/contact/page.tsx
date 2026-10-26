@@ -10,6 +10,8 @@ import { panel } from "@/components/landing/ui";
 import { MailIcon } from "@/components/ui/icons";
 import { CONTACT } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
+import { icon } from "@/components/ui/icons";
+import { Phone } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact meniacv — email and phone",
@@ -20,19 +22,7 @@ export const metadata: Metadata = {
 // Two ways to reach a person, and no form pretending to be a third. The
 // address and number live in lib/site-contact so the footer says the same.
 
-function PhoneGlyph({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 16 16" className={className} aria-hidden="true">
-      <path
-        d="M5.4 2.2 6.8 5 5.5 6.3a8 8 0 0 0 4.2 4.2L11 9.2l2.8 1.4v2.2c0 .6-.5 1.1-1.1 1a11.5 11.5 0 0 1-10.5-10.5c0-.6.4-1.1 1-1.1z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const PhoneGlyph = icon(Phone);
 
 export default function ContactPage() {
   return (
@@ -52,7 +42,7 @@ export default function ContactPage() {
               <MailIcon className="h-4 w-4" />
               Email
             </span>
-            <span className="mt-2 block text-[17px] font-extrabold break-all text-ink">
+            <span className="mt-2 block text-[17px] font-bold break-all text-ink">
               {CONTACT.email}
             </span>
             <span className="mt-1 block text-[14px] text-ink-soft">
@@ -68,7 +58,7 @@ export default function ContactPage() {
               <PhoneGlyph className="h-4 w-4" />
               Phone
             </span>
-            <span className="mt-2 block text-[17px] font-extrabold text-ink">
+            <span className="mt-2 block text-[17px] font-bold text-ink">
               {CONTACT.phone}
             </span>
             <span className="mt-1 block text-[14px] text-ink-soft">
@@ -79,7 +69,7 @@ export default function ContactPage() {
 
         <div className="mt-10 max-w-[72ch] space-y-10">
           <section>
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Something broken, or an idea
             </h2>
             <p className="mt-4 text-[16px] leading-[1.75] text-ink-soft">
@@ -92,7 +82,7 @@ export default function ContactPage() {
           </section>
 
           <section>
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Your account and your data
             </h2>
             <p className="mt-4 text-[16px] leading-[1.75] text-ink-soft">
@@ -110,7 +100,7 @@ export default function ContactPage() {
           </section>
 
           <section>
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Press and partnerships
             </h2>
             <p className="mt-4 text-[16px] leading-[1.75] text-ink-soft">

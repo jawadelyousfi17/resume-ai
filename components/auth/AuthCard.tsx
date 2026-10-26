@@ -67,7 +67,7 @@ export function AuthCard({
     // Centred rather than flush left: on /login a flex parent does that, but in
     // the full-screen dialog the card is the only thing in a full-width box.
     <div className="mx-auto w-full max-w-[380px]">
-      <h1 className="text-center text-2xl font-extrabold tracking-tight text-ink">
+      <h1 className="text-center text-2xl font-bold tracking-tight text-ink">
         {copy.heading}
       </h1>
 
@@ -157,7 +157,7 @@ function ClosedButton({
       disabled
       title={SIGN_IN_DISABLED}
       className={cn(
-        "flex w-full cursor-not-allowed items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white/60 px-4 py-3 text-[15px] font-bold text-ink-faint",
+        "flex w-full cursor-not-allowed items-center justify-center gap-2.5 rounded-full border border-divider bg-white/60 px-4 py-3 text-[15px] font-bold text-ink-faint",
         className,
       )}
     >
@@ -189,7 +189,7 @@ function ProviderButton({
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-black/10 bg-white px-4 py-3 text-[15px] font-bold text-ink transition hover:bg-black/[0.03] disabled:cursor-wait disabled:opacity-70"
+      className="flex w-full items-center justify-center gap-2.5 rounded-full border border-divider bg-white px-4 py-3 text-[15px] font-bold text-ink transition hover:bg-black/[0.03] disabled:cursor-wait disabled:opacity-70"
     >
       {pending ? (
         <>
@@ -246,7 +246,7 @@ function CredentialsForm({ mode, next }: { mode: Mode; next: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-xl bg-navy px-4 py-3 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+        className="w-full btn-fill px-4 py-3 text-[15px] font-bold transition disabled:opacity-60"
       >
         {pending ? (
           <span className="inline-flex items-center gap-2">

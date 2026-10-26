@@ -32,7 +32,7 @@ export function AddContentModal({
         className="max-h-[85vh] overflow-y-auto sm:max-w-5xl gap-6 rounded-3xl p-7"
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-extrabold text-ink">
+          <DialogTitle className="text-2xl font-bold text-ink">
             Add content
           </DialogTitle>
           <DialogDescription className="text-[15px] text-ink-soft">

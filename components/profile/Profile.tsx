@@ -47,11 +47,7 @@ export function Profile({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-        Your account
-      </h1>
-
-      <section className="mt-6 flex items-center gap-4 rounded-2xl bg-panel p-5 shadow-[var(--shadow-panel)]">
+      <section className="flex items-center gap-4 rounded-2xl bg-panel p-5 shadow-[var(--shadow-panel)]">
         <AccountAvatar
           src={account.avatarUrl}
           name={account.name ?? account.email}
@@ -59,7 +55,7 @@ export function Profile({
         />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-[18px] font-extrabold text-ink">
+            <p className="truncate text-[18px] font-bold text-ink">
               {account.name ?? "Your account"}
             </p>
             <PlanBadge plan={plan} />
@@ -82,7 +78,7 @@ export function Profile({
           </p>
           <h2
             className={cn(
-              "mt-1 text-[24px] leading-[1.1] font-extrabold tracking-tight",
+              "mt-1 text-[24px] leading-[1.1] font-bold tracking-tight",
               skin.title,
             )}
           >

@@ -118,7 +118,7 @@ export function TemplateCollectionPage({
 
         {collection.sections.map((section) => (
           <section key={section.heading} className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {section.heading}
             </h2>
             {section.body.map((paragraph) => (
@@ -136,7 +136,7 @@ export function TemplateCollectionPage({
         ))}
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqList entries={collection.faqs} />
@@ -144,7 +144,7 @@ export function TemplateCollectionPage({
 
         {related.length > 0 && (
           <section className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Other collections
             </h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -157,7 +157,7 @@ export function TemplateCollectionPage({
                     "px-5 py-4 transition hover:ring-ink/15",
                   )}
                 >
-                  <span className="block text-[15px] font-extrabold text-ink">
+                  <span className="block text-[15px] font-bold text-ink">
                     {item.title}
                   </span>
                   <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">

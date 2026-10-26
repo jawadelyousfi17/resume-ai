@@ -13,7 +13,7 @@ export const UI_FONTS = [
   {
     id: "manrope",
     name: "Manrope",
-    note: "The current one — geometric, slightly quirky",
+    note: "The previous one — geometric, slightly quirky",
     stack: "var(--font-manrope)",
   },
   {
@@ -25,7 +25,7 @@ export const UI_FONTS = [
   {
     id: "dm-sans",
     name: "DM Sans",
-    note: "Softer geometry, low contrast, friendly",
+    note: "The current one — softer geometry, friendly",
     stack: "var(--font-dm-sans)",
   },
   {
@@ -44,7 +44,7 @@ export const UI_FONTS = [
 
 export type UiFontId = (typeof UI_FONTS)[number]["id"];
 
-export const DEFAULT_UI_FONT: UiFontId = "manrope";
+export const DEFAULT_UI_FONT: UiFontId = "dm-sans";
 
 /** Where the choice is kept, and what the pre-paint script in the root layout
  *  reads. Prefixed like the theme key so the two sit together in devtools. */

@@ -405,7 +405,7 @@ function Header({
               color: nameColor,
               lineHeight: 1.08,
             }}
-            className="block font-extrabold tracking-tight"
+            className="block font-bold tracking-tight"
           >
             {personal.fullName}
           </span>

@@ -112,7 +112,7 @@ export function EditorialLanding({ landing }: { landing: Landing }) {
 
         {landing.sections.map((section) => (
           <section key={section.heading} className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {section.heading}
             </h2>
             {section.body.map((paragraph) => (
@@ -150,7 +150,7 @@ export function EditorialLanding({ landing }: { landing: Landing }) {
 
         {landing.links && landing.links.length > 0 && (
           <section className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {landing.linksHeading ?? "Where to go next"}
             </h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -160,7 +160,7 @@ export function EditorialLanding({ landing }: { landing: Landing }) {
                   href={link.href}
                   className={cn(panel, "px-5 py-4 transition hover:ring-ink/15")}
                 >
-                  <span className="block text-[15px] font-extrabold text-ink">
+                  <span className="block text-[15px] font-bold text-ink">
                     {link.label}
                   </span>
                   <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
@@ -173,7 +173,7 @@ export function EditorialLanding({ landing }: { landing: Landing }) {
         )}
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqList entries={landing.faqs} />

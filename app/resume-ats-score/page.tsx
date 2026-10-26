@@ -200,7 +200,7 @@ export default function ResumeAtsScorePage() {
         </div>
 
         <article className="mt-12 max-w-[72ch] space-y-4">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             What an &ldquo;ATS score&rdquo; actually is
           </h2>
           <p className="text-[16px] leading-[1.75] text-ink-soft">
@@ -231,7 +231,7 @@ export default function ResumeAtsScorePage() {
         {/* The parse, step by step. Makes the formatting rules obvious rather
             than a list of superstitions to memorise. */}
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             What happens to your resume, in order
           </h2>
           <ol className="mt-6 space-y-3">
@@ -242,12 +242,12 @@ export default function ResumeAtsScorePage() {
               >
                 <span
                   aria-hidden="true"
-                  className="shrink-0 text-[26px] leading-none font-extrabold text-brand/30"
+                  className="shrink-0 text-[26px] leading-none font-bold text-brand/30"
                 >
                   {i + 1}
                 </span>
                 <div>
-                  <h3 className="text-[16.5px] font-extrabold text-ink">
+                  <h3 className="text-[16.5px] font-bold text-ink">
                     {item.step}
                   </h3>
                   <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
@@ -267,7 +267,7 @@ export default function ResumeAtsScorePage() {
 
         {/* The rubric, straight from what the product scores. */}
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             The five things we score, and how to win points on each
           </h2>
           <p className="mt-3 max-w-[72ch] text-[16px] leading-[1.75] text-ink-soft">
@@ -279,7 +279,7 @@ export default function ResumeAtsScorePage() {
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {REVIEW_CATEGORIES.map((category) => (
               <div key={category.id} className={cn(panel, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-extrabold text-ink">
+                <h3 className="text-[16.5px] font-bold text-ink">
                   {category.label}
                 </h3>
                 <p className="mt-1 text-[13.5px] font-semibold text-brand">
@@ -294,7 +294,7 @@ export default function ResumeAtsScorePage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             The formatting rules that actually matter
           </h2>
           <p className="mt-3 max-w-[72ch] text-[16px] leading-[1.75] text-ink-soft">
@@ -305,7 +305,7 @@ export default function ResumeAtsScorePage() {
           <dl className="mt-6 grid gap-3 md:grid-cols-2">
             {FORMAT_RULES.map((item) => (
               <div key={item.rule} className={cn(panel, "px-6 py-5")}>
-                <dt className="text-[16px] font-extrabold text-ink">
+                <dt className="text-[16px] font-bold text-ink">
                   {item.rule}
                 </dt>
                 <dd className="mt-2 text-[15px] leading-relaxed text-ink-soft">
@@ -319,7 +319,7 @@ export default function ResumeAtsScorePage() {
         {/* The free manual test. Genuinely useful, and it costs us nothing to
             tell people how to do it without the product. */}
         <section className={cn(panel, "mt-16 px-7 py-7")}>
-          <h2 className="text-[22px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[22px] leading-tight font-bold tracking-tight text-ink">
             The 30-second test you can run yourself, free
           </h2>
           <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink-soft">
@@ -353,7 +353,7 @@ export default function ResumeAtsScorePage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Getting a score in the editor
           </h2>
           <div className="mt-5 max-w-[72ch] space-y-4">
@@ -388,7 +388,7 @@ export default function ResumeAtsScorePage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             ATS score FAQs
           </h2>
           <FaqList entries={FAQS} />
@@ -397,7 +397,7 @@ export default function ResumeAtsScorePage() {
         {/* Where to go next. The ATS topic fans out into three pages, and a
             reader who landed here from search usually wants one of them. */}
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Keep going
           </h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -423,7 +423,7 @@ export default function ResumeAtsScorePage() {
                 href={item.href}
                 className={cn(panel, "px-6 py-5 transition hover:ring-ink/15")}
               >
-                <span className="block text-[16px] font-extrabold text-ink">
+                <span className="block text-[16px] font-bold text-ink">
                   {item.title}
                 </span>
                 <span className="mt-1.5 block text-[14px] leading-relaxed text-ink-soft">

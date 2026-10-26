@@ -69,7 +69,7 @@ export function SupporterCelebration({
             <p className="text-[13px] font-bold tracking-[0.14em] text-white/70 uppercase">
               Early supporter
             </p>
-            <p className="mt-2 text-[56px] leading-none font-extrabold tracking-tight text-white">
+            <p className="mt-2 text-[56px] leading-none font-bold tracking-tight text-white">
               #{celebration.number}
             </p>
             <p className="mt-2 text-[13.5px] text-white/75">
@@ -96,7 +96,7 @@ export function SupporterCelebration({
             <button
               type="button"
               onClick={close}
-              className="mt-6 h-12 w-full rounded-xl bg-navy text-[15px] font-bold text-white transition hover:opacity-90"
+              className="mt-6 h-12 w-full btn-fill text-[15px] font-bold transition"
             >
               Start building
             </button>

@@ -138,7 +138,7 @@ export function SetupFlow({
           </span>
         </div>
 
-        <h1 className="mt-4 text-[26px] leading-tight font-extrabold tracking-tight text-ink">
+        <h1 className="mt-4 text-[26px] leading-tight font-bold tracking-tight text-ink">
           {copy.title}
         </h1>
         <p className="mt-1.5 text-[14.5px] leading-snug text-ink-soft">
@@ -164,7 +164,7 @@ export function SetupFlow({
       </div>
 
       {/* The bar sits below the thumb, out of the way of the fields above it. */}
-      <footer className="shrink-0 border-t border-black/5 px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <footer className="shrink-0 border-t border-divider px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="flex items-center gap-3">
           {index > 0 && (
             <button
@@ -249,8 +249,9 @@ function SectionStep({ type }: { type: SectionType }) {
 
   const section = data.sections.find((s) => s.type === type);
 
-  // The blank resume starts with no sections at all — this step is where this
-  // one comes into existence, in its conventional place on the page.
+  // A blank resume already holds the common sections (see STARTER_SECTIONS
+  // in lib/defaults); anything else — or one the user deleted — comes into
+  // existence here, in its conventional place on the page.
   useEffect(() => {
     if (section) return;
     update((d) => {

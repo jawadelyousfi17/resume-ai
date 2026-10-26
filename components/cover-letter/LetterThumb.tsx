@@ -25,7 +25,7 @@ export function LetterThumb({ data }: { data: CoverLetterData }) {
   return (
     <div
       ref={ref}
-      className="relative aspect-[210/297] w-full overflow-hidden rounded-lg bg-white"
+      className="relative aspect-[210/297] w-full overflow-hidden bg-white"
     >
       <div
         className="resume-page absolute top-0 left-0"

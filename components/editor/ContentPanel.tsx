@@ -6,6 +6,7 @@ import {
   attachEntry,
   createSection,
   hasDates,
+  insertSection,
   isCredentialSection,
   isTagGroupSection,
   isTimelineSection,
@@ -19,6 +20,8 @@ import { SectionCard, SectionFooter, DoneButton } from "./SectionCard";
 import { useListDrag } from "./reorder";
 import { PersonalIcon, SECTION_ICONS } from "./section-icons";
 import { AddContentModal } from "./AddContentModal";
+import { StrengthMeter } from "./StrengthMeter";
+import type { StrengthTarget } from "@/lib/strength";
 import { ImportResume } from "./ImportResume";
 import { PersonalDetailsForm } from "./forms/PersonalDetailsForm";
 import { SummaryForm } from "./forms/SummaryForm";
@@ -96,6 +99,19 @@ export function ContentPanel({
 
   const existingTypes = new Set(data.sections.map((s) => s.type));
 
+  /** Where the strength meter's next step lands: the card that needs the
+   *  work, opened — or the section it needs, added. */
+  const goTo = (target: StrengthTarget) => {
+    if (target === "personal") return setOpenId("personal");
+    const existing = data.sections.find((s) => s.type === target);
+    if (existing) return setOpenId(existing.id);
+    // Added where it belongs on the page — a summary goes on top, not at
+    // the end of the list where "Add section" would put it.
+    const section = createSection(target, data.settings.language);
+    update((d) => insertSection(d.sections, section));
+    setOpenId(section.id);
+  };
+
   // One entry open means it owns the column: the section list, the personal
   // details card and "Add content" all step aside until the user is done.
   const editingSection = openEntry
@@ -107,11 +123,7 @@ export function ContentPanel({
       <EntryEditProvider value={{ openEntry, setOpenEntry, flat }}>
         {/* Flat: the panel's own padding is undone so the white runs to the
             edges of the screen, and the form supplies the padding it needs. */}
-        <div
-          className={
-            flat ? "-mx-3 -my-4 min-h-dvh bg-panel pt-4 pb-8" : "space-y-3"
-          }
-        >
+        <div className={flat ? "-mx-3 -my-4 min-h-dvh bg-panel pt-4 pb-8" : ""}>
           <SectionBody section={editingSection} />
           <div className={flat ? "mt-4 px-5" : undefined}>
             <DoneButton flat={flat} onClick={() => setOpenEntry(null)} />
@@ -123,10 +135,23 @@ export function ContentPanel({
 
   return (
     <EntryEditProvider value={{ openEntry, setOpenEntry }}>
-      <div className="space-y-3">
-        {/* Above everything, because it's the alternative to filling any of
-            it in by hand. */}
-        <ImportResume />
+      {/* An accordion run edge to edge: each section is a fold on a
+          hairline. On a phone the panel brings a gutter, so the folds are
+          gathered into one bordered sheet instead. */}
+      <div
+        className={
+          flat ? "overflow-hidden rounded-[10px] bg-panel ring-1 ring-divider" : ""
+        }
+      >
+        <div className="border-b border-divider px-5 py-4">
+          <StrengthMeter onGo={goTo} />
+        </div>
+
+        {/* Above the sections, because it's the alternative to filling any
+            of them in by hand. */}
+        <div className="border-b border-divider p-4">
+          <ImportResume />
+        </div>
 
         <SectionCard
           icon={PersonalIcon}
@@ -138,7 +163,7 @@ export function ContentPanel({
         </SectionCard>
 
         {data.sections.map((section) => (
-          <div key={section.id} className="space-y-3">
+          <div key={section.id}>
             <SectionCard
               icon={SECTION_ICONS[section.type]}
               title={section.title}
@@ -179,14 +204,16 @@ export function ContentPanel({
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={() => setShowModal(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink-faint/40 bg-panel/40 py-5 text-base font-bold text-ink-soft transition hover:border-brand/50 hover:text-brand"
-        >
-          <PlusIcon className="h-5 w-5" />
-          Add content
-        </button>
+        <div className="p-4">
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed border-field-border py-3.5 text-[14px] font-semibold text-ink-soft transition hover:border-brand/50 hover:bg-brand-soft/40 hover:text-brand"
+          >
+            <PlusIcon className="h-4 w-4" />
+            Add section
+          </button>
+        </div>
 
         {showModal && (
           <AddContentModal

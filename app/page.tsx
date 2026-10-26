@@ -3,9 +3,8 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/content/ContentShell";
 import { Companies } from "@/components/landing/Companies";
 import { Faq } from "@/components/landing/Faq";
-import { FreePlan } from "@/components/landing/FreePlan";
+import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
-import { Highlights } from "@/components/landing/Highlights";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Pricing } from "@/components/landing/Pricing";
 import { SiteFooter } from "@/components/landing/SiteFooter";
@@ -57,10 +56,9 @@ export default function LandingPage() {
       <main className="grow">
         <Hero />
         <Companies />
-        <Highlights />
+        <Features />
         <HowItWorks />
         <Templates />
-        <FreePlan />
         <Pricing />
         <Testimonials />
         <Faq />

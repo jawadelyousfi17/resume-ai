@@ -45,7 +45,7 @@ export interface PlanSkin {
 /** The box every plan's action shares. Matches `btnPrimary`'s height, radius
  *  and weight, laid out full width instead of inline. */
 export const planAction =
-  "mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-[15px] font-bold transition";
+  "mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold transition";
 
 export function planSkin(plan: PlanId): PlanSkin {
   // Navy is the app's one filled surface — `btnOnNavy` is already written for
@@ -68,15 +68,15 @@ export function planSkin(plan: PlanId): PlanSkin {
 
   return {
     dark: false,
-    card: "bg-panel ring-1 ring-black/[0.08] shadow-[var(--shadow-panel)]",
+    card: "bg-panel ring-1 ring-divider shadow-[var(--shadow-panel)]",
     title: "text-ink",
     soft: "text-ink-soft",
     faint: "text-ink-faint",
     tick: "text-brand",
-    rule: "border-black/[0.07]",
-    cta: "btn-fill hover:opacity-90",
-    ctaQuiet: "text-ink ring-1 ring-black/10 ring-inset hover:bg-black/[0.02]",
-    ctaShut: "bg-field text-ink-faint ring-1 ring-black/[0.06] ring-inset",
+    rule: "border-divider",
+    cta: "btn-fill",
+    ctaQuiet: "btn-soft",
+    ctaShut: "bg-field text-ink-faint ring-1 ring-divider ring-inset",
     pill: "bg-brand-soft text-brand",
   };
 }

@@ -23,6 +23,7 @@ export default async function JobsPage() {
     <PlanProvider plan={plan}>
       <DashboardShell
         active="jobs"
+        header={{ title: "Job Tracker" }}
         account={{
           email: user.email,
           name: user.name,

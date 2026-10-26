@@ -63,7 +63,7 @@ function RenameForm({
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[420px] p-7 sm:max-w-[420px]">
-        <DialogTitle className="text-[21px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[21px] font-bold tracking-tight text-ink">
           {title}
         </DialogTitle>
         <DialogDescription className="sr-only">
@@ -95,7 +95,7 @@ function RenameForm({
             <button
               type="submit"
               disabled={!trimmed}
-              className="rounded-lg bg-navy px-5 py-2.5 text-[14.5px] font-bold text-white transition hover:bg-navy/90 disabled:opacity-40"
+              className="btn-fill px-5 py-2.5 text-[14.5px] font-bold transition disabled:opacity-40"
             >
               Rename
             </button>
@@ -123,7 +123,7 @@ export function ConfirmDeleteDialog({
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[420px] p-7 sm:max-w-[420px]">
-        <DialogTitle className="text-[21px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[21px] font-bold tracking-tight text-ink">
           {title}
         </DialogTitle>
         <DialogDescription className="text-[14.5px] leading-relaxed text-ink-soft">

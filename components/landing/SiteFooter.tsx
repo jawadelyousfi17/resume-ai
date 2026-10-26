@@ -1,11 +1,12 @@
 import Link from "next/link";
 
-import { MailIcon } from "@/components/ui/icons";
+import { icon, MailIcon } from "@/components/ui/icons";
 
 import { CONTACT, SOCIAL_LINKS } from "@/lib/site-contact";
 
 import { Wordmark } from "./marks";
-import { btnPrimary, btnQuiet } from "./ui";
+import { ArrowRight, btnPrimary, btnQuiet } from "./ui";
+import { Phone } from "lucide-react";
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -93,37 +94,22 @@ const LEGAL_LINKS = [
   { label: "Contact", href: "/contact" },
 ];
 
-function PhoneIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 16 16" className={className} aria-hidden="true">
-      <path
-        d="M5.4 2.2 6.8 5 5.5 6.3a8 8 0 0 0 4.2 4.2L11 9.2l2.8 1.4v2.2c0 .6-.5 1.1-1.1 1a11.5 11.5 0 0 1-10.5-10.5c0-.6.4-1.1 1-1.1z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const PhoneIcon = icon(Phone);
 
 export function SiteFooter() {
   return (
     // The closing CTA carries the whole gap between a page and the footer, so
     // pages don't add bottom padding of their own on top of it.
     <footer className="mt-14 md:mt-16 lg:mt-20">
-      {/* Closing CTA, on cream, above the dark footer slab. */}
+      {/* Closing CTA, on white, above the dark footer slab. */}
       <div className="mx-auto w-full max-w-site px-5 pb-20 text-center sm:px-8 lg:pb-28">
-        <h2 className="mx-auto max-w-[18ch] text-[30px] leading-[1.12] font-extrabold tracking-tight text-ink sm:text-[38px] lg:text-[44px]">
-          Your first resume is free. Start writing it now.
+        <h2 className="mx-auto max-w-[18ch] text-[32px] leading-[1.06] font-bold tracking-[-0.03em] text-ink sm:text-[42px] lg:text-[52px]">
+          Your first resume is free
         </h2>
-        <p className="mx-auto mt-4 max-w-[52ch] text-[16px] leading-[1.7] text-ink-soft lg:text-[18px]">
-          Free to start, no watermark on the way out, and no credit card at any
-          point.
-        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/dashboard" className={btnPrimary}>
-            Get started for free ✨
+            Start for free
+            <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/resume-templates" className={btnQuiet}>
             Browse templates

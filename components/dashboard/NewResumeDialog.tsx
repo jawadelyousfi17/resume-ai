@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { FileTextIcon, UploadIcon } from "@/components/ui/icons";
 import { ImportScan } from "@/components/dashboard/ImportScan";
 import { usePlan } from "@/components/plan/PlanProvider";
 import { PlanBadge } from "@/components/ui/plan-badge";
@@ -178,19 +179,16 @@ export function NewResumeDialog({
           <div className="pointer-events-none absolute inset-0 z-30 grid place-items-center rounded-xl bg-panel/95 p-4">
             <div className="grid h-full w-full place-items-center rounded-xl border-2 border-dashed border-brand text-center">
               <div>
-                <p className="text-[28px] leading-none">📄</p>
+                <UploadIcon className="mx-auto h-8 w-8 text-brand" />
                 <p className="mt-3 text-[18px] font-bold text-ink">
                   Drop it here
-                </p>
-                <p className="mt-1 text-[13.5px] text-ink-soft">
-                  PDF, image or text
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
+        <DialogTitle className="text-[22px] font-bold tracking-tight text-ink max-sm:text-center">
           Add a resume
         </DialogTitle>
         <DialogDescription className="sr-only">
@@ -212,7 +210,7 @@ export function NewResumeDialog({
                 onScratchOpen?.();
               }}
               disabled={creating}
-              className="flex w-full items-center gap-4 rounded-xl border border-field-border px-6 py-5 text-left text-[17px] font-bold text-ink transition hover:border-ink/30 disabled:opacity-50"
+              className="flex w-full items-center gap-4 rounded-[14px] border border-field-border px-5 py-4 text-left text-[16px] font-semibold text-ink transition hover:border-brand/50 hover:bg-brand-soft/30 disabled:opacity-50"
             >
               {creating ? (
                 <>
@@ -221,7 +219,9 @@ export function NewResumeDialog({
                 </>
               ) : (
                 <>
-                  <span className="text-[24px] leading-none">📝</span>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas">
+                    <FileTextIcon className="h-5 w-5" />
+                  </span>
                   Start from scratch
                 </>
               )}
@@ -235,9 +235,11 @@ export function NewResumeDialog({
                 canImport ? fileInput.current?.click() : refuseImport()
               }
               disabled={creating}
-              className="flex w-full items-center gap-4 rounded-xl bg-navy px-6 py-5 text-left text-[17px] font-bold text-white transition hover:bg-navy/90 disabled:opacity-60"
+              className="flex w-full items-center gap-4 rounded-[14px] bg-brand px-5 py-4 text-left text-[16px] font-semibold text-white transition hover:bg-accent-2 disabled:opacity-60"
             >
-              <span className="text-[24px] leading-none">📄</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+                <UploadIcon className="h-5 w-5" />
+              </span>
               {plan.plan === null && !canImport
                 ? "Sign in to upload"
                 : "Upload a resume"}
@@ -258,13 +260,6 @@ export function NewResumeDialog({
                 )
               )}
             </button>
-
-            {/* Nobody discovers a drop target that says nothing. */}
-            {canImport && (
-              <p className="pt-1 text-center text-[13px] text-ink-soft max-sm:hidden">
-                …or drop a file anywhere on this box
-              </p>
-            )}
           </div>
         )}
 

@@ -3,7 +3,12 @@
 import { useResume } from "@/lib/store";
 import { Field, Input } from "@/components/ui/fields";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EntryCard, useEntryDrag, useEntryList } from "./EntryCard";
+import {
+  EntryCard,
+  EntryList,
+  useEntryDrag,
+  useEntryList,
+} from "./EntryCard";
 import { formatRange } from "@/lib/format";
 import { isMarkdownEmpty, markdownToText } from "@/lib/markdown";
 import { AssistedField } from "@/components/editor/ai/AssistedField";
@@ -91,7 +96,7 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
       .join(" · ");
 
   return (
-    <div>
+    <EntryList editing={entries.editing}>
       {entries.items.map((item) => (
         <EntryCard
           key={item.id}
@@ -195,6 +200,6 @@ export function ExperienceForm({ section }: { section: ExperienceSection }) {
           </div>
         </EntryCard>
       ))}
-    </div>
+    </EntryList>
   );
 }

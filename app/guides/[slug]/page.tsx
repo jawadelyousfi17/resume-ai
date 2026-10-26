@@ -33,6 +33,7 @@ import {
 import { withYear } from "@/lib/seo/year";
 import { templatesIn } from "@/lib/templates";
 import { cn } from "@/lib/utils";
+import { CheckIcon } from "@/components/ui/icons";
 
 /** The tick beside a checklist line. Drawn rather than imported, and the same
  *  one the role examples use — the two pages now share a layout, so they
@@ -43,16 +44,7 @@ function CheckMark() {
       aria-hidden="true"
       className="mt-[0.15em] grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-brand"
     >
-      <svg viewBox="0 0 16 16" className="h-3 w-3">
-        <path
-          d="M3.5 8.5 6.5 11.5 12.5 5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <CheckIcon className="h-3 w-3" strokeWidth={2.5} />
     </span>
   );
 }
@@ -195,12 +187,12 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             tint is the brand's, at the strength the app uses behind a chip —
             enough to read as a surface, not enough to fight the illustration
             standing on it. */}
-        <header className="mt-4 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-soft via-brand-soft/70 to-field px-6 py-8 ring-1 ring-black/[0.06] sm:mt-5 sm:px-10 sm:py-10 lg:flex lg:items-center lg:gap-10 lg:px-12">
+        <header className="mt-4 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-soft via-brand-soft/70 to-field px-6 py-8 ring-1 ring-divider sm:mt-5 sm:px-10 sm:py-10 lg:flex lg:items-center lg:gap-10 lg:px-12">
           <div className="min-w-0 lg:flex-1">
             <p className="text-[11px] font-bold tracking-[0.12em] text-brand uppercase">
               {guide.eyebrow}
             </p>
-            <h1 className="mt-2 max-w-[26ch] text-[26px] leading-[1.15] font-extrabold tracking-tight text-ink sm:text-[32px] lg:text-[36px]">
+            <h1 className="mt-2 max-w-[26ch] text-[26px] leading-[1.15] font-bold tracking-tight text-ink sm:text-[32px] lg:text-[36px]">
               {guide.title}
             </h1>
             <p className="mt-2.5 max-w-[76ch] text-[15px] leading-relaxed text-ink sm:text-[16px]">
@@ -309,7 +301,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
               <section key={section.heading}>
                 <h2
                   id={anchor(section.heading)}
-                  className="scroll-mt-24 text-[24px] leading-tight font-extrabold tracking-tight text-ink"
+                  className="scroll-mt-24 text-[24px] leading-tight font-bold tracking-tight text-ink"
                 >
                   {section.heading}
                 </h2>
@@ -385,7 +377,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                 at the moment the advice lands, rather than waiting at the
                 bottom for someone who scrolled the whole way. */}
             <section className={cn(panelFlat, "mt-8 px-5 py-5")}>
-              <p className="text-[15px] font-extrabold text-ink">
+              <p className="text-[15px] font-bold text-ink">
                 Write it while you read
               </p>
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink">
@@ -411,7 +403,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
         {/* The argument, made in two sentences instead of two paragraphs. */}
         {guide.rewrites && (
           <section id="rewrites" className="mt-16 scroll-mt-24">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Before and after
             </h2>
             <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink">
@@ -465,7 +457,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             pushing the page sideways. */}
         {guide.compare && (
           <section id="compare" className="mt-16 scroll-mt-24">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {guide.compare.heading}
             </h2>
             {/* The table is 640px at its narrowest and scrolls inside its own
@@ -507,7 +499,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                     >
                       <th
                         scope="row"
-                        className="px-6 py-4 align-top text-[14.5px] font-extrabold text-ink"
+                        className="px-6 py-4 align-top text-[14.5px] font-bold text-ink"
                       >
                         {row[0]}
                       </th>
@@ -528,7 +520,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
         {/* What to do with all of the above, on your own page. */}
         {guide.checklist && (
           <section id="checklist" className="mt-16 scroll-mt-24">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {guide.checklist.heading}
             </h2>
             <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink">
@@ -556,7 +548,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
             crawlable link down into a template page. */}
         {templates.length > 0 && guide.templates && (
           <section id="templates" className="mt-16 scroll-mt-24">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {guide.templates.heading}
             </h2>
             <p className="mt-3 max-w-[68ch] text-[16px] leading-[1.75] text-ink">
@@ -585,7 +577,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
         )}
 
         <section id="faqs" className="mt-16 scroll-mt-24">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqAccordion entries={guide.faqs} />
@@ -593,7 +585,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
 
         {related.length > 0 && (
           <section className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Related guides
             </h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -609,7 +601,7 @@ export default async function GuidePage(props: PageProps<"/guides/[slug]">) {
                   <span className="block text-[11px] font-bold tracking-[0.12em] text-brand uppercase">
                     {item.eyebrow}
                   </span>
-                  <span className="mt-2 block text-[15px] font-extrabold text-ink">
+                  <span className="mt-2 block text-[15px] font-bold text-ink">
                     {item.title}
                   </span>
                   <span className="mt-1 block text-[13px] leading-relaxed text-ink">

@@ -82,6 +82,17 @@ export const PAGE_SIZES: Record<
 // panel reads. Re-exported here so existing importers keep working.
 export { FONT_STACKS, fontStack } from "./fonts";
 
+/** What a blank resume opens with: the four sections nearly every resume
+ *  has, in the order recruiters read them. Each comes with one empty entry,
+ *  so the page is a set of fields to fill rather than a list to build — and
+ *  the preview leaves out any of them still empty, so nothing prints blank. */
+const STARTER_SECTIONS: SectionType[] = [
+  "summary",
+  "experience",
+  "education",
+  "skills",
+];
+
 export function createEmptyResume(name = "Resume 1"): Resume {
   const now = Date.now();
   return {
@@ -100,7 +111,7 @@ export function createEmptyResume(name = "Resume 1"): Resume {
         contactOrder: [...DEFAULT_CONTACT_ORDER],
         links: [],
       },
-      sections: [],
+      sections: STARTER_SECTIONS.map((type) => createSection(type)),
       settings: { ...DEFAULT_SETTINGS },
     },
   };

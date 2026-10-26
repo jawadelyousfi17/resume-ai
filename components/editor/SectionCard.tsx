@@ -1,13 +1,14 @@
 "use client";
 
-// Collapsible card used for every editable block in the Content tab. Open, a
-// section reads as a list: full-bleed entry rows divided by hairlines, closed
-// off by a footer that carries the section's own controls.
+// One fold of the Content tab's accordion. Closed, it's a bold label on a
+// hairline; open, the section reads as a list: full-bleed entry rows divided
+// by hairlines, closed off by a footer that carries the section's own
+// controls.
 
 import { useEffect, useRef, useState } from "react";
 import { CalendarIcon, CalendarOffIcon } from "@/components/ui/icons";
+import { Minus, Plus } from "lucide-react";
 import {
-  ChevronDownIcon,
   DragIcon,
   PencilIcon,
   PlusIcon,
@@ -62,17 +63,17 @@ export function SectionCard({
             }
           : undefined
       }
-      className={`overflow-hidden rounded-2xl bg-panel shadow-[var(--shadow-panel)] transition ${
+      className={`border-b border-divider bg-panel transition ${
         drag?.dragging ? "opacity-40" : ""
       }`}
     >
       <div
-        className="flex cursor-pointer items-center gap-3 px-5 py-5"
+        className="group/fold flex cursor-pointer items-center gap-2.5 px-5 py-4"
         onClick={() => !renaming && onToggle()}
       >
         {/* Personal details can't move, but it keeps the handle's gutter so
             every card's title starts on the same line. */}
-        {!drag && <span className="-ml-2 w-6 shrink-0" aria-hidden="true" />}
+        {!drag && <span className="-ml-2 w-5 shrink-0" aria-hidden="true" />}
 
         {drag && (
           <span
@@ -90,9 +91,9 @@ export function SectionCard({
             }}
             aria-label={`Reorder ${title}`}
             title="Drag to reorder, or press ↑ / ↓"
-            className="-ml-2 hidden h-9 w-6 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing md:inline-flex"
+            className="-ml-2 hidden h-7 w-5 shrink-0 cursor-grab items-center justify-center rounded-lg text-ink-faint transition hover:text-ink active:cursor-grabbing md:inline-flex"
           >
-            <DragIcon className="h-[18px] w-[18px]" />
+            <DragIcon className="h-4 w-4" />
           </span>
         )}
 
@@ -104,7 +105,7 @@ export function SectionCard({
           />
         )}
 
-        {Icon && <Icon className="h-6 w-6 shrink-0 text-ink" />}
+        {Icon && <Icon className="h-[18px] w-[18px] shrink-0 text-ink-soft" />}
 
         {renaming && onRename ? (
           <input
@@ -123,11 +124,11 @@ export function SectionCard({
                 e.currentTarget.blur();
               }
             }}
-            className="min-w-0 flex-1 rounded-lg bg-field px-3 py-1 text-[22px] font-bold tracking-tight text-ink outline-none ring-2 ring-ink/80"
+            className="min-w-0 flex-1 rounded-md border border-brand bg-panel px-2 py-0.5 text-[15px] font-bold text-ink outline-none ring-3 ring-brand/15"
           />
         ) : (
           <>
-            <p className="min-w-0 shrink truncate text-[22px] font-bold tracking-tight text-ink">
+            <p className="min-w-0 shrink truncate text-[15px] font-bold text-ink">
               {title}
             </p>
             {open && onRename && (
@@ -137,28 +138,31 @@ export function SectionCard({
                   e.stopPropagation();
                   setRenaming(true);
                 }}
-                className="flex shrink-0 items-center gap-2 rounded-xl bg-field px-4 py-2.5 text-[15px] font-bold text-ink transition hover:bg-black/[0.06]"
+                className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[12.5px] font-medium text-brand transition hover:bg-brand-soft"
               >
-                <PencilIcon className="h-[18px] w-[18px]" />
-                Edit Heading
+                <PencilIcon className="h-3.5 w-3.5" />
+                Rename
               </button>
             )}
             <span className="flex-1" />
           </>
         )}
 
-        <ChevronDownIcon
-          className={`h-5 w-5 shrink-0 text-ink-soft transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
-        />
+        {open ? (
+          <Minus aria-hidden className="size-[18px] shrink-0 text-ink" />
+        ) : (
+          <Plus
+            aria-hidden
+            className="size-[18px] shrink-0 text-ink transition group-hover/fold:text-brand"
+          />
+        )}
       </div>
 
       {open && (
         <>
           {/* Flush content draws its own dividers, one per row. */}
           <div
-            className={flush ? "" : "border-t border-black/5 px-5 pb-5 pt-4"}
+            className={flush ? "" : "px-5 pt-0.5 pb-5"}
           >
             {children}
           </div>
@@ -184,7 +188,9 @@ export function SectionFooter({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3 border-t border-black/5 px-5 py-4">
+    // No rule above: the entries' group already closes itself off, and the
+    // controls read as that group's foot.
+    <div className="flex items-center gap-3 px-5 pt-2 pb-3">
       <div className="flex-1">
         {onToggleDates && (
           <FooterIcon
@@ -209,10 +215,10 @@ export function SectionFooter({
         <button
           type="button"
           onClick={onAddEntry}
-          className="flex shrink-0 items-center gap-2 rounded-xl border border-black/10 px-6 py-3 text-[15px] font-bold text-ink transition hover:border-brand/40 hover:text-brand"
+          className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-brand transition hover:bg-brand-soft"
         >
-          <PlusIcon className="h-5 w-5" />
-          Add Entry
+          <PlusIcon className="h-4 w-4" />
+          Add one more
         </button>
       )}
 
@@ -245,7 +251,7 @@ function FooterIcon({
       aria-label={label}
       title={label}
       aria-pressed={active}
-      className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-field transition hover:bg-black/[0.06] ${
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-canvas ${
         danger ? "text-ink-soft hover:text-danger" : ""
       } ${active === false ? "text-ink-faint" : "text-ink"}`}
     >
@@ -254,9 +260,8 @@ function FooterIcon({
   );
 }
 
-/** Sits in its own panel beneath the open card, as its own step — except on a
- *  phone, where the screen is already one white sheet and a panel would only
- *  draw a box on it. */
+/** Closes the open entry. The same pill on a phone and at a desk; the desk
+ *  one brings the panel's gutter with it. */
 export function DoneButton({
   onClick,
   flat = false,
@@ -269,7 +274,7 @@ export function DoneButton({
       <button
         type="button"
         onClick={onClick}
-        className="btn-fill flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold transition active:scale-[0.995]"
+        className="btn-fill flex w-full items-center justify-center gap-2 py-3 text-[15px] font-semibold transition active:scale-[0.995]"
       >
         ✓ Done
       </button>
@@ -277,11 +282,11 @@ export function DoneButton({
   }
 
   return (
-    <div className="rounded-2xl bg-panel p-3 shadow-[var(--shadow-panel)]">
+    <div className="px-5 py-5">
       <button
         type="button"
         onClick={onClick}
-        className="btn-fill flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold transition hover:brightness-[1.03] active:scale-[0.995]"
+        className="btn-fill flex w-full items-center justify-center gap-2 py-3 text-[15px] font-semibold transition active:scale-[0.995]"
       >
         ✓ Done
       </button>

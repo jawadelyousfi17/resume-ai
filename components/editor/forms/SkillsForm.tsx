@@ -103,7 +103,7 @@ export function SkillsForm({ section }: { section: SkillsSection }) {
                       level: Number(e.target.value) || undefined,
                     })
                   }
-                  className="h-11 w-[104px] appearance-none rounded-xl bg-field px-3 pr-7 text-[13px] font-medium text-ink outline-none focus-visible:ring-2 focus-visible:ring-ink/80 sm:w-[136px] sm:text-[14px]"
+                  className="h-[42px] w-[104px] appearance-none rounded-md border border-field-border bg-panel px-3 pr-7 text-[13px] font-medium text-ink outline-none focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15 sm:w-[136px] sm:text-[14px]"
                 >
                   <option value={0}>No level</option>
                   {levels.map((name: string, li: number) => (

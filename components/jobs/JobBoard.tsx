@@ -88,19 +88,6 @@ export function JobBoard() {
 
   return (
     <>
-      {/* Off-screen rather than removed on a phone: the board needs the rows
-          more than the reader needs the heading repeated, but the page still
-          has to have an <h1>. */}
-      <div className="mb-4 max-sm:sr-only">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-          Job Tracker
-        </h1>
-        <p className="mt-1.5 text-[14px] text-ink-soft sm:text-[15px]">
-          {jobs.length === 0
-            ? "Every application in one place, from saved to signed."
-            : `${jobs.length} application${jobs.length === 1 ? "" : "s"} — saved in this browser.`}
-        </p>
-      </div>
 
       <Toolbar
         query={query}
@@ -125,7 +112,7 @@ export function JobBoard() {
             columns get the whole screen while the sidebar stays put. The 10px
             keeps it clear of the scrollbar, which `100vw` counts and the layout
             doesn't. */}
-        <div className="scroll-slim mt-4 -ml-4 mr-[calc(min(0px,(1600px-100vw)/2)-6px)] flex snap-x gap-3 overflow-x-auto px-4 pt-1 pb-4 sm:-ml-10 sm:mr-[calc(min(0px,(1600px-100vw)/2)-30px)] sm:px-5 lg:-ml-14 lg:mr-[calc(min(0px,(1600px-100vw)/2)-46px)] lg:px-6">
+        <div className="scroll-slim mt-4 -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pt-1 pb-4 sm:-mx-10 sm:px-10 lg:-mx-14 lg:px-14">
           {STAGES.map((column) => {
             const cards = shown.filter((job) => job.stage === column.id);
             const over = overStage === column.id && dragId;
@@ -152,7 +139,7 @@ export function JobBoard() {
                     className={cn("h-2 w-2 shrink-0 rounded-full", column.dot)}
                     aria-hidden="true"
                   />
-                  <h2 className="text-[15px] font-extrabold tracking-tight text-ink">
+                  <h2 className="text-[15px] font-bold tracking-tight text-ink">
                     {column.label}
                   </h2>
                   <span className="rounded-full bg-panel/70 px-1.5 text-[12px] font-bold text-ink-soft tabular-nums">
@@ -235,7 +222,7 @@ function Toolbar({
   return (
     // The right edge follows the board's, which reaches past the app's width
     // cap on a wide monitor — so the button lines up with the last column.
-    <div className="flex flex-wrap items-center gap-2 mr-[calc(min(0px,(1600px-100vw)/2)+10px)] sm:mr-[calc(min(0px,(1600px-100vw)/2)-10px)] lg:mr-[calc(min(0px,(1600px-100vw)/2)-22px)]">
+    <div className="flex flex-wrap items-center gap-2">
       <div className="relative w-full min-w-0 sm:w-auto sm:max-w-[300px] sm:flex-none">
         <SearchIcon className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-ink-faint" />
         <input
@@ -243,7 +230,7 @@ function Toolbar({
           onChange={(e) => onQuery(e.target.value)}
           placeholder="Search company, role, notes"
           aria-label="Search applications"
-          className="h-10 w-full rounded-full bg-panel pr-4 pl-10 text-[14px] text-ink placeholder:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/70"
+          className="h-[42px] w-full rounded-md border border-field-border bg-panel pr-3.5 pl-10 text-[14px] text-ink outline-none transition placeholder:text-ink-faint focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15"
         />
       </div>
 
@@ -327,7 +314,7 @@ function MobileBoard({
               aria-pressed={on}
               className={cn(
                 "inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-bold transition",
-                on ? "bg-navy text-white" : "bg-panel text-ink-soft",
+                on ? "bg-brand text-white" : "bg-panel text-ink-soft",
               )}
             >
               <span
@@ -350,7 +337,7 @@ function MobileBoard({
 
       <div className={cn("mt-3 rounded-2xl p-3", current.tint)}>
         <div className="flex items-center gap-2 px-1 pb-2">
-          <h2 className="text-[15px] font-extrabold tracking-tight text-ink">
+          <h2 className="text-[15px] font-bold tracking-tight text-ink">
             {current.label}
           </h2>
           <span className="text-[13px] font-bold text-ink-faint">
@@ -401,7 +388,7 @@ function MobileJobCard({ job, onEdit }: { job: Job; onEdit: () => void }) {
           onClick={onEdit}
           className="min-w-0 flex-1 text-left"
         >
-          <span className="block truncate text-[15.5px] leading-tight font-extrabold tracking-tight text-ink">
+          <span className="block truncate text-[15.5px] leading-tight font-bold tracking-tight text-ink">
             {job.company}
           </span>
           <span className="mt-0.5 block truncate text-[13.5px] font-medium text-ink-soft">
@@ -520,7 +507,7 @@ function JobCard({
           onClick={onEdit}
           className="min-w-0 flex-1 text-left"
         >
-          <span className="block truncate text-[14.5px] leading-tight font-extrabold tracking-tight text-ink">
+          <span className="block truncate text-[14.5px] leading-tight font-bold tracking-tight text-ink">
             {job.company}
           </span>
           <span className="mt-0.5 block truncate text-[13px] font-medium text-ink-soft">

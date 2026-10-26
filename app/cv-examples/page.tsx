@@ -141,7 +141,7 @@ export default function CvExamplesPage() {
         </div>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             What to change by country
           </h2>
           <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
@@ -152,7 +152,7 @@ export default function CvExamplesPage() {
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {BY_REGION.map((row) => (
               <div key={row.region} className={cn(panel, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-extrabold text-ink">
+                <h3 className="text-[16.5px] font-bold text-ink">
                   {row.region}
                 </h3>
                 <p className="mt-1.5 text-[13px] font-bold text-ink-faint">
@@ -168,7 +168,7 @@ export default function CvExamplesPage() {
 
         {EXAMPLES_BY_CATEGORY.map((group) => (
           <section key={group.id} className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               {group.label}
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
@@ -181,7 +181,7 @@ export default function CvExamplesPage() {
                   href={`/resume-examples/${example.slug}`}
                   className={cn(panel, "px-6 py-5 transition hover:ring-ink/15")}
                 >
-                  <span className="block text-[17px] leading-snug font-extrabold text-ink">
+                  <span className="block text-[17px] leading-snug font-bold text-ink">
                     {example.role}
                   </span>
                   <span className="mt-1.5 block text-[12.5px] font-semibold text-ink-faint">
@@ -197,7 +197,7 @@ export default function CvExamplesPage() {
         ))}
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqList entries={FAQS} />

@@ -79,10 +79,10 @@ export function FontSwitcher() {
         <div
           role="dialog"
           aria-label="Interface font"
-          className="mb-3 w-[300px] overflow-hidden rounded-2xl bg-panel shadow-[0_18px_48px_rgba(15,23,42,0.22)] ring-1 ring-black/10"
+          className="mb-3 w-[300px] overflow-hidden rounded-2xl bg-panel shadow-[0_18px_48px_rgba(15,23,42,0.22)] ring-1 ring-divider"
         >
-          <div className="flex items-center gap-2 border-b border-black/5 px-4 py-3">
-            <span className="text-[13.5px] font-extrabold text-ink">
+          <div className="flex items-center gap-2 border-b border-divider px-4 py-3">
+            <span className="text-[13.5px] font-bold text-ink">
               Interface font
             </span>
             <button
@@ -134,10 +134,10 @@ export function FontSwitcher() {
           {/* The hard part of judging a UI font is the small stuff, not the
               name at 15px — so the panel carries a line of each. */}
           <div
-            className="border-t border-black/5 px-4 py-3"
+            className="border-t border-divider px-4 py-3"
             style={{ fontFamily: active.stack }}
           >
-            <p className="text-[19px] leading-tight font-extrabold tracking-tight text-ink">
+            <p className="text-[19px] leading-tight font-bold tracking-tight text-ink">
               Build a job-winning resume
             </p>
             <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
@@ -152,7 +152,7 @@ export function FontSwitcher() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`Interface font: ${active.name}`}
-        className="ml-auto flex h-11 items-center gap-2.5 rounded-full bg-panel pr-4 pl-4 shadow-[0_10px_30px_rgba(15,23,42,0.18)] ring-1 ring-black/10 transition hover:-translate-y-0.5"
+        className="ml-auto flex h-11 items-center gap-2.5 rounded-full bg-panel pr-4 pl-4 shadow-[0_10px_30px_rgba(15,23,42,0.18)] ring-1 ring-divider transition hover:-translate-y-0.5"
       >
         <span
           aria-hidden="true"

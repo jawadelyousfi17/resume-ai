@@ -174,7 +174,7 @@ export default async function LetterTemplatePage(
             frame is a wrapper rather than the page itself, or its edge would
             be baked into every thumbnail. */}
         <div className="mt-10 flex justify-center">
-          <div className="border border-black/[0.09] shadow-[var(--shadow-paper)]">
+          <div className="border border-divider shadow-[var(--shadow-paper)]">
             <div
               data-letter-page
               className="resume-page overflow-hidden bg-white"
@@ -186,7 +186,7 @@ export default async function LetterTemplatePage(
         </div>
 
         <section className={cn(panel, "mt-10 px-6 py-5")}>
-          <h2 className="text-[17px] font-extrabold text-ink">
+          <h2 className="text-[17px] font-bold text-ink">
             What defines this design
           </h2>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -212,7 +212,7 @@ export default async function LetterTemplatePage(
         </section>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             When to send {template.name}
           </h2>
           <p
@@ -232,7 +232,7 @@ export default async function LetterTemplatePage(
 
         {others.length > 0 && family && (
           <section className="mt-12">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               More from {family.label.toLowerCase()}
             </h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -242,7 +242,7 @@ export default async function LetterTemplatePage(
                   href={`/cover-letter/templates/${other.id}`}
                   className={cn(panel, "px-5 py-4 transition hover:ring-ink/15")}
                 >
-                  <span className="block text-[15px] font-extrabold text-ink">
+                  <span className="block text-[15px] font-bold text-ink">
                     {other.name}
                   </span>
                   <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">

@@ -111,7 +111,7 @@ export function ImportResume() {
 
   if (reading) {
     return (
-      <div className="rounded-2xl bg-panel p-4 shadow-[var(--shadow-panel)] ring-1 ring-black/5">
+      <div className="rounded-[10px] bg-panel p-4 ring-1 ring-divider">
         <ImportScan file={reading} />
       </div>
     );
@@ -136,41 +136,38 @@ export function ImportResume() {
           if (!canImport) return void plan.ask("import");
           take(file);
         }}
-        className={`rounded-2xl border-2 border-dashed p-1 transition ${
+        // A plain field-row: hairline border, a grey icon, the title, and
+        // the one action as a pill. It only colours itself while a file is
+        // being dragged over it, which is the one moment it needs to.
+        className={`flex items-center gap-3 rounded-[10px] border px-3.5 py-3 transition ${
           dragging
-            ? "border-brand bg-brand-soft/40"
-            : "border-ink-faint/40 bg-panel/40"
+            ? "border-dashed border-brand bg-brand-soft/40"
+            : "border-field-border bg-panel"
         }`}
       >
+        <UploadIcon className="h-5 w-5 shrink-0 text-ink-faint" />
+
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[14px] font-semibold text-ink">
+            {dragging ? "Drop it here" : "Import my resume"}
+          </span>
+          <span className="block truncate text-[12.5px] text-ink-faint">
+            PDF, image or text
+          </span>
+        </span>
+
+        {/* On a plan without it, the badge names the plan that has it, so
+            the row answers "and then what?" before it's pressed. */}
+        {!canImport && plan.plan !== null && (
+          <PlanBadge plan={cheapestPlanWith("import").id} />
+        )}
+
         <button
           type="button"
           onClick={pick}
-          className="flex w-full items-center gap-3.5 rounded-xl px-4 py-3.5 text-left transition hover:bg-black/[0.03]"
+          className="btn-fill h-9 shrink-0 px-4 text-[13.5px] font-medium transition"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
-            <UploadIcon className="h-5 w-5" />
-          </span>
-
-          <span className="min-w-0">
-            <span className="block text-[15.5px] font-bold text-ink">
-              {plan.plan === null && !canImport
-                ? "Sign in to import your resume"
-                : "Import my resume"}
-            </span>
-            {/* Which formats is the one thing worth saying — it saves a round
-                trip to a rejected file. */}
-            <span className="mt-0.5 block text-[13px] leading-snug text-ink-soft">
-              {dragging
-                ? "Drop it here"
-                : "Upload a PDF, an image or a text file and the AI fills in every field below."}
-            </span>
-          </span>
-
-          {/* On a plan without it, the same spot names the plan that has it, so
-              the row answers "and then what?" before it's pressed. */}
-          {!canImport && plan.plan !== null && (
-            <PlanBadge plan={cheapestPlanWith("import").id} className="ml-auto" />
-          )}
+          {plan.plan === null && !canImport ? "Sign in" : "Upload"}
         </button>
       </div>
 
@@ -192,7 +189,7 @@ export function ImportResume() {
         onOpenChange={(open) => !open && setConfirming(null)}
       >
         <DialogContent className="max-w-[420px] p-7 sm:max-w-[420px]">
-          <DialogTitle className="text-[21px] font-extrabold tracking-tight text-ink">
+          <DialogTitle className="text-[21px] font-bold tracking-tight text-ink">
             Replace what&rsquo;s on this resume?
           </DialogTitle>
           <DialogDescription className="text-[14.5px] leading-relaxed text-ink-soft">
@@ -200,11 +197,11 @@ export function ImportResume() {
             sections you have now. Your template and design stay as they are.
           </DialogDescription>
 
-          <div className="flex justify-end gap-1">
+          <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setConfirming(null)}
-              className="rounded-lg px-5 py-2.5 text-[14.5px] font-bold text-ink-soft transition hover:bg-black/[0.04]"
+              className="btn-soft px-5 py-2.5 text-[14.5px] font-semibold transition"
             >
               Cancel
             </button>
@@ -215,7 +212,7 @@ export function ImportResume() {
                 setConfirming(null);
                 if (file) void read(file);
               }}
-              className="rounded-lg bg-navy px-5 py-2.5 text-[14.5px] font-bold text-white transition hover:opacity-90"
+              className="btn-fill px-5 py-2.5 text-[14.5px] font-semibold transition"
             >
               Import and replace
             </button>

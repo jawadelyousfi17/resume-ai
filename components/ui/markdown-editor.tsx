@@ -53,10 +53,10 @@ function Tool({ editor, icon: Icon, label, active, onClick }: ToolProps) {
       title={label}
       disabled={!editor.isEditable}
       className={cn(
-        "inline-flex h-7 w-7 items-center justify-center rounded-lg transition",
+        "inline-flex h-7 w-7 items-center justify-center rounded-md transition",
         active
-          ? "bg-brand-soft text-brand"
-          : "text-ink-faint hover:bg-black/5 hover:text-ink",
+          ? "bg-canvas text-ink"
+          : "text-ink-soft hover:bg-canvas hover:text-ink",
       )}
     >
       <Icon className="h-[17px] w-[17px]" />
@@ -132,7 +132,7 @@ export function MarkdownEditor({
     return (
       <div
         className={cn(
-          "rounded-xl bg-field px-4 py-3",
+          "rounded-md border border-field-border bg-panel",
           className,
         )}
         style={{ minHeight: minHeight + 42 }}
@@ -143,12 +143,14 @@ export function MarkdownEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl bg-field ring-2 ring-transparent transition focus-within:ring-ink/80",
+        // The same box every other field is: white, a hairline, modest
+        // corners, and the blue border with its soft halo while typing.
+        "overflow-hidden rounded-md border border-field-border bg-panel transition focus-within:border-brand focus-within:ring-3 focus-within:ring-brand/15",
         className,
       )}
     >
       {toolbar && (
-      <div className="flex items-center gap-0.5 border-b border-black/[0.06] px-2 py-1.5">
+      <div className="flex items-center gap-0.5 border-b border-field-border px-1.5 py-1">
         <Tool
           editor={editor}
           icon={BoldIcon}
@@ -163,7 +165,7 @@ export function MarkdownEditor({
           active={editor.isActive("italic")}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         />
-        <span className="mx-1 h-4 w-px bg-black/10" />
+        <span className="mx-1 h-4 w-px bg-field-border" />
         <Tool
           editor={editor}
           icon={BulletListIcon}
@@ -183,7 +185,7 @@ export function MarkdownEditor({
 
       <EditorContent
         editor={editor}
-        className="px-4 py-3 text-base leading-relaxed text-ink"
+        className="px-3.5 py-2.5 text-[14px] leading-relaxed text-ink"
       />
     </div>
   );

@@ -1,134 +1,198 @@
-// The app's icon set, backed by HugeIcons Free.
+// The app's icon set, backed by Lucide — the same pack the design system is
+// drawn with, so an icon in a panel and one in the reference agree.
 //
 // Every icon is exported as a plain component taking the same props as an
 // <svg>, so call sites keep sizing with Tailwind (`className="h-4 w-4"`) —
-// those classes win over the width/height attributes HugeIcons renders.
+// those classes win over the width/height attributes Lucide renders. The
+// names are the app's own, not Lucide's: a call site asks for "the delete
+// icon", and which glyph that is gets decided here, once.
 
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
-  Add01Icon,
-  AiChipIcon,
-  ArrowDown01Icon,
-  Award01Icon,
-  Book01Icon,
-  Briefcase01Icon,
-  Building01Icon,
-  File02Icon,
-  GoogleDocIcon as HugeGoogleDocIcon,
-  Image01Icon,
-  Layout01Icon,
-  PaintBrush02Icon,
-  SidebarLeftIcon,
-  CalendarBlock01Icon,
-  CalendarCheckIn01Icon,
-  Camera01Icon,
-  Cancel01Icon,
-  Copy01Icon,
-  Delete02Icon,
-  Logout02Icon,
-  ViewIcon,
-  ViewOffSlashIcon,
-  Download04Icon,
-  DragDropVerticalIcon,
-  File01Icon,
-  GridViewIcon,
-  Idea01Icon,
-  Layers01Icon,
-  LeftToRightListBulletIcon,
-  LeftToRightListNumberIcon,
-  MagicWand01Icon,
-  Link01Icon,
-  LinkSquare02Icon,
-  Mail01Icon,
-  MinusSignIcon,
-  MoreHorizontalIcon,
-  Mortarboard02Icon,
-  PencilEdit02Icon,
-  Rocket01Icon,
-  Search01Icon,
-  SparklesIcon as HugeSparklesIcon,
-  Tag01Icon,
-  Target02Icon,
-  TextAlignLeftIcon,
-  TextBoldIcon,
-  TranslateIcon as HugeTranslateIcon,
-  TextItalicIcon,
-  Tick02Icon,
-  UnfoldMoreIcon,
-  UserIcon as HugeUserIcon,
-} from "@hugeicons/core-free-icons";
+  Award,
+  BadgeCheck,
+  Bold,
+  BookOpen,
+  Brain,
+  BriefcaseBusiness,
+  Brush,
+  Building2,
+  CalendarCheck,
+  CalendarOff,
+  Camera,
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
+  Copy,
+  Cpu,
+  Download,
+  Ellipsis,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  FilePen,
+  FileText,
+  FileType,
+  FileUser,
+  Folder,
+  Globe,
+  GraduationCap,
+  GripVertical,
+  Guitar,
+  IdCard,
+  Image,
+  Italic,
+  Languages,
+  Layers,
+  LayoutGrid,
+  LayoutTemplate,
+  LibraryBig,
+  Lightbulb,
+  Link,
+  List,
+  ListOrdered,
+  LogOut,
+  Mail,
+  MapPin,
+  Minus,
+  Network,
+  Newspaper,
+  NotepadText,
+  Palette,
+  PanelLeft,
+  Pencil,
+  PencilLine,
+  Phone,
+  Plus,
+  Puzzle,
+  Rocket,
+  ScrollText,
+  Search,
+  Signature,
+  Sparkles,
+  SquareKanban,
+  SquarePen,
+  Tag,
+  Target,
+  TextAlignStart,
+  Trash2,
+  Upload,
+  User,
+  Users,
+  WandSparkles,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
-/** Wraps a HugeIcons glyph so it behaves like the inline SVGs it replaced. */
-const icon = (glyph: IconSvgElement) => {
+/** The design system's line weight — lighter than Lucide's default 2, which
+ *  reads heavy beside 13–15px interface text. A call site can still pass its
+ *  own `strokeWidth` for a tick that has to hold up at 12px. */
+const STROKE = 1.75;
+
+/** Wraps a Lucide glyph so it behaves like the inline SVGs it replaced:
+ *  decorative unless labelled, sized by className, coloured by text colour. */
+export const icon = (Glyph: LucideIcon) => {
   const Icon = ({ strokeWidth, ...props }: IconProps) => (
-    <HugeiconsIcon
-      icon={glyph}
+    <Glyph
+      aria-hidden
+      focusable="false"
+      // The old sets drew at 20px when nothing asked otherwise; a className
+      // size still wins over these attributes.
       size={20}
-      color="currentColor"
-      strokeWidth={typeof strokeWidth === "number" ? strokeWidth : 2}
-      {...props}
+      strokeWidth={strokeWidth ?? STROKE}
+      {...(props as React.ComponentProps<LucideIcon>)}
     />
   );
-  Icon.displayName = "HugeIcon";
+  Icon.displayName = `Icon(${Glyph.displayName ?? "Lucide"})`;
   return Icon;
 };
 
-export const PlusIcon = icon(Add01Icon);
-export const MinusIcon = icon(MinusSignIcon);
-export const TrashIcon = icon(Delete02Icon);
-export const ChevronDownIcon = icon(ArrowDown01Icon);
-export const DownloadIcon = icon(Download04Icon);
-export const GridIcon = icon(GridViewIcon);
-export const FileTextIcon = icon(File01Icon);
-export const WandIcon = icon(MagicWand01Icon);
-export const SparklesIcon = icon(HugeSparklesIcon);
-export const BulbIcon = icon(Idea01Icon);
-export const CameraIcon = icon(Camera01Icon);
-export const CheckIcon = icon(Tick02Icon);
-export const XIcon = icon(Cancel01Icon);
-export const DotsIcon = icon(MoreHorizontalIcon);
-export const DragIcon = icon(DragDropVerticalIcon);
-export const ChevronUpDownIcon = icon(UnfoldMoreIcon);
-export const UserIcon = icon(HugeUserIcon);
-export const RocketIcon = icon(Rocket01Icon);
-export const BriefcaseIcon = icon(Briefcase01Icon);
-export const CapIcon = icon(Mortarboard02Icon);
-export const StackIcon = icon(Layers01Icon);
-export const AlignIcon = icon(TextAlignLeftIcon);
-export const MailIcon = icon(Mail01Icon);
-export const TagIcon = icon(Tag01Icon);
-export const AwardIcon = icon(Award01Icon);
-export const EyeIcon = icon(ViewIcon);
-export const EyeOffIcon = icon(ViewOffSlashIcon);
-export const PencilIcon = icon(PencilEdit02Icon);
-export const CalendarIcon = icon(CalendarCheckIn01Icon);
-export const CalendarOffIcon = icon(CalendarBlock01Icon);
-export const BoldIcon = icon(TextBoldIcon);
-export const ItalicIcon = icon(TextItalicIcon);
-export const BulletListIcon = icon(LeftToRightListBulletIcon);
-export const NumberListIcon = icon(LeftToRightListNumberIcon);
-export const TranslateIcon = icon(HugeTranslateIcon);
-export const CopyIcon = icon(Copy01Icon);
+export const PlusIcon = icon(Plus);
+export const MinusIcon = icon(Minus);
+export const TrashIcon = icon(Trash2);
+export const ChevronDownIcon = icon(ChevronDown);
+export const DownloadIcon = icon(Download);
+export const GridIcon = icon(LayoutGrid);
+export const FileTextIcon = icon(FileText);
+export const WandIcon = icon(WandSparkles);
+export const SparklesIcon = icon(Sparkles);
+export const BulbIcon = icon(Lightbulb);
+export const CameraIcon = icon(Camera);
+export const CheckIcon = icon(Check);
+export const XIcon = icon(X);
+export const DotsIcon = icon(Ellipsis);
+export const DragIcon = icon(GripVertical);
+export const ChevronUpDownIcon = icon(ChevronsUpDown);
+export const UserIcon = icon(User);
+export const RocketIcon = icon(Rocket);
+export const BriefcaseIcon = icon(BriefcaseBusiness);
+export const CapIcon = icon(GraduationCap);
+export const StackIcon = icon(Layers);
+export const AlignIcon = icon(TextAlignStart);
+export const MailIcon = icon(Mail);
+export const TagIcon = icon(Tag);
+export const AwardIcon = icon(Award);
+export const EyeIcon = icon(Eye);
+export const EyeOffIcon = icon(EyeOff);
+export const PencilIcon = icon(PencilLine);
+export const CalendarIcon = icon(CalendarCheck);
+export const CalendarOffIcon = icon(CalendarOff);
+export const BoldIcon = icon(Bold);
+export const ItalicIcon = icon(Italic);
+export const BulletListIcon = icon(List);
+export const NumberListIcon = icon(ListOrdered);
+export const TranslateIcon = icon(Languages);
+export const CopyIcon = icon(Copy);
 /** Sharing: the link a resume is handed round on. */
-export const LinkIcon = icon(Link01Icon);
+export const LinkIcon = icon(Link);
 /** A link that leaves this page — the shared resume, opened as a visitor
  *  sees it. */
-export const ExternalLinkIcon = icon(LinkSquare02Icon);
-export const SearchIcon = icon(Search01Icon);
-export const LogoutIcon = icon(Logout02Icon);
+export const ExternalLinkIcon = icon(ExternalLink);
+export const SearchIcon = icon(Search);
+export const LogoutIcon = icon(LogOut);
 /** The editor's AI tab. */
-export const ChipIcon = icon(AiChipIcon);
+export const ChipIcon = icon(Cpu);
 /** The editor's tailoring tab. */
-export const TargetIcon = icon(Target02Icon);
+export const TargetIcon = icon(Target);
 
 // The template filter row: one glyph per cut of the catalogue.
-export const BookIcon = icon(Book01Icon);
-export const BuildingIcon = icon(Building01Icon);
-export const DocFileIcon = icon(File02Icon);
-export const GoogleDocIcon = icon(HugeGoogleDocIcon);
-export const ImageIcon = icon(Image01Icon);
-export const LayoutIcon = icon(Layout01Icon);
-export const BrushIcon = icon(PaintBrush02Icon);
-export const SidebarIcon = icon(SidebarLeftIcon);
+export const BookIcon = icon(BookOpen);
+export const BuildingIcon = icon(Building2);
+export const DocFileIcon = icon(FileType);
+export const GoogleDocIcon = icon(NotepadText);
+export const ImageIcon = icon(Image);
+export const LayoutIcon = icon(LayoutTemplate);
+export const BrushIcon = icon(Brush);
+export const SidebarIcon = icon(PanelLeft);
+
+// Section and field glyphs — what used to be the hand-drawn set in
+// svg-icons.tsx, which now re-exports these.
+export const DocumentIcon = icon(FileText);
+export const DesignIcon = icon(Palette);
+export const MagicIcon = icon(WandSparkles);
+export const EditSquareIcon = icon(SquarePen);
+export const PhoneIcon = icon(Phone);
+export const LocationIcon = icon(MapPin);
+export const IdCardIcon = icon(IdCard);
+export const PenIcon = icon(Pencil);
+export const CloseIcon = icon(X);
+export const UploadIcon = icon(Upload);
+export const BrainIcon = icon(Brain);
+export const GlobeIcon = icon(Globe);
+export const CertificateIcon = icon(BadgeCheck);
+export const GuitarIcon = icon(Guitar);
+export const FolderIcon = icon(Folder);
+export const BooksIcon = icon(LibraryBig);
+export const CommunityIcon = icon(Users);
+export const ArticleIcon = icon(Newspaper);
+export const NetworkIcon = icon(Network);
+export const PuzzleIcon = icon(Puzzle);
+export const LetterIcon = icon(ScrollText);
+export const SignatureIcon = icon(Signature);
+
+// The dashboard's places, one glyph each: a resume is a page with a person on
+// it, a letter is a page being written, the tracker is a board of columns.
+export const ResumesIcon = icon(FileUser);
+export const LettersIcon = icon(FilePen);
+export const TrackerIcon = icon(SquareKanban);

@@ -256,7 +256,7 @@ export function LetterCustomize() {
 
   return (
     <div className="flex gap-5">
-      <nav className="sticky top-0 hidden w-28 shrink-0 flex-col self-start border-l border-black/5 sm:flex">
+      <nav className="sticky top-0 hidden w-28 shrink-0 flex-col self-start border-l border-divider sm:flex">
         {CZ_GROUPS.map((g) => {
           const on = active === g.id;
           return (
@@ -297,7 +297,7 @@ export function LetterCustomize() {
             </span>
 
             <span className="absolute inset-0 flex items-center justify-center bg-ink/45 transition group-hover:bg-ink/55">
-              <span className="rounded-xl bg-white px-5 py-2.5 text-[14.5px] font-bold text-ink shadow-lg">
+              <span className="rounded-xl bg-white px-5 py-2.5 text-[14.5px] font-bold text-ink shadow-[var(--shadow-float)]">
                 Browse templates
               </span>
             </span>
@@ -326,7 +326,7 @@ export function LetterCustomize() {
                     e.target.value as CoverLetterSettings["language"],
                   )
                 }
-                className="h-auto w-full rounded-xl bg-field px-4 py-3 text-base text-ink focus-visible:ring-2 focus-visible:ring-ink/80 focus-visible:outline-none"
+                className="h-auto w-full rounded-md border border-field-border bg-panel px-3.5 py-2.5 text-base text-ink focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15 focus-visible:outline-none"
               >
                 {LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
@@ -442,7 +442,7 @@ export function LetterCustomize() {
               );
             })}
             <label
-              className="relative ml-1 h-9 w-9 overflow-hidden rounded-full ring-1 ring-black/10"
+              className="relative ml-1 h-9 w-9 overflow-hidden rounded-full ring-1 ring-divider"
               style={{ backgroundColor: s.accent }}
             >
               <input
@@ -484,7 +484,7 @@ function Group({
         className="flex w-full items-center gap-3 px-6 py-5 text-left"
       >
         {Icon && <Icon className="h-6 w-6 shrink-0 text-ink" />}
-        <h3 className="flex-1 text-[17px] font-extrabold tracking-tight text-ink">
+        <h3 className="flex-1 text-[17px] font-bold tracking-tight text-ink">
           {title}
         </h3>
         <ChevronDownIcon
@@ -514,7 +514,7 @@ function Panel({
       id={id}
       className="scroll-mt-4 rounded-2xl bg-panel p-6 shadow-[var(--shadow-panel)]"
     >
-      <h3 className="mb-4 text-xl font-extrabold tracking-tight text-ink">
+      <h3 className="mb-4 text-xl font-bold tracking-tight text-ink">
         {title}
       </h3>
       {children}
@@ -607,13 +607,13 @@ function LetterTemplatePicker({
       >
         {/* Back and the filters ride together at the top; only the grid
             underneath them moves. */}
-        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl border-b border-black/5 bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:border-0 max-sm:px-4 max-sm:pt-3 sm:rounded-none">
+        <div className="sticky top-0 z-10 -mx-7 min-w-0 rounded-t-3xl border-b border-divider bg-popover px-7 pt-7 pb-4 max-sm:-mx-4 max-sm:border-0 max-sm:px-4 max-sm:pt-3 sm:rounded-none">
           <DialogBack className="mb-3 sm:hidden" />
 
           <div className="flex items-center gap-4 max-sm:hidden">
             <DialogHeader>
               {/* The Back button says what this is on a phone. */}
-              <DialogTitle className="text-2xl font-extrabold text-ink max-sm:sr-only">
+              <DialogTitle className="text-2xl font-bold text-ink max-sm:sr-only">
                 Choose a template
               </DialogTitle>
             </DialogHeader>
@@ -626,7 +626,7 @@ function LetterTemplatePicker({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search — serif, banner, dark…"
-                className="h-11 w-full rounded-xl bg-field pr-4 pl-10 text-[14.5px] font-semibold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:ring-2 focus:ring-ink/80"
+                className="h-[42px] w-full rounded-md border border-field-border bg-panel pr-3.5 pl-10 text-[14px] text-ink outline-none transition placeholder:text-ink-faint focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15"
               />
             </label>
           </div>
@@ -728,7 +728,7 @@ function FilterChip({
       aria-pressed={active}
       className={`shrink-0 rounded-full px-5 py-3 text-[15.5px] font-bold whitespace-nowrap transition ${
         active
-          ? "bg-navy text-white"
+          ? "bg-brand text-white"
           : "bg-field text-ink-soft hover:bg-black/[0.06] hover:text-ink"
       }`}
     >

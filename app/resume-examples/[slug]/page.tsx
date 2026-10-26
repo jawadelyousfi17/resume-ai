@@ -38,6 +38,7 @@ import { withYear } from "@/lib/seo/year";
 import { getTemplate } from "@/lib/templates";
 import type { TemplateId } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { CheckIcon } from "@/components/ui/icons";
 
 /** The tick beside a checklist line. Drawn rather than imported: the app's
  *  icon set has no outlined check at this weight, and it's four points. */
@@ -47,16 +48,7 @@ function CheckMark() {
       aria-hidden="true"
       className="mt-[0.15em] grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-brand"
     >
-      <svg viewBox="0 0 16 16" className="h-3 w-3">
-        <path
-          d="M3.5 8.5 6.5 11.5 12.5 5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <CheckIcon className="h-3 w-3" strokeWidth={2.5} />
     </span>
   );
 }
@@ -198,7 +190,7 @@ export default async function ResumeExamplePage(
             blocks deep before anything you came for was on screen. */}
         <header className="mt-4 sm:mt-5 lg:flex lg:items-center lg:gap-10">
           <div className="min-w-0 lg:flex-1">
-          <h1 className="max-w-[26ch] text-[26px] leading-[1.15] font-extrabold tracking-tight text-ink sm:text-[32px] lg:text-[36px]">
+          <h1 className="max-w-[26ch] text-[26px] leading-[1.15] font-bold tracking-tight text-ink sm:text-[32px] lg:text-[36px]">
             {`${example.role} resume & CV example`}
           </h1>
           <p className="mt-2.5 max-w-[76ch] text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">
@@ -287,7 +279,7 @@ export default async function ResumeExamplePage(
             slug={example.slug}
             templates={showcaseTemplates(example.template)}
           >
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               What this {example.role.toLowerCase()} resume gets right
             </h2>
             <p className="mt-3 text-[15.5px] leading-relaxed text-ink-soft">
@@ -325,7 +317,7 @@ export default async function ResumeExamplePage(
             the rail beside it rather than to longer lines. */}
         <div className="mt-16 lg:flex lg:items-start lg:gap-14">
           <article className="min-w-0 flex-1 space-y-10 lg:max-w-[72ch]">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               How to write it
             </h2>
 
@@ -333,7 +325,7 @@ export default async function ResumeExamplePage(
               <section key={section.heading}>
                 <h3
                   id={anchor(section.heading)}
-                  className="scroll-mt-24 text-[20px] leading-tight font-extrabold tracking-tight text-ink"
+                  className="scroll-mt-24 text-[20px] leading-tight font-bold tracking-tight text-ink"
                 >
                   {section.heading}
                 </h3>
@@ -435,7 +427,7 @@ export default async function ResumeExamplePage(
         <section className="mt-16">
           <h2
             id="keywords"
-            className="scroll-mt-24 text-[24px] leading-tight font-extrabold tracking-tight text-ink"
+            className="scroll-mt-24 text-[24px] leading-tight font-bold tracking-tight text-ink"
           >
             {example.role} skills and ATS keywords
           </h2>
@@ -470,7 +462,7 @@ export default async function ResumeExamplePage(
         <section className="mt-14">
           <h2
             id="mistakes"
-            className="scroll-mt-24 text-[24px] leading-tight font-extrabold tracking-tight text-ink"
+            className="scroll-mt-24 text-[24px] leading-tight font-bold tracking-tight text-ink"
           >
             Mistakes that cost {example.role.toLowerCase()}s interviews
           </h2>
@@ -496,7 +488,7 @@ export default async function ResumeExamplePage(
         </section>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             {example.role} resume FAQs
           </h2>
           <FaqAccordion entries={example.faqs} />
@@ -504,7 +496,7 @@ export default async function ResumeExamplePage(
 
         {related.length > 0 && (
           <section className="mt-14">
-            <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
               Related resume examples
             </h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -517,7 +509,7 @@ export default async function ResumeExamplePage(
                     "px-5 py-4 transition hover:ring-ink/15",
                   )}
                 >
-                  <span className="block text-[15px] font-extrabold text-ink">
+                  <span className="block text-[15px] font-bold text-ink">
                     {item.role}
                   </span>
                   <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">

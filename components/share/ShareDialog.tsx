@@ -133,7 +133,7 @@ function SharePanel({
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[480px] p-7 sm:max-w-[480px]">
-        <DialogTitle className="flex items-center gap-2 text-[21px] font-extrabold tracking-tight text-ink">
+        <DialogTitle className="flex items-center gap-2 text-[21px] font-bold tracking-tight text-ink">
           <LinkIcon className="h-5 w-5 text-brand" />
           Share &ldquo;{resume.name}&rdquo;
         </DialogTitle>
@@ -157,7 +157,7 @@ function SharePanel({
               <button
                 type="button"
                 onClick={() => void copy(url)}
-                className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-navy px-4 text-[14.5px] font-bold text-white transition hover:bg-navy/90"
+                className="inline-flex shrink-0 items-center gap-2 btn-fill px-4 text-[14.5px] font-bold transition"
               >
                 {copied ? (
                   <CheckIcon className="h-[18px] w-[18px]" />
@@ -183,7 +183,7 @@ function SharePanel({
               </span>
             </div>
 
-            <div className="flex items-center justify-end gap-1 border-t border-black/5 pt-4">
+            <div className="flex items-center justify-end gap-1 border-t border-divider pt-4">
               <button
                 type="button"
                 onClick={onClose}
@@ -223,7 +223,7 @@ function SharePanel({
                 type="button"
                 onClick={() => void create()}
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-[14.5px] font-bold text-white transition hover:bg-navy/90 disabled:opacity-50"
+                className="inline-flex items-center gap-2 btn-fill px-5 py-2.5 text-[14.5px] font-bold transition disabled:opacity-50"
               >
                 {busy ? (
                   <Spinner className="h-4 w-4" />

@@ -29,7 +29,7 @@ export default function Loading() {
     <>
       {/* Phone */}
       <div className="flex h-dvh flex-col bg-cream md:hidden">
-        <header className="flex shrink-0 items-center gap-2 border-b border-black/5 bg-panel px-3 py-2.5">
+        <header className="flex shrink-0 items-center gap-2 border-b border-divider bg-panel px-3 py-2.5">
           <Logo className="h-11 w-11" />
           <span className="h-4 w-28 animate-pulse rounded bg-field" />
           <span className="ml-auto h-10 w-20 animate-pulse rounded-lg bg-field" />
@@ -39,7 +39,7 @@ export default function Loading() {
           <div className="aspect-[210/297] w-full animate-pulse rounded-2xl bg-panel" />
         </div>
 
-        <nav className="grid shrink-0 grid-cols-5 border-t border-black/5 bg-panel pb-[env(safe-area-inset-bottom)]">
+        <nav className="grid shrink-0 grid-cols-5 border-t border-divider bg-panel pb-[env(safe-area-inset-bottom)]">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -56,14 +56,14 @@ export default function Loading() {
           })}
         </nav>
 
-        <span className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] flex h-14 w-14 items-center justify-center rounded-full bg-navy text-white/70 shadow-[0_10px_28px_rgba(15,23,42,0.3)]">
+        <span className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white/70 shadow-[var(--shadow-float)]">
           <EyeIcon className="h-6 w-6" />
         </span>
       </div>
 
       {/* Desktop */}
       <div className="mx-auto hidden h-dvh w-full max-w-app flex-col md:flex">
-        <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-black/5 bg-panel px-3 py-2">
+        <header className="z-20 mx-3 mt-3 shrink-0 rounded-xl border border-divider bg-panel px-3 py-2">
           <div className="flex items-center gap-2">
             <Link
               href="/dashboard"

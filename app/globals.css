@@ -20,6 +20,10 @@
   --color-field-border: var(--app-field-border);
   --color-brand: var(--app-brand);
   --color-brand-soft: var(--app-brand-soft);
+  /* The workspace pair: the pale surface a document sits on, and the hairline
+     that separates one panel from the next. */
+  --color-canvas: var(--app-canvas);
+  --color-divider: var(--app-divider);
   --color-danger: #e11d48;
   /* Two more semantic hues, so a board with a column per stage can carry five
      distinct colours and still follow the theme. */
@@ -34,8 +38,8 @@
   /* Neutral hover token consumed by shadcn components */
   --color-accent: var(--accent);
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
 
   /* The column every public page's content sits in, as `max-w-site`. Named
      once because the nav, the footer, the landing sections and the written
@@ -48,9 +52,11 @@
      the window. */
   --container-app: 1600px;
 
-  --shadow-panel:
-    0 1px 2px rgba(32, 26, 46, 0.04), 0 8px 24px rgba(32, 26, 46, 0.06);
-  --shadow-paper: 0 4px 24px rgba(32, 26, 46, 0.12);
+  /* Flat by default: a resting surface is told apart by a hairline, not a
+     cast shadow. Depth is kept for things that float — menus, dialogs. */
+  --shadow-panel: 0 0 0 1px var(--app-divider), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-paper: 0 0 2px rgba(0, 0, 0, 0.18);
+  --shadow-float: 0 6px 30px rgba(0, 0, 0, 0.12);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -119,9 +125,9 @@ html[data-ui-font="inter"] {
   --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-html[data-ui-font="dm-sans"] {
-  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+html[data-ui-font="manrope"] {
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 }
 
 html[data-ui-font="work-sans"] {
@@ -210,6 +216,22 @@ html[data-ui-font="ibm-plex-sans"] {
 .btn-fill {
   background-color: var(--app-brand);
   color: #fff;
+  /* Primary actions are pills, wherever they sit. Unlayered, so it wins over
+     whichever `rounded-*` a call site was written with. */
+  border-radius: 9999px;
+}
+.btn-fill:hover:not(:disabled) {
+  background-color: var(--app-accent-2);
+}
+
+/* Its quieter partner — Download beside Share. */
+.btn-soft {
+  background-color: var(--app-canvas);
+  color: var(--app-ink);
+  border-radius: 9999px;
+}
+.btn-soft:hover:not(:disabled) {
+  background-color: color-mix(in oklab, var(--app-canvas), #000 5%);
 }
 
 /* The navigation bar across the top of the window — components/ui/nav-progress.
@@ -253,7 +275,7 @@ html[data-ui-font="ibm-plex-sans"] {
 /* ---------------------------------------------------------------------------
    Themes.
 
-   Five palettes, all light-surfaced: the page, the ink and the accent move;
+   Six palettes, all light-surfaced: the page, the ink and the accent move;
    paper stays paper. `data-theme` is set on <html> before first paint by the
    inline script in app/layout.tsx, so switching never flashes.
    --------------------------------------------------------------------------- */
@@ -261,8 +283,30 @@ html[data-ui-font="ibm-plex-sans"] {
 /* The default. `:root` rides with it so a page rendered without `data-theme`
    still paints in the same colours the app actually ships in; every other
    palette below overrides it by matching the attribute. Keep this block first,
-   or an equal-specificity `:root` further down would beat them all. */
+   or an equal-specificity `:root` further down would beat them all.
+
+   Monochrome surfaces, one blue. The blue is for actions and editing feedback
+   — a primary button, a focused field, the selected option — and nowhere
+   else, so it always means "this does something". */
 :root,
+[data-theme="studio"] {
+  --app-cream: #efefef;
+  --app-panel: #ffffff;
+  --app-canvas: #f8f8f8;
+  --app-divider: #e3e3e3;
+  --app-ink: #111111;
+  --app-ink-soft: #636363;
+  --app-ink-faint: #9a9a9a;
+  --app-field: #f6f6f6;
+  --app-field-border: #dedede;
+  --app-brand: #244cec;
+  --app-brand-soft: #e9eefe;
+  --app-accent-2: #183bd4;
+  --app-navy: #111111;
+  --app-positive: #047857;
+  --app-caution: #b45309;
+}
+
 [data-theme="graphite"] {
   --app-cream: #eceef2;
   --app-panel: #ffffff;
@@ -421,6 +465,38 @@ html[data-ui-font="ibm-plex-sans"] {
   }
   html {
     @apply font-sans;
+  }
+
+  /* Anything that does something on a click says so under the pointer.
+     Tailwind's preflight leaves buttons on the arrow, and Radix renders its
+     menu items, tabs, options and slider thumbs as plain elements with a
+     role — so the rule goes by what an element *is* rather than by class,
+     and nothing has to remember to opt in. */
+  button,
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="color"],
+  input[type="range"],
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="option"],
+  [role="radio"],
+  [role="checkbox"],
+  [role="switch"],
+  [role="slider"] {
+    cursor: pointer;
+  }
+
+  /* …and anything switched off says that instead. */
+  :is(button, select, input, [role]):is(:disabled, [aria-disabled="true"], [data-disabled]) {
+    cursor: not-allowed;
   }
 }
 /* The visual Markdown editor's document. Mirrors how the preview renders the

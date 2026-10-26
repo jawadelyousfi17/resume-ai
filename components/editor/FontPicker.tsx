@@ -35,20 +35,18 @@ export function FontPicker({
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-xl border border-field-border px-4 py-3.5 text-left transition hover:border-ink/30"
+          className="flex h-[42px] w-full items-center gap-2 rounded-md border border-field-border px-3 text-left transition hover:border-ink/25 aria-expanded:border-brand"
         >
-          <span className="min-w-0 flex-1">
-            <span
-              className="block truncate text-[17px] text-ink"
-              style={{ fontFamily: active.stack }}
-            >
-              {active.label}
-            </span>
-            {/* Three of these are called "System", so the trigger has to say
-                which one is selected. */}
-            <span className="mt-0.5 block text-[12.5px] font-semibold text-ink-faint">
-              {activeCategory}
-            </span>
+          <span
+            className="min-w-0 flex-1 truncate text-[14.5px] text-ink"
+            style={{ fontFamily: active.stack }}
+          >
+            {active.label}
+          </span>
+          {/* Three of these are called "System", so the trigger has to say
+              which one is selected. */}
+          <span className="shrink-0 text-[12px] text-ink-faint">
+            {activeCategory}
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 text-ink-soft" />
         </button>
@@ -66,7 +64,7 @@ export function FontPicker({
                 key={font.id}
                 onClick={() => onChange(font.id)}
                 style={{ fontFamily: font.stack }}
-                className="py-3 text-[16px] font-normal"
+                className="py-2 text-[15px] font-normal"
               >
                 {font.label}
                 {font.id === value && (

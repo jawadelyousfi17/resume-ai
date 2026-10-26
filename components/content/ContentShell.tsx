@@ -125,7 +125,7 @@ export function PageHeader({
 }) {
   return (
     <header className="mt-4 sm:mt-6">
-      <h1 className="max-w-[20ch] text-[28px] leading-[1.15] font-extrabold tracking-tight text-ink sm:text-[42px] sm:leading-[1.12] lg:text-[48px]">
+      <h1 className="max-w-[20ch] text-[28px] leading-[1.15] font-bold tracking-tight text-ink sm:text-[42px] sm:leading-[1.12] lg:text-[48px]">
         {title}
       </h1>
       <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed text-ink-soft sm:mt-4 sm:text-[17px]">
@@ -171,7 +171,7 @@ export function FaqList({
           className={cn(flat ? panelFlat : panel, "px-6 py-5")}
         >
           <dt>
-            <Heading className="text-[16.5px] font-extrabold text-ink">
+            <Heading className="text-[16.5px] font-bold text-ink">
               {entry.question}
             </Heading>
           </dt>
@@ -237,7 +237,7 @@ export function ContentCta({
     <section
       className={cn(flat ? panelFlat : panel, "mt-12 px-7 py-8 text-center")}
     >
-      <h2 className="text-[22px] font-extrabold tracking-tight text-ink">
+      <h2 className="text-[22px] font-bold tracking-tight text-ink">
         {heading}
       </h2>
       <p className="mx-auto mt-2 max-w-[46ch] text-[15px] leading-relaxed text-ink-soft">

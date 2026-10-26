@@ -88,7 +88,7 @@ export default function PricingPage() {
           {/* The heading runs the full width; only the prose is held to a
               readable measure. */}
           <header className="mt-6 text-center">
-            <h1 className="mx-auto mt-5 max-w-[18ch] text-[34px] leading-[1.08] font-extrabold tracking-tight text-ink sm:text-[44px] lg:text-[52px]">
+            <h1 className="mx-auto mt-5 max-w-[18ch] text-[34px] leading-[1.08] font-bold tracking-tight text-ink sm:text-[44px] lg:text-[52px]">
               One resume free, forever
             </h1>
             <p className="mx-auto mt-5 max-w-[58ch] text-[17px] leading-relaxed text-ink-soft lg:text-[19px]">
@@ -111,7 +111,7 @@ export default function PricingPage() {
               pages use — these answers are long and only one is read at a time. */}
           <section className="mt-16 lg:mt-20">
             <div className="mx-auto max-w-5xl">
-              <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink sm:text-[32px]">
+              <h2 className="text-[26px] leading-tight font-bold tracking-tight text-ink sm:text-[32px]">
                 Questions about billing
               </h2>
               <FaqAccordion entries={FAQS} />
@@ -120,7 +120,7 @@ export default function PricingPage() {
 
           {/* Closing action. */}
           <section className="mt-16 text-center lg:mt-20">
-            <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink sm:text-[32px]">
+            <h2 className="text-[26px] leading-tight font-bold tracking-tight text-ink sm:text-[32px]">
               Start with the free plan
             </h2>
             <p className="mx-auto mt-3 max-w-[46ch] text-[15.5px] leading-relaxed text-ink-soft">

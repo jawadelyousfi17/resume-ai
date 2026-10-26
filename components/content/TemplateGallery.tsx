@@ -68,7 +68,7 @@ export function TemplateGallery({
       {/* Full-bleed within the page column so the cards passing underneath are
           covered rather than showing along its edges. Sits directly under the
           site nav, which is 76px tall and 96px from lg up. */}
-      <div className="sticky top-[76px] z-20 -mx-5 mt-8 border-b border-black/[0.07] bg-panel/95 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 lg:top-[96px] lg:-mx-10 lg:px-10">
+      <div className="sticky top-[76px] z-20 -mx-5 mt-8 border-b border-divider bg-panel/95 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 lg:top-[96px] lg:-mx-10 lg:px-10">
         <div
           ref={rowRef}
           className="scroll-slim mx-auto flex w-full max-w-site gap-2 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"
@@ -146,7 +146,7 @@ function FilterLink({
         // filter trick, and neither survives the size.
         active
           ? "border-navy text-navy ring-1 ring-navy ring-inset"
-          : "border-black/10 text-ink hover:border-ink/30",
+          : "border-divider text-ink hover:border-ink/30",
       )}
     >
       {icon && (

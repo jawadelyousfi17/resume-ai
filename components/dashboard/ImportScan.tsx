@@ -85,7 +85,7 @@ export function ImportScan({ file }: { file: File }) {
       {/* A4 proportions, so a page dropped into it looks like the page it is.
           Big enough to recognise your own resume in — that's the whole point
           of showing it rather than a spinner. */}
-      <div className="relative aspect-[210/297] w-[248px] overflow-hidden rounded-lg bg-white shadow-[var(--shadow-paper)] ring-1 ring-black/5 sm:w-[320px]">
+      <div className="relative aspect-[210/297] w-[248px] overflow-hidden rounded-lg bg-white shadow-[var(--shadow-paper)] ring-1 ring-divider sm:w-[320px]">
         {/* Underneath everything: a blank page, so a viewer that draws nothing
             still leaves paper for the light to cross. */}
         <PagePlaceholder />

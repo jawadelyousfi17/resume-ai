@@ -85,13 +85,9 @@ export function TailorPanel() {
       <div className="space-y-3">
         <div className="rounded-2xl bg-panel p-6 text-center shadow-[var(--shadow-panel)]">
           <MagicIcon className="mx-auto h-6 w-6 text-purple" />
-          <h3 className="mt-3 text-[17px] font-extrabold text-ink">
+          <h3 className="mt-3 text-[17px] font-bold text-ink">
             Sign in to tailor your resume
           </h3>
-          <p className="mx-auto mt-1.5 max-w-sm text-[14px] leading-relaxed font-medium text-ink-soft">
-            Tailoring rewrites the page against one posting. It comes with an
-            account — and the resume you&rsquo;ve started comes with you.
-          </p>
           <button
             type="button"
             onClick={() => auth.open("signup")}
@@ -229,7 +225,7 @@ function PostingForm({
               type="button"
               onClick={fetchPosting}
               disabled={fetching}
-              className="h-12 shrink-0 rounded-xl bg-navy px-5 text-[14.5px] font-bold text-white transition disabled:opacity-60"
+              className="h-12 shrink-0 btn-fill px-5 text-[14.5px] font-bold transition disabled:opacity-60"
             >
               {fetching ? "Reading…" : "Read it"}
             </button>
@@ -256,8 +252,7 @@ function PostingForm({
           {!canRun
             ? "Write the resume first — there's nothing to tailor yet."
             : ready
-              ? "Takes around half a minute. Nothing on your resume changes on its own."
-              : "Paste a few paragraphs of the posting to start."}
+              ? null : "Paste a few paragraphs of the posting to start."}
         </p>
       </section>
 
@@ -280,10 +275,10 @@ function KeywordPreview({
     <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
       <div className="flex items-center gap-2">
         <ArticleIcon className="h-[18px] w-[18px] text-ink-faint" />
-        <h3 className="text-[14px] font-extrabold text-ink">
+        <h3 className="text-[14px] font-bold text-ink">
           Keyword check — free, no AI
         </h3>
-        <span className="ml-auto text-[15px] font-extrabold text-brand">
+        <span className="ml-auto text-[15px] font-bold text-brand">
           {result.score}%
         </span>
       </div>
@@ -347,11 +342,8 @@ function Working() {
 
   return (
     <div className="rounded-2xl bg-panel px-6 py-8 text-center shadow-[var(--shadow-panel)]">
-      <p className="text-[16px] font-extrabold text-ink">
+      <p className="text-[16px] font-bold text-ink">
         {busyLabel || "Working…"}
-      </p>
-      <p className="mt-1.5 text-[13.5px] font-medium text-ink-soft">
-        This takes a little while. Leaving the tab won&rsquo;t stop it.
       </p>
       <div
         className="ai-progress-track mt-5 h-1.5 w-full"
@@ -386,11 +378,11 @@ function ScoreCard({
       {job && (job.role || job.company) && (
         <p className="text-center text-[15px] leading-snug font-medium text-ink-soft">
           {job.role && (
-            <span className="font-extrabold text-ink">{job.role}</span>
+            <span className="font-bold text-ink">{job.role}</span>
           )}
           {job.role && job.company && " at "}
           {job.company && (
-            <span className="font-extrabold text-ink">{job.company}</span>
+            <span className="font-bold text-ink">{job.company}</span>
           )}
         </p>
       )}
@@ -405,7 +397,7 @@ function ScoreCard({
       </div>
 
       <p
-        className="text-center text-[13px] font-extrabold tracking-wide uppercase"
+        className="text-center text-[13px] font-bold tracking-wide uppercase"
         style={{ color }}
       >
         {label}
@@ -439,7 +431,7 @@ function Report({ onChange }: { onChange: () => void }) {
 
       {report.summary && (
         <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
-          <h3 className="text-[15px] font-extrabold text-ink">Match summary</h3>
+          <h3 className="text-[15px] font-bold text-ink">Match summary</h3>
           <p className="mt-1.5 text-[14px] leading-relaxed font-medium text-ink-soft">
             {report.summary}
           </p>
@@ -469,14 +461,12 @@ function Report({ onChange }: { onChange: () => void }) {
 function Section({
   title,
   count,
-  blurb,
   defaultOpen = false,
   children,
 }: {
   title: string;
   /** Shown beside the title — how many things are in here. */
   count?: string;
-  blurb?: string;
   defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
@@ -490,7 +480,7 @@ function Section({
         aria-expanded={open}
         className="flex w-full items-center gap-2 py-1 text-left"
       >
-        <h3 className="text-[17px] font-extrabold text-ink">{title}</h3>
+        <h3 className="text-[17px] font-bold text-ink">{title}</h3>
         {count && (
           <span className="rounded-md bg-field px-1.5 py-0.5 text-[12px] font-bold text-ink-soft">
             {count}
@@ -507,11 +497,6 @@ function Section({
 
       {open && (
         <div className="pt-1 pb-1">
-          {blurb && (
-            <p className="text-[13.5px] leading-relaxed font-medium text-ink-soft">
-              {blurb}
-            </p>
-          )}
           {children}
         </div>
       )}
@@ -528,11 +513,10 @@ function Keywords({ result }: { result: ReturnType<typeof matchResume> }) {
     <Section
       title="Keywords"
       count={`${matched.length}/${matched.length + missing.length}`}
-      blurb="The words this posting leans on, checked against your page. Work in the ones you can honestly claim — a keyword you can't talk about in the interview costs you more than a missing one."
     >
       {missing.length > 0 && (
         <>
-          <p className="mt-4 text-[12px] font-extrabold tracking-wide text-ink-faint uppercase">
+          <p className="mt-4 text-[12px] font-bold tracking-wide text-ink-faint uppercase">
             Missing
           </p>
           <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -550,7 +534,7 @@ function Keywords({ result }: { result: ReturnType<typeof matchResume> }) {
 
       {matched.length > 0 && (
         <>
-          <p className="mt-4 text-[12px] font-extrabold tracking-wide text-ink-faint uppercase">
+          <p className="mt-4 text-[12px] font-bold tracking-wide text-ink-faint uppercase">
             Already covered
           </p>
           <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -584,20 +568,17 @@ function RequirementsFit({
     <Section
       title="Requirements fit"
       count={`${met}/${requirements.length}`}
-      blurb="See which requirements from the posting you already meet, and where to add more evidence. It's fine not to meet all of them — cover as many as you honestly can."
       defaultOpen
     >
       {key.length > 0 && (
         <Group
           title="Key requirements"
-          blurb="The qualifications this posting states outright. These are what a recruiter checks first."
           requirements={key}
         />
       )}
       {nice.length > 0 && (
         <Group
           title="Nice-to-haves"
-          blurb="Not mandatory, but each one you can evidence makes the application stronger."
           requirements={nice}
         />
       )}
@@ -607,19 +588,14 @@ function RequirementsFit({
 
 function Group({
   title,
-  blurb,
   requirements,
 }: {
   title: string;
-  blurb: string;
   requirements: TailorRequirement[];
 }) {
   return (
-    <div className="mt-5 border-t border-black/5 pt-4">
-      <h4 className="text-[14.5px] font-extrabold text-ink">{title}</h4>
-      <p className="mt-1 text-[13px] leading-relaxed font-medium text-ink-soft">
-        {blurb}
-      </p>
+    <div className="mt-5 border-t border-divider pt-4">
+      <h4 className="text-[14.5px] font-bold text-ink">{title}</h4>
 
       <ul className="mt-3 space-y-1.5">
         {requirements.map((requirement) => (
@@ -638,7 +614,7 @@ function RequirementRow({ requirement }: { requirement: TailorRequirement }) {
   const status = STATUS[requirement.status];
 
   return (
-    <li className="overflow-hidden rounded-xl bg-field/60 ring-1 ring-black/5">
+    <li className="overflow-hidden rounded-xl bg-field/60 ring-1 ring-divider">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -647,7 +623,7 @@ function RequirementRow({ requirement }: { requirement: TailorRequirement }) {
       >
         <span
           className={cn(
-            "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[13px] font-extrabold",
+            "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[13px] font-bold",
             status.chip,
           )}
           aria-hidden="true"
@@ -668,8 +644,8 @@ function RequirementRow({ requirement }: { requirement: TailorRequirement }) {
       </button>
 
       {open && requirement.detail && (
-        <p className="border-t border-black/5 px-3.5 py-3 text-[13px] leading-relaxed font-medium text-ink-soft">
-          <span className={cn("font-extrabold", status.text)}>
+        <p className="border-t border-divider px-3.5 py-3 text-[13px] leading-relaxed font-medium text-ink-soft">
+          <span className={cn("font-bold", status.text)}>
             {status.label}.{" "}
           </span>
           {requirement.detail}
@@ -684,31 +660,20 @@ function RequirementRow({ requirement }: { requirement: TailorRequirement }) {
 /* -------------------------------------------------------------------------- */
 
 function Choose() {
-  const { report, setStage, tailor } = useTailor();
-  const open =
-    report?.requirements.filter((r) => r.status !== "met").length ?? 0;
+  const { setStage, tailor } = useTailor();
 
   return (
     <div className="space-y-3">
       <div className="px-1 pt-1 pb-1">
-        <h2 className="text-[22px] leading-tight font-extrabold tracking-tight text-ink">
+        <h2 className="text-[22px] leading-tight font-bold tracking-tight text-ink">
           How should we tailor it?
         </h2>
-        <p className="mt-1 text-[13.5px] leading-relaxed font-medium text-ink-soft">
-          Both rewrite your resume for this job. The difference is where the
-          material comes from.
-        </p>
       </div>
 
       <Option
         icon={<UserIcon className="h-5 w-5 text-purple" />}
         title="Tick what you've done"
         recommended
-        blurb={
-          open > 0
-            ? `The ${open} thing${open === 1 ? "" : "s"} this posting wants that your resume doesn't show yet, as a checklist. Tick the ones you have and they go on — most people's resumes are missing the evidence, not the experience. Say where you used them and they go into the roles too.`
-            : "Everything this posting wants that your resume doesn't spell out, as a checklist. Tick what you have and it goes on."
-        }
         cta="Go through the checklist"
         onClick={() => setStage("interview")}
       />
@@ -716,7 +681,6 @@ function Choose() {
       <Option
         icon={<TargetIcon className="h-5 w-5 text-brand" />}
         title="Rewrite it for me"
-        blurb="No questions. We go through every requirement in the posting and make sure the ones your experience already backs are answered clearly and early — in this employer's own words, leading each section, with the rest cut back to make room. Anything you genuinely haven't done is left off and listed at the end."
         cta="Rewrite it now"
         onClick={() => tailor()}
       />
@@ -735,14 +699,12 @@ function Choose() {
 function Option({
   icon,
   title,
-  blurb,
   cta,
   onClick,
   recommended = false,
 }: {
   icon: React.ReactNode;
   title: string;
-  blurb: string;
   cta: string;
   onClick: () => void;
   recommended?: boolean;
@@ -756,17 +718,13 @@ function Option({
     >
       <div className="flex items-center gap-2.5">
         {icon}
-        <h3 className="text-[17px] font-extrabold text-ink">{title}</h3>
+        <h3 className="text-[17px] font-bold text-ink">{title}</h3>
         {recommended && (
-          <span className="ml-auto rounded-md bg-purple-soft px-2 py-1 text-[11.5px] font-extrabold tracking-wide text-purple uppercase">
+          <span className="ml-auto rounded-md bg-purple-soft px-2 py-1 text-[11.5px] font-bold tracking-wide text-purple uppercase">
             Best results
           </span>
         )}
       </div>
-
-      <p className="mt-2 text-[13.5px] leading-relaxed font-medium text-ink-soft">
-        {blurb}
-      </p>
 
       <button
         type="button"
@@ -774,7 +732,7 @@ function Option({
         className={cn(
           "mt-4 flex h-12 w-full items-center justify-center rounded-xl text-[15px] font-bold transition",
           recommended
-            ? "btn-fill"
+            ? "bg-brand text-white"
             : "bg-field text-ink hover:bg-black/[0.06]",
         )}
       >
@@ -837,7 +795,7 @@ function Interview() {
   return (
     <div className="space-y-3">
       <div className="px-1 pt-1 pb-1">
-        <h2 className="text-[22px] leading-tight font-extrabold tracking-tight text-ink">
+        <h2 className="text-[22px] leading-tight font-bold tracking-tight text-ink">
           Which of these have you done?
         </h2>
         <p className="mt-1 text-[13.5px] leading-relaxed font-medium text-ink-soft">
@@ -887,7 +845,7 @@ function Interview() {
       {/* Sticky for the same reason as the report's: there can be a dozen
           questions above this, and the count is what tells you how far in you
           are — which is worth nothing at the bottom of a long scroll. */}
-      <section className="sticky bottom-3 z-10 rounded-2xl bg-panel px-5 py-5 shadow-lg ring-1 ring-black/5">
+      <section className="sticky bottom-3 z-10 rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-float)] ring-1 ring-divider">
         <p className="text-center text-[13px] font-medium text-ink-faint">
           {confirmed} of {total} ticked
           {confirmed === 0 && " — tick at least one to add anything new"}
@@ -943,7 +901,7 @@ function Question({
       )}
     >
       <div className="flex items-start gap-2">
-        <h3 className="min-w-0 flex-1 text-[15px] leading-snug font-extrabold text-ink">
+        <h3 className="min-w-0 flex-1 text-[15px] leading-snug font-bold text-ink">
           {title}
         </h3>
         {/* The reason this is being asked lives behind the bulb rather than
@@ -961,7 +919,7 @@ function Question({
           </span>
         )}
         {badge && (
-          <span className="shrink-0 rounded-md bg-field px-2 py-1 text-[11.5px] font-extrabold tracking-wide text-ink-faint uppercase">
+          <span className="shrink-0 rounded-md bg-field px-2 py-1 text-[11.5px] font-bold tracking-wide text-ink-faint uppercase">
             {badge}
           </span>
         )}
@@ -1022,7 +980,7 @@ function Done({ onChange }: { onChange: () => void }) {
           {gained > 0 ? (
             <>
               Up{" "}
-              <span className="font-extrabold text-positive">
+              <span className="font-bold text-positive">
                 {gained} point{gained === 1 ? "" : "s"}
               </span>{" "}
               from {outcome.before}%
@@ -1038,7 +996,7 @@ function Done({ onChange }: { onChange: () => void }) {
       <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
         <div className="flex items-center gap-2">
           <CheckIcon className="h-[18px] w-[18px] text-positive" />
-          <h3 className="text-[17px] font-extrabold text-ink">
+          <h3 className="text-[17px] font-bold text-ink">
             Your resume has been updated
           </h3>
         </div>
@@ -1069,7 +1027,7 @@ function Done({ onChange }: { onChange: () => void }) {
 
       {outcome.stillMissing.length > 0 && (
         <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
-          <h3 className="text-[15px] font-extrabold text-ink">
+          <h3 className="text-[15px] font-bold text-ink">
             Still not on the page
           </h3>
           <p className="mt-1 text-[13px] leading-relaxed font-medium text-ink-soft">
@@ -1081,7 +1039,7 @@ function Done({ onChange }: { onChange: () => void }) {
             {outcome.stillMissing.map((item) => (
               <li
                 key={item}
-                className="rounded-xl bg-field/60 px-3.5 py-2.5 text-[13.5px] leading-snug font-medium text-ink-soft ring-1 ring-black/5"
+                className="rounded-xl bg-field/60 px-3.5 py-2.5 text-[13.5px] leading-snug font-medium text-ink-soft ring-1 ring-divider"
               >
                 {item}
               </li>

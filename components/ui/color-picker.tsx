@@ -257,7 +257,7 @@ function HexField({
     <label className="flex w-full items-center gap-2 rounded-xl bg-field px-3 py-2">
       <span
         aria-hidden="true"
-        className="h-5 w-5 shrink-0 rounded-md border border-black/10"
+        className="h-5 w-5 shrink-0 rounded-md border border-divider"
         style={{ backgroundColor: normalise(value) }}
       />
       <input

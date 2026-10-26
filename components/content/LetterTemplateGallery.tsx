@@ -77,7 +77,7 @@ export function LetterTemplateGallery() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search templates"
-            className="h-12 w-full rounded-xl border-2 border-black/10 bg-panel pr-4 pl-11 text-[15px] font-bold text-ink outline-none transition placeholder:font-medium placeholder:text-ink-faint focus:border-brand/50"
+            className="h-[42px] w-full rounded-md border border-field-border bg-panel pr-3.5 pl-10 text-[14px] text-ink outline-none transition placeholder:text-ink-faint focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/15"
           />
         </label>
       </div>
@@ -124,10 +124,10 @@ function FilterButton({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex h-12 shrink-0 items-center gap-2 rounded-xl border-2 px-5 text-[15px] font-bold transition",
+        "inline-flex h-12 shrink-0 items-center gap-2 border-2 px-5 text-[15px] font-bold transition",
         active
-          ? "border-transparent bg-navy text-white"
-          : "border-black/10 bg-panel text-ink hover:border-ink/30",
+          ? "border-transparent bg-brand text-white"
+          : "border-divider bg-panel text-ink hover:border-ink/30",
       )}
     >
       {children}

@@ -78,7 +78,7 @@ export function FeedbackDialog({
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent className="sm:max-w-[440px]">
-        <DialogTitle className="text-[19px] leading-snug font-extrabold tracking-tight text-ink">
+        <DialogTitle className="text-[19px] leading-snug font-bold tracking-tight text-ink">
           {title}
         </DialogTitle>
         <DialogDescription className="text-[14px] leading-relaxed text-ink-soft">
@@ -145,7 +145,7 @@ export function FeedbackDialog({
           type="button"
           onClick={send}
           disabled={pending || rating === null}
-          className="h-12 w-full rounded-xl bg-navy text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-45"
+          className="h-12 w-full btn-fill text-[15px] font-bold transition disabled:opacity-45"
         >
           {pending ? (
             <span className="inline-flex items-center gap-2">

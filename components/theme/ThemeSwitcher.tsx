@@ -82,10 +82,10 @@ export function ThemeSwitcher() {
         <div
           role="dialog"
           aria-label="Colour theme"
-          className="mb-3 w-[268px] overflow-hidden rounded-2xl bg-panel shadow-[0_18px_48px_rgba(15,23,42,0.22)] ring-1 ring-black/10"
+          className="mb-3 w-[268px] overflow-hidden rounded-2xl bg-panel shadow-[0_18px_48px_rgba(15,23,42,0.22)] ring-1 ring-divider"
         >
-          <div className="flex items-center gap-2 border-b border-black/5 px-4 py-3">
-            <span className="text-[13.5px] font-extrabold text-ink">
+          <div className="flex items-center gap-2 border-b border-divider px-4 py-3">
+            <span className="text-[13.5px] font-bold text-ink">
               Colour theme
             </span>
             <button
@@ -113,7 +113,7 @@ export function ThemeSwitcher() {
                   )}
                 >
                   <span
-                    className="flex h-8 w-8 shrink-0 overflow-hidden rounded-full ring-1 ring-black/10"
+                    className="flex h-8 w-8 shrink-0 overflow-hidden rounded-full ring-1 ring-divider"
                     aria-hidden="true"
                   >
                     {t.swatch.map((colour) => (
@@ -152,10 +152,10 @@ export function ThemeSwitcher() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`Colour theme: ${active.name}`}
-        className="ml-auto flex h-12 items-center gap-2.5 rounded-full bg-panel pr-4 pl-3 shadow-[0_10px_30px_rgba(15,23,42,0.18)] ring-1 ring-black/10 transition hover:-translate-y-0.5"
+        className="ml-auto flex h-12 items-center gap-2.5 rounded-full bg-panel pr-4 pl-3 shadow-[0_10px_30px_rgba(15,23,42,0.18)] ring-1 ring-divider transition hover:-translate-y-0.5"
       >
         <span
-          className="flex h-7 w-7 shrink-0 overflow-hidden rounded-full ring-1 ring-black/10"
+          className="flex h-7 w-7 shrink-0 overflow-hidden rounded-full ring-1 ring-divider"
           aria-hidden="true"
         >
           {active.swatch.map((colour) => (

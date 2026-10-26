@@ -45,7 +45,7 @@ export function TemplateThumb({
         // cropping it is what keeps the corners looking cut rather than
         // softened. A fraction of a percent — nothing in the render moves
         // enough to see.
-        className="block overflow-hidden border border-black/[0.09] bg-white transition group-hover:border-black/25"
+        className="block overflow-hidden border border-divider bg-white transition group-hover:border-black/25"
       >
         {/* Screenshots of the real render, captured off each template's own
             page by scripts/shoot-templates.mjs. The alt text is generated from
@@ -106,7 +106,7 @@ export function TemplateCard({ template }: { template: Template }) {
         prefetch={false}
         className="block"
       >
-        <span className="mt-3 block text-[16px] font-extrabold text-ink">
+        <span className="mt-3 block text-[16px] font-bold text-ink">
           {template.name}
         </span>
         <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">

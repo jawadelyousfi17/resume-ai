@@ -24,6 +24,8 @@ import { AGENT_LIMITS } from "@/lib/ai/agent";
 import { useAgent, type ChatEntry } from "@/lib/ai/use-agent";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { MagicIcon } from "@/components/ui/svg-icons";
+import { icon } from "@/components/ui/icons";
+import { Check, RotateCcw, Send } from "lucide-react";
 
 /**
  * The assistant's own gradient, fixed rather than themed.
@@ -144,7 +146,7 @@ export function AIPanel() {
               key={item.title}
               type="button"
               onClick={() => submit(item.ask)}
-              className="min-h-[104px] rounded-xl border border-black/[0.07] bg-black/[0.015] px-5 pt-5 pb-4 text-left transition hover:-translate-y-px hover:bg-black/[0.035]"
+              className="min-h-[104px] rounded-xl border border-divider bg-black/[0.015] px-5 pt-5 pb-4 text-left transition hover:-translate-y-px hover:bg-black/[0.035]"
             >
               <strong className="mb-2 block text-[14px] font-semibold text-ink">
                 {item.title}
@@ -239,7 +241,7 @@ function Composer({
         event.preventDefault();
         onSubmit(draft);
       }}
-      className="overflow-hidden rounded-[22px] border border-black/[0.08] bg-black/[0.02] shadow-[0_2px_8px_rgba(17,24,39,.025)]"
+      className="overflow-hidden rounded-[22px] border border-divider bg-black/[0.02] shadow-[0_2px_8px_rgba(17,24,39,.025)]"
     >
       {showModelRow && (
         <div className="flex h-[76px] items-center gap-3.5 px-5">
@@ -255,7 +257,7 @@ function Composer({
         </div>
       )}
 
-      <div className="relative m-1 min-h-[186px] rounded-[20px] border border-black/[0.07] bg-panel px-5 pt-5 pb-[62px] shadow-[0_2px_4px_rgba(26,32,44,.03)]">
+      <div className="relative m-1 min-h-[186px] rounded-[20px] border border-divider bg-panel px-5 pt-5 pb-[62px] shadow-[0_2px_4px_rgba(26,32,44,.03)]">
         <textarea
           value={draft}
           onChange={(event) =>
@@ -341,7 +343,7 @@ function Turn({ entry, onUndo }: { entry: ChatEntry; onUndo: () => void }) {
         )}
 
         {entry.edits.length > 0 && (
-          <div className="overflow-hidden rounded-2xl border border-black/[0.07] bg-black/[0.015]">
+          <div className="overflow-hidden rounded-2xl border border-divider bg-black/[0.015]">
             <ul>
               {entry.edits.map((edit, index) => (
                 <li
@@ -353,7 +355,7 @@ function Turn({ entry, onUndo }: { entry: ChatEntry; onUndo: () => void }) {
                     animation: "ai-rise 260ms ease-out both",
                     animationDelay: `${Math.min(index, 6) * 60}ms`,
                   }}
-                  className="flex items-start gap-2.5 border-b border-black/[0.05] px-3.5 py-2.5 last:border-b-0"
+                  className="flex items-start gap-2.5 border-b border-divider px-3.5 py-2.5 last:border-b-0"
                 >
                   <span
                     aria-hidden="true"
@@ -380,7 +382,7 @@ function Turn({ entry, onUndo }: { entry: ChatEntry; onUndo: () => void }) {
 
             {/* The turn's own full stop: what changed, and the way back. */}
             {entry.before && !entry.pending && (
-              <div className="flex items-center justify-between gap-3 border-t border-black/[0.06] bg-black/[0.02] px-3.5 py-2">
+              <div className="flex items-center justify-between gap-3 border-t border-divider bg-black/[0.02] px-3.5 py-2">
                 <span className="text-[12.5px] font-semibold text-ink-soft">
                   {applied} {applied === 1 ? "change" : "changes"} applied
                 </span>
@@ -424,47 +426,11 @@ function Thinking() {
   );
 }
 
-function TickIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="m4 12.5 5.5 5.5L20 7"
-        stroke="currentColor"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const TickIcon = icon(Check);
 
 /* The two glyphs the app's own icon sets don't carry. Inline rather than
    imported: a webfont for two shapes is a network request and a flash. */
 
-function SendIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M21 3 10.5 13.5M21 3l-6.5 18-4-8.5L2 8.5 21 3Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const SendIcon = icon(Send);
 
-function RefreshIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M20 11a8 8 0 1 0-.6 4M20 4v7h-7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const RefreshIcon = icon(RotateCcw);

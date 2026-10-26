@@ -111,13 +111,13 @@ export default function CoverLetterTemplatesPage() {
             crawled. The families are the same set cut a different way, and
             each design sits in exactly one of them. */}
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Browse by set
           </h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {LETTER_FAMILIES.map((family) => (
               <div key={family.id} className={cn(panelFlat, "px-5 py-4")}>
-                <span className="block text-[15px] font-extrabold text-ink">
+                <span className="block text-[15px] font-bold text-ink">
                   {family.label}
                 </span>
                 <span className="mt-1 block text-[13px] font-semibold text-ink-faint">
@@ -132,7 +132,7 @@ export default function CoverLetterTemplatesPage() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Choosing between them
           </h2>
           <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
@@ -153,7 +153,7 @@ export default function CoverLetterTemplatesPage() {
         </section>
 
         <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             The structure, once
           </h2>
           <p className={cn("mt-4 text-[16px] leading-[1.75] text-ink-soft", measure)}>
@@ -167,7 +167,7 @@ export default function CoverLetterTemplatesPage() {
                   <span className="text-[13px] font-bold text-ink-faint">
                     {i + 1}
                   </span>
-                  <h3 className="text-[16.5px] font-extrabold text-ink">
+                  <h3 className="text-[16.5px] font-bold text-ink">
                     {part.name}
                   </h3>
                 </div>
@@ -191,7 +191,7 @@ export default function CoverLetterTemplatesPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Five situations, five arguments
           </h2>
           <div className="mt-6 space-y-5">
@@ -201,7 +201,7 @@ export default function CoverLetterTemplatesPage() {
                 id={pattern.id}
                 className={cn(panel, "scroll-mt-24 px-6 py-6")}
               >
-                <h3 className="text-[19px] font-extrabold tracking-tight text-ink">
+                <h3 className="text-[19px] font-bold tracking-tight text-ink">
                   {pattern.situation}
                 </h3>
                 <p className="mt-2 text-[14.5px] leading-relaxed font-semibold text-ink-faint">
@@ -235,7 +235,7 @@ export default function CoverLetterTemplatesPage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-extrabold tracking-tight text-ink">
+          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
             Common questions
           </h2>
           <FaqAccordion entries={TEMPLATE_FAQS} />

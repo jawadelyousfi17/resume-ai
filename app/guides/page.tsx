@@ -67,7 +67,7 @@ export default function GuidesIndexPage() {
             Below `lg` the picture goes and the words take the width. */}
         <header className="mt-4 sm:mt-6 lg:flex lg:items-center lg:gap-12">
           <div className="min-w-0 lg:flex-1">
-            <h1 className="max-w-[16ch] text-[34px] leading-[1.08] font-extrabold tracking-tight text-ink sm:text-[48px] lg:text-[58px]">
+            <h1 className="max-w-[16ch] text-[34px] leading-[1.08] font-bold tracking-tight text-ink sm:text-[48px] lg:text-[58px]">
               Resume guides
             </h1>
             <p className="mt-4 max-w-[56ch] text-[16px] leading-relaxed text-ink sm:text-[18px]">

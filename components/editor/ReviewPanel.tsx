@@ -42,17 +42,14 @@ const KIND_LABELS: Record<IssueKind, string> = {
 const PRIORITY_LABELS = {
   high: {
     label: "Fix first",
-    blurb: "The changes that move the needle most",
     bar: "bg-danger",
   },
   medium: {
     label: "Worth doing",
-    blurb: "Real improvements, once the big ones are done",
     bar: "bg-brand",
   },
   low: {
     label: "Polish",
-    blurb: "Small things, if you have the time",
     bar: "bg-ink-faint",
   },
 } as const;
@@ -70,13 +67,9 @@ export function ReviewPanel() {
         <Heading />
         <div className="rounded-2xl bg-panel p-6 text-center shadow-[var(--shadow-panel)]">
           <AwardIcon className="mx-auto h-6 w-6 text-purple" />
-          <h3 className="mt-3 text-[17px] font-extrabold text-ink">
+          <h3 className="mt-3 text-[17px] font-bold text-ink">
             Sign in to have your resume reviewed
           </h3>
-          <p className="mx-auto mt-1.5 max-w-sm text-[14px] leading-relaxed text-ink-soft">
-            The review comes with an account. The resume you&rsquo;ve started
-            comes with you when you sign in.
-          </p>
           <button
             type="button"
             onClick={() => auth.open("signup")}
@@ -96,14 +89,9 @@ export function ReviewPanel() {
       {!report && !busy && (
         <div className="rounded-2xl bg-panel px-6 py-8 text-center shadow-[var(--shadow-panel)]">
           <AwardIcon className="mx-auto h-7 w-7 text-purple" />
-          <h3 className="mt-3 text-[18px] font-extrabold text-ink">
+          <h3 className="mt-3 text-[18px] font-bold text-ink">
             Have our AI read it properly
           </h3>
-          <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-ink-soft">
-            It scores the resume area by area, proofreads every line, and tells
-            you what to change first — against what it actually says, not
-            generic advice.
-          </p>
 
           {error && (
             <p className="mx-auto mt-4 max-w-sm text-[13.5px] leading-relaxed font-medium text-danger">
@@ -122,9 +110,7 @@ export function ReviewPanel() {
           </button>
 
           <p className="mt-3 text-[12.5px] text-ink-faint">
-            {data.sections.length
-              ? "Takes around half a minute."
-              : "Add some content first — there's nothing to review yet."}
+            {data.sections.length ? null : "Add some content first — there's nothing to review yet."}
           </p>
         </div>
       )}
@@ -141,7 +127,7 @@ export function ReviewPanel() {
 function Heading() {
   return (
     <div className="px-1 pt-1 pb-2">
-      <h2 className="text-[26px] leading-tight font-extrabold tracking-tight text-ink">
+      <h2 className="text-[26px] leading-tight font-bold tracking-tight text-ink">
         How does it hold up?
       </h2>
     </div>
@@ -151,11 +137,8 @@ function Heading() {
 function Working() {
   return (
     <div className="rounded-2xl bg-panel px-6 py-8 text-center shadow-[var(--shadow-panel)]">
-      <p className="text-[16px] font-extrabold text-ink">
+      <p className="text-[16px] font-bold text-ink">
         Reading your resume…
-      </p>
-      <p className="mt-1.5 text-[13.5px] text-ink-soft">
-        Scoring it, proofreading every line, and working out what matters most.
       </p>
       <div
         className="ai-progress-track mt-5 h-1.5 w-full"
@@ -197,18 +180,35 @@ function Overall({
   onRerun: () => void;
 }) {
   const { color, label } = band(report.overall);
+  const { previous } = useReview();
+  const delta = previous === null ? 0 : report.overall - previous;
 
   return (
     <section className="rounded-2xl bg-panel px-5 py-5 shadow-[var(--shadow-panel)]">
       <div className="flex items-center gap-5">
         <ScoreRing value={report.overall} color={color} />
         <div className="min-w-0 flex-1">
-          <p
-            className="text-[13px] font-extrabold tracking-wide uppercase"
-            style={{ color }}
-          >
-            {label}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p
+              className="text-[13px] font-bold tracking-wide uppercase"
+              style={{ color }}
+            >
+              {label}
+            </p>
+            {/* The move since last time. Up is the reward; down is said just
+                as plainly, without a colour that scolds. */}
+            {previous !== null && delta !== 0 && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[12px] font-semibold tabular-nums ${
+                  delta > 0
+                    ? "bg-positive/10 text-positive"
+                    : "bg-canvas text-ink-soft"
+                }`}
+              >
+                {previous} → {report.overall}
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-[14.5px] leading-relaxed font-medium text-ink">
             {report.verdict}
           </p>
@@ -259,7 +259,7 @@ function ScoreRing({ value, color }: { value: number; color: string }) {
           strokeDashoffset={circumference * (1 - value / 100)}
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-[26px] font-extrabold tracking-tight text-ink">
+      <span className="absolute inset-0 flex items-center justify-center text-[26px] font-bold tracking-tight text-ink">
         {value}
       </span>
     </div>
@@ -288,7 +288,7 @@ function Scores({ report }: { report: ReviewReport }) {
                   {category.label}
                 </span>
                 <span
-                  className="text-[14.5px] font-extrabold tabular-nums"
+                  className="text-[14.5px] font-bold tabular-nums"
                   style={{ color }}
                 >
                   {score.score}
@@ -437,7 +437,7 @@ function Advice({ report }: { report: ReviewReport }) {
       {PRIORITY_ORDER.map((priority) => {
         const items = report.advice.filter((a) => a.priority === priority);
         if (!items.length) return null;
-        const { label, blurb, bar } = PRIORITY_LABELS[priority];
+        const { label, bar } = PRIORITY_LABELS[priority];
 
         // A card per group rather than one list with a chip on every row: the
         // thing you want to know is what to do first, and that's a heading —
@@ -453,12 +453,11 @@ function Advice({ report }: { report: ReviewReport }) {
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <h3 className="text-[16.5px] leading-tight font-extrabold tracking-tight text-ink">
+                <h3 className="text-[16.5px] leading-tight font-bold tracking-tight text-ink">
                   {label}
                 </h3>
-                <p className="mt-0.5 text-[12.5px] text-ink-soft">{blurb}</p>
               </div>
-              <span className="shrink-0 rounded-lg bg-field px-2.5 py-1 text-[13px] font-extrabold text-ink-soft tabular-nums">
+              <span className="shrink-0 rounded-lg bg-field px-2.5 py-1 text-[13px] font-bold text-ink-soft tabular-nums">
                 {items.length}
               </span>
             </div>
@@ -466,7 +465,7 @@ function Advice({ report }: { report: ReviewReport }) {
             <ul className="mt-4 space-y-4">
               {items.map((item, i) => (
                 <li key={i}>
-                  <p className="text-[15px] font-extrabold text-ink">
+                  <p className="text-[15px] font-bold text-ink">
                     {item.title}
                   </p>
                   {item.detail && (
@@ -486,7 +485,7 @@ function Advice({ report }: { report: ReviewReport }) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[12px] font-extrabold tracking-wide text-ink-faint uppercase">
+    <h3 className="text-[12px] font-bold tracking-wide text-ink-faint uppercase">
       {children}
     </h3>
   );

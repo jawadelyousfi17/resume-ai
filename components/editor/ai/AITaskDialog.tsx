@@ -168,7 +168,7 @@ function TaskDialog({
   return (
     <Dialog open onOpenChange={(next) => !next && !busy && close()}>
       <DialogContent fullScreen className="max-w-[520px] p-7 sm:max-w-[520px]">
-        <DialogTitle className="text-[22px] font-extrabold tracking-tight text-ink max-sm:text-center">
+        <DialogTitle className="text-[22px] font-bold tracking-tight text-ink max-sm:text-center">
           {awaitingChoice && needs === "language"
             ? "Translate into"
             : awaitingChoice && needs === "entry"
@@ -320,7 +320,7 @@ function TranslateProgress({
     return (
       <div className="rounded-xl bg-panel p-6 text-center">
         <CheckIcon className="mx-auto h-6 w-6 text-purple" />
-        <p className="mt-3 text-[16px] font-extrabold text-ink">
+        <p className="mt-3 text-[16px] font-bold text-ink">
           Translated into {target}
         </p>
         <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">
@@ -333,7 +333,7 @@ function TranslateProgress({
 
   return (
     <div className="rounded-xl bg-panel p-6 text-center">
-      <p className="text-[16px] font-extrabold text-ink">
+      <p className="text-[16px] font-bold text-ink">
         Translating into {target}…
       </p>
       <p className="mt-1.5 text-[13.5px] text-ink-soft">
@@ -386,7 +386,7 @@ function Actions({
           type="button"
           onClick={onClose}
           disabled={translating}
-          className="rounded-lg bg-navy px-4 py-2 text-[14px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+          className="btn-fill px-4 py-2 text-[14px] font-bold transition disabled:opacity-50"
         >
           {translating ? "Working…" : "Done"}
         </button>
