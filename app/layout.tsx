@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { fontVariables } from "./fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -73,6 +74,7 @@ export default function RootLayout({
         {/* Asleep until something goes right — see lib/feedback-nudge. */}
         <FeedbackNudge />
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
