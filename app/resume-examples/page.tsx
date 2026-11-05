@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 
 import {
   Breadcrumbs,
   Column,
-  ContentCta,
   ContentPage,
   FaqAccordion,
   JsonLd,
-  PageHeader,
 } from "@/components/content/ContentShell";
-import { ExampleGallery } from "@/components/content/ExampleGallery";
 import {
-  btnCompact,
-  btnPrimary,
-  btnQuiet,
-  panelFlat,
-} from "@/components/landing/ui";
+  ClosingPanel,
+  IndexHero,
+  InfoCard,
+  SectionHead,
+} from "@/components/content/Editorial";
+import { ExampleGallery } from "@/components/content/ExampleGallery";
 import { exampleArt } from "@/lib/content/example-art";
 import type { FaqEntry } from "@/lib/content/guides";
 import {
@@ -25,7 +21,6 @@ import {
   RESUME_EXAMPLES,
 } from "@/lib/content/resume-examples";
 import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
-import { cn } from "@/lib/utils";
 
 /** The year the title advertises.
  *
@@ -102,7 +97,7 @@ const TRAIL = [HOME, { name: "Resume examples", path: "/resume-examples" }];
 
 export default function ResumeExamplesIndexPage() {
   return (
-    <ContentPage surface="white">
+    <ContentPage surface="white" landing>
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -127,42 +122,17 @@ export default function ResumeExamplesIndexPage() {
 
       <Column>
         <Breadcrumbs trail={TRAIL} />
-        {/* The same hero as /resume-templates: what the page is on the left,
-            what it looks like on the right, and one column on a phone. */}
-        <div className="grid items-center gap-6 lg:grid-cols-[1.45fr_1fr] lg:gap-12">
-          <div>
-            <PageHeader
-              title="Resume &amp; CV examples"
-              intro="A complete, rendered resume for each of these jobs — not a fragment, and not a stock photo of one. Each page also carries the bullet-point patterns that work in that field, the keywords an applicant tracking system is matching against, and the mistakes that quietly cost people interviews."
-            />
-
-            <div className="mt-6 flex flex-nowrap gap-3 sm:mt-8 sm:flex-wrap">
-              <Link href="/dashboard" className={cn(btnPrimary, btnCompact)}>
-                Start your resume
-              </Link>
-              <Link
-                href="/resume-ats-score"
-                className={cn(btnQuiet, btnCompact)}
-              >
-                Check your ATS score
-              </Link>
-            </div>
-          </div>
-
-          {/* Decorative: the examples themselves are the illustration, and
-              they're a scroll away. Cropped to the middle 80% of the square
-              and multiplied into the page for the same reasons as the
-              templates hero — see that page. */}
-          <Image
-            src="/images/examples-hero.png"
-            alt=""
-            width={1254}
-            height={1254}
-            priority
-            sizes="(min-width: 1024px) 330px, 60vw"
-            className="mx-auto aspect-[1254/1003] w-full max-w-[330px] max-lg:hidden object-cover object-center mix-blend-multiply [mask-composite:intersect] [mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent),linear-gradient(to_bottom,transparent,#000_10%,#000_90%,transparent)]"
-          />
-        </div>
+        <IndexHero
+          label="Examples"
+          title="Resume & CV examples"
+          intro="A complete, rendered resume for each of these jobs — not a fragment, and not a stock photo of one. Each page also carries the bullet-point patterns that work in that field, the keywords an applicant tracking system is matching against, and the mistakes that quietly cost people interviews."
+          primary={{ label: "Start your resume", href: "/dashboard" }}
+          secondary={{
+            label: "Check your ATS score",
+            href: "/resume-ats-score",
+          }}
+          image="/images/examples-hero.png"
+        />
 
         {/* Tabs rather than six stacked sections: the fields are alternatives,
             and a reader wants theirs, not a scroll past four others. Only what
@@ -181,32 +151,30 @@ export default function ResumeExamplesIndexPage() {
           }))}
         />
 
-        <section className="mt-16">
-          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-            How to use a resume example without sounding like one
-          </h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <section className="mt-20">
+          <SectionHead
+            label="Using examples"
+            title="How to use a resume example without sounding like one"
+          />
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
             {HOW_TO_USE.map((item) => (
-              <div key={item.heading} className={cn(panelFlat, "px-6 py-5")}>
-                <h3 className="text-[16.5px] font-bold text-ink">
-                  {item.heading}
-                </h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-                  {item.body}
-                </p>
-              </div>
+              <InfoCard
+                key={item.heading}
+                title={item.heading}
+                note={item.body}
+              />
             ))}
           </div>
         </section>
 
-        <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-            Common questions
-          </h2>
-          <FaqAccordion entries={FAQS} />
+        <section className="mt-20">
+          <div className="mx-auto max-w-5xl">
+            <SectionHead label="FAQ" title="Common questions" />
+            <FaqAccordion entries={FAQS} className="mt-8 md:mt-10" />
+          </div>
         </section>
 
-        <ContentCta flat />
+        <ClosingPanel />
       </Column>
     </ContentPage>
   );

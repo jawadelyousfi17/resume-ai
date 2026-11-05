@@ -29,9 +29,13 @@ const OFFSET = 120;
 export function OnThisPage({
   links,
   className,
+  variant = "rule",
 }: {
   links: RailLink[];
   className?: string;
+  /** `landing` is the landing page's look: a serif title and rows that mark
+   *  the current section with a blue dot instead of a rule. */
+  variant?: "rule" | "landing";
 }) {
   const [active, setActive] = useState<string | null>(null);
 
@@ -72,6 +76,44 @@ export function OnThisPage({
       window.removeEventListener("resize", onScroll);
     };
   }, [links]);
+
+  if (variant === "landing") {
+    return (
+      <nav aria-label="On this page" className={className}>
+        <p className="font-editorial text-[22px] leading-none tracking-[-0.02em] text-ink">
+          On this page
+        </p>
+        <ul className="mt-4 space-y-0.5">
+          {links.map((link) => {
+            const on = active === link.id;
+            return (
+              <li key={link.id}>
+                <a
+                  href={`#${link.id}`}
+                  aria-current={on ? "true" : undefined}
+                  className={cn(
+                    "flex items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] leading-snug transition",
+                    on
+                      ? "font-semibold text-ink"
+                      : "text-ink-soft hover:text-ink",
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full transition",
+                      on ? "bg-lp-accent" : "bg-divider",
+                    )}
+                  />
+                  {link.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    );
+  }
 
   return (
     <nav aria-label="On this page" className={className}>

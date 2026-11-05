@@ -86,7 +86,7 @@ export function TemplateThumb({
           // /start writes a resume, so it runs on the press and never on a
           // hover — see app/start/page.tsx.
           prefetch={false}
-          className="pointer-events-auto inline-flex h-11 items-center justify-center bg-white px-5 text-[14.5px] font-bold text-ink transition hover:bg-black/[0.04]"
+          className="pointer-events-auto inline-flex h-11 items-center justify-center rounded-full bg-white px-6 text-[14.5px] font-semibold text-ink transition hover:bg-white/90"
         >
           Use this template
         </Link>
@@ -106,7 +106,7 @@ export function TemplateCard({ template }: { template: Template }) {
         prefetch={false}
         className="block"
       >
-        <span className="mt-3 block text-[16px] font-bold text-ink">
+        <span className="mt-3 block font-editorial text-[20px] leading-tight tracking-[-0.01em] text-ink">
           {template.name}
         </span>
         <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">

@@ -4,22 +4,20 @@ import Link from "next/link";
 import {
   Breadcrumbs,
   Column,
-  ContentCta,
   ContentPage,
   FaqAccordion,
   JsonLd,
   measure,
 } from "@/components/content/ContentShell";
+import { ClosingPanel, SectionHead } from "@/components/content/Editorial";
 import { TemplateBrowseHero } from "@/components/content/TemplateBrowseHero";
 import { TemplateFilterIndex } from "@/components/content/TemplateFilterIndex";
 import { TemplateGallery } from "@/components/content/TemplateGallery";
-import { panelFlat } from "@/components/landing/ui";
 import { TEMPLATE_COLLECTIONS } from "@/lib/content/template-collections";
 import { chipsWithIcons } from "@/lib/content/filter-icons";
 import { filterChips } from "@/lib/content/template-filters";
 import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
 import { TEMPLATES, templatesIn } from "@/lib/templates";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Resume & CV Templates — Free, ATS-Ready Layouts | meniacv",
@@ -55,7 +53,7 @@ const TRAIL = [HOME, { name: "Resume templates", path: "/resume-templates" }];
 
 export default function ResumeTemplatesPage() {
   return (
-    <ContentPage surface="white">
+    <ContentPage surface="white" landing>
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -94,21 +92,19 @@ export default function ResumeTemplatesPage() {
         {/* Every filter above is its own page under /templates. These are the
             longer reads behind six of them — the argument for a style rather
             than the grid of it. */}
-        <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-            Read about a style
-          </h2>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-20">
+          <SectionHead label="Styles" title="Read about a style" />
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {TEMPLATE_COLLECTIONS.map((collection) => (
               <Link
                 key={collection.slug}
                 href={`/${collection.slug}`}
-                className={cn(panelFlat, "px-5 py-4 transition hover:ring-ink/15")}
+                className="rounded-[22px] bg-canvas px-6 py-6 transition hover:-translate-y-0.5"
               >
-                <span className="block text-[15px] font-bold text-ink">
+                <span className="block font-editorial text-[22px] leading-[1.15] tracking-[-0.015em] text-ink">
                   {collection.title}
                 </span>
-                <span className="mt-1 block text-[13px] font-semibold text-ink-faint">
+                <span className="mt-2 block text-[13px] text-ink-soft">
                   {templatesIn(collection.category).length} templates
                 </span>
               </Link>
@@ -116,34 +112,28 @@ export default function ResumeTemplatesPage() {
           </div>
         </section>
 
-        <section className="mt-12">
-          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-            Choosing between them
-          </h2>
-          <p
-            className={`mt-4 text-[16px] leading-[1.75] text-ink-soft ${measure}`}
-          >
+        <section className="mt-20">
+          <SectionHead label="Advice" title="Choosing between them" />
+          <p className={`mt-6 text-[17px] leading-[1.75] text-ink ${measure}`}>
             Template choice is the smallest decision on this page. No layout
             rescues weak bullet points, and no recruiter has ever hired someone
             for their margins. If you are undecided, take Ledger and spend the
             time you saved on{" "}
             <Link
               href="/guides/resume-bullet-points"
-              className="font-bold text-brand underline underline-offset-4"
+              className="font-semibold underline underline-offset-4"
             >
               rewriting your bullet points
             </Link>
             .
           </p>
-          <p
-            className={`mt-4 text-[16px] leading-[1.75] text-ink-soft ${measure}`}
-          >
+          <p className={`mt-4 text-[17px] leading-[1.75] text-ink ${measure}`}>
             The one layout decision with real consequences is column count. A
             sidebar can confuse an applicant tracking system if the text
             extracts out of order — the{" "}
             <Link
               href="/guides/ats-friendly-resume"
-              className="font-bold text-brand underline underline-offset-4"
+              className="font-semibold underline underline-offset-4"
             >
               ATS guide
             </Link>{" "}
@@ -151,16 +141,15 @@ export default function ResumeTemplatesPage() {
           </p>
         </section>
 
-        <section className="mt-12">
-          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-            Common questions
-          </h2>
-          <FaqAccordion entries={FAQS} />
+        <section className="mt-20">
+          <div className="mx-auto max-w-5xl">
+            <SectionHead label="FAQ" title="Common questions" />
+            <FaqAccordion entries={FAQS} className="mt-8 md:mt-10" />
+          </div>
         </section>
 
-        <ContentCta
-          flat
-          heading="Try a template"
+        <ClosingPanel
+          title="Try a template"
           body="Open the editor, write one entry, and switch between them to see the difference."
         />
       </Column>

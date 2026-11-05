@@ -19,6 +19,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+import { tag } from "@/components/landing/ui";
 import { cn } from "@/lib/utils";
 
 export interface GuideCard {
@@ -92,7 +93,7 @@ export function GuideGallery({
                 width={1672}
                 height={941}
                 sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 90vw"
-                className="mb-4 block aspect-[16/9] w-full rounded-2xl bg-field/40 object-cover ring-1 ring-divider transition group-hover:ring-ink/20"
+                className="mb-4 block aspect-[16/9] w-full rounded-[22px] bg-canvas object-cover transition group-hover:-translate-y-0.5"
               />
             )}
 
@@ -100,11 +101,9 @@ export function GuideGallery({
                 a grey: at 12 and 14px, "quiet" reads as "washed out", and the
                 only thing a lighter grey buys is a card you have to lean in
                 to. The hierarchy is carried by size and weight instead. */}
-            <span className="inline-flex items-center rounded-full bg-field px-2.5 py-1 text-[11px] font-bold tracking-[0.08em] text-ink uppercase">
-              {guide.eyebrow}
-            </span>
+            <span className={tag("pink")}>{guide.eyebrow}</span>
 
-            <span className="mt-3 block text-[12.5px] font-semibold text-ink-soft">
+            <span className="mt-3 block text-[12.5px] text-ink-soft">
               {guide.author}
               <Dot />
               <time dateTime={guide.updated}>{guide.updatedLabel}</time>
@@ -112,7 +111,7 @@ export function GuideGallery({
               {guide.minutes} min read
             </span>
 
-            <span className="mt-2 block text-[19px] leading-snug font-bold text-ink group-hover:underline group-hover:decoration-ink/25 group-hover:underline-offset-4">
+            <span className="mt-2 block font-editorial text-[24px] leading-[1.15] tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-ink/25 group-hover:underline-offset-4">
               {guide.title}
             </span>
 
@@ -156,10 +155,10 @@ function Pill({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[14px] font-bold whitespace-nowrap transition",
+        "inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[14px] font-medium whitespace-nowrap transition",
         active
-          ? "bg-brand-soft text-brand ring-1 ring-brand/30"
-          : "text-ink ring-1 ring-divider hover:ring-ink/25",
+          ? "bg-ink text-white"
+          : "text-ink ring-1 ring-divider hover:ring-ink",
       )}
     >
       {children}

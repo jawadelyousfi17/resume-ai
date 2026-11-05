@@ -105,7 +105,7 @@ export function ExampleShowcase({
                     "h-6 w-6 rounded-full transition hover:scale-110",
                     // The ring is drawn outside the swatch so the colour is
                     // never cut into by its own selected state.
-                    on && "ring-2 ring-ink/70 ring-offset-2 ring-offset-panel",
+                    on && "ring-2 ring-ink/70 ring-offset-2 ring-offset-canvas",
                   )}
                   style={{ backgroundColor: color }}
                 />
@@ -158,10 +158,10 @@ function Chip({
       onClick={onClick}
       aria-pressed={on}
       className={cn(
-        "h-8 px-3 text-[13.5px] font-bold transition",
+        "h-8 rounded-full px-3.5 text-[13.5px] font-medium transition",
         on
-          ? "bg-brand text-white"
-          : "bg-field text-ink-soft hover:text-ink ring-1 ring-divider ring-inset",
+          ? "bg-ink text-white"
+          : "bg-white text-ink-soft ring-1 ring-divider ring-inset hover:text-ink",
       )}
     >
       {children}
