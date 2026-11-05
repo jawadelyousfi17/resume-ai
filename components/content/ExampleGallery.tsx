@@ -20,7 +20,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import { panelFlat } from "@/components/landing/ui";
 import { cn } from "@/lib/utils";
 
 export interface ExampleCard {
@@ -50,28 +49,25 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
 
   return (
     <>
-      {/* A row of six tabs wraps into three lines on a phone and pushes the
-          examples off the screen — so there it scrolls instead. The rule runs
-          the full width underneath either way. */}
-      <div className="mt-10 border-b border-divider">
-        <div className="scroll-slim -mx-5 flex gap-7 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-          <Tab active={active === "all"} onClick={() => setActive("all")}>
-            All
+      {/* A row of pills that scrolls on a phone rather than wrapping to three
+          lines and pushing the examples off the screen. */}
+      <div className="scroll-slim -mx-5 mt-10 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+        <Tab active={active === "all"} onClick={() => setActive("all")}>
+          All
+        </Tab>
+        {groups.map((group) => (
+          <Tab
+            key={group.id}
+            active={active === group.id}
+            onClick={() => setActive(group.id)}
+          >
+            {group.label}
           </Tab>
-          {groups.map((group) => (
-            <Tab
-              key={group.id}
-              active={active === group.id}
-              onClick={() => setActive(group.id)}
-            >
-              {group.label}
-            </Tab>
-          ))}
-        </div>
+        ))}
       </div>
 
       {current && (
-        <p className="mt-5 text-[15px] leading-relaxed text-ink-soft">
+        <p className="mt-6 text-[15px] leading-relaxed text-ink-soft">
           {current.blurb}
         </p>
       )}
@@ -80,15 +76,12 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
           stretched grid gives a card with no band the height of one that has
           it — a card that is mostly empty. Left to their own heights the row
           is uneven, which reads far better than a void. */}
-      <div className="mt-6 grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shown.map((example) => (
           <Link
             key={example.slug}
             href={`/resume-examples/${example.slug}`}
-            className={cn(
-              panelFlat,
-              "overflow-hidden transition hover:ring-ink/25",
-            )}
+            className="group overflow-hidden rounded-[22px] bg-canvas transition hover:-translate-y-0.5"
           >
             {/* Decorative — the role is right underneath it in text, so alt
                 text would only repeat it. Not every role has art drawn yet;
@@ -100,7 +93,7 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
                 width={1672}
                 height={941}
                 sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 90vw"
-                className="block w-full border-b border-divider bg-field/40"
+                className="block w-full mix-blend-multiply"
               />
             )}
 
@@ -111,10 +104,10 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
                 card over its neighbour. It still leads each role's own page,
                 where it's the answer to a question that has been asked. */}
             <span className="block px-6 py-5">
-              <span className="block text-[17px] leading-snug font-bold text-ink">
+              <span className="block font-editorial text-[24px] leading-[1.15] tracking-[-0.015em] text-ink">
                 {example.role}
               </span>
-              <span className="mt-1.5 block text-[12.5px] leading-relaxed font-semibold text-ink-faint">
+              <span className="mt-2 block text-[13px] leading-relaxed text-ink-soft">
                 {example.aka}
               </span>
             </span>
@@ -125,8 +118,7 @@ export function ExampleGallery({ groups }: { groups: ExampleGroup[] }) {
   );
 }
 
-/** One tab: the label, and the bar under the one you're on. The bar sits on
- *  the rule rather than above it — `-mb-px` pulls it down onto the line. */
+/** One filter pill. */
 function Tab({
   active,
   onClick,
@@ -142,10 +134,10 @@ function Tab({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "-mb-px shrink-0 border-b-[3px] pb-3 text-[15.5px] font-bold whitespace-nowrap transition",
+        "inline-flex h-10 shrink-0 items-center rounded-full px-4 text-[14px] font-medium whitespace-nowrap transition",
         active
-          ? "border-ink text-ink"
-          : "border-transparent text-ink-faint hover:text-ink",
+          ? "bg-ink text-white"
+          : "text-ink ring-1 ring-divider hover:ring-ink",
       )}
     >
       {children}

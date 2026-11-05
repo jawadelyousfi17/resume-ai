@@ -13,16 +13,15 @@ import { notFound } from "next/navigation";
 import {
   Breadcrumbs,
   Column,
-  ContentCta,
   ContentPage,
   FaqAccordion,
   JsonLd,
   measure,
 } from "@/components/content/ContentShell";
+import { ClosingPanel, SectionHead } from "@/components/content/Editorial";
 import { TemplateBrowseHero } from "@/components/content/TemplateBrowseHero";
 import { TemplateFilterIndex } from "@/components/content/TemplateFilterIndex";
 import { TemplateGallery } from "@/components/content/TemplateGallery";
-import { panelFlat } from "@/components/landing/ui";
 import { chipsWithIcons } from "@/lib/content/filter-icons";
 import {
   TEMPLATE_FILTERS,
@@ -31,7 +30,6 @@ import {
 } from "@/lib/content/template-filters";
 import { HOME, abs, breadcrumbList, faqPage } from "@/lib/seo/schema";
 import { TEMPLATES, templatesIn } from "@/lib/templates";
-import { cn } from "@/lib/utils";
 
 // The fourteen filters are the whole set — anything else under /templates is
 // a 404 rather than a page built on request.
@@ -86,7 +84,7 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
   ];
 
   return (
-    <ContentPage surface="white">
+    <ContentPage surface="white" landing>
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -118,10 +116,10 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
         <Breadcrumbs trail={trail} />
         <TemplateBrowseHero title={filter.title} intro={filter.intro} />
 
-        <p className="mt-8 text-[14px] font-semibold text-ink-faint">
+        <p className="mt-8 text-[14px] text-ink-soft">
           {templates.length} of our {TEMPLATES.length} templates
-          {templates.length === 1 ? " matches" : " match"} this filter. Every one
-          is free to use, with unlimited watermark-free PDF downloads.
+          {templates.length === 1 ? " matches" : " match"} this filter. Every
+          one is free to use, with unlimited watermark-free PDF downloads.
         </p>
 
         <TemplateGallery
@@ -133,17 +131,14 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
         <TemplateFilterIndex active={filter.slug} />
 
         {filter.sections.map((section) => (
-          <section key={section.heading} className="mt-14">
-            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
+          <section key={section.heading} className="mt-20">
+            <h2 className="font-editorial text-[30px] leading-[1.12] font-normal tracking-[-0.02em] text-ink sm:text-[36px]">
               {section.heading}
             </h2>
             {section.body.map((paragraph) => (
               <p
                 key={paragraph.slice(0, 40)}
-                className={cn(
-                  "mt-4 text-[16px] leading-[1.75] text-ink-soft",
-                  measure,
-                )}
+                className={`mt-5 text-[17px] leading-[1.75] text-ink ${measure}`}
               >
                 {paragraph}
               </p>
@@ -154,46 +149,41 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
         {filter.seeAlso && (
           <Link
             href={filter.seeAlso.href}
-            className={cn(
-              panelFlat,
-              "mt-8 block px-5 py-4 transition hover:ring-ink/15",
-            )}
+            className="mt-10 block rounded-[22px] bg-canvas px-6 py-6 transition hover:-translate-y-0.5"
           >
-            <span className="block text-[15px] font-bold text-ink">
+            <span className="block font-editorial text-[22px] leading-[1.15] tracking-[-0.015em] text-ink">
               {filter.seeAlso.label}
             </span>
-            <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+            <span className="mt-2 block text-[14px] leading-relaxed text-ink-soft">
               {filter.seeAlso.note}
             </span>
           </Link>
         )}
 
-        <section className="mt-14">
-          <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-            Common questions
-          </h2>
-          <FaqAccordion entries={filter.faqs} />
+        <section className="mt-20">
+          <div className="mx-auto max-w-5xl">
+            <SectionHead label="FAQ" title="Common questions" />
+            <FaqAccordion entries={filter.faqs} className="mt-8 md:mt-10" />
+          </div>
         </section>
 
         {/* The full index is above the copy; these three are the ones worth
             offering to someone who has read to the bottom and is still not
             sure this was the right cut. */}
         {related.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-              Nearby filters
-            </h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <section className="mt-20">
+            <SectionHead label="Nearby" title="Nearby filters" />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item) => (
                 <Link
                   key={item.slug}
                   href={`/templates/${item.slug}`}
-                  className={cn(panelFlat, "px-5 py-4 transition hover:ring-ink/15")}
+                  className="rounded-[22px] bg-canvas px-6 py-6 transition hover:-translate-y-0.5"
                 >
-                  <span className="block text-[15px] font-bold text-ink">
+                  <span className="block font-editorial text-[22px] leading-[1.15] tracking-[-0.015em] text-ink">
                     {item.title}
                   </span>
-                  <span className="mt-1 block text-[13px] font-semibold text-ink-faint">
+                  <span className="mt-2 block text-[13px] text-ink-soft">
                     {templatesIn(item.category).length} templates
                   </span>
                 </Link>
@@ -202,9 +192,8 @@ export default async function Page(props: PageProps<"/templates/[filter]">) {
           </section>
         )}
 
-        <ContentCta
-          flat
-          heading="Try one of them"
+        <ClosingPanel
+          title="Try one of them"
           body="Open the editor, write one entry, and switch between them to see the difference."
         />
       </Column>

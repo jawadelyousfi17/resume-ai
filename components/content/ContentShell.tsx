@@ -27,12 +27,18 @@ export function ContentPage({
    *  page is mostly pictures of paper and the tint behind them fights with
    *  the paper itself — the template gallery. */
   surface = "cream",
+  landing = false,
 }: {
   children: React.ReactNode;
   surface?: "cream" | "white";
+  /** Wear the landing page's palette (`data-landing`, app/globals.css). */
+  landing?: boolean;
 }) {
   return (
-    <div className={cn("min-h-dvh", surface === "white" ? "bg-panel" : "bg-cream")}>
+    <div
+      data-landing={landing ? "" : undefined}
+      className={cn("min-h-dvh", surface === "white" ? "bg-panel" : "bg-cream")}
+    >
       <SiteNav />
       {/* The gutters match the nav's, so a page's content lines up with the
           wordmark above it. */}
@@ -54,9 +60,7 @@ export function Column({
   className?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-full max-w-site", className)}>
-      {children}
-    </div>
+    <div className={cn("mx-auto w-full max-w-site", className)}>{children}</div>
   );
 }
 
@@ -83,7 +87,10 @@ export function Breadcrumbs({
     // heading and the back button does the same job. Nothing is lost to search:
     // every page that renders this also emits a BreadcrumbList — the schema is
     // what Google reads the hierarchy from — and the links stay in the HTML.
-    <nav aria-label="Breadcrumb" className={cn("mt-2 max-sm:hidden", className)}>
+    <nav
+      aria-label="Breadcrumb"
+      className={cn("mt-2 max-sm:hidden", className)}
+    >
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-ink-faint">
         {trail.map((crumb, i) => {
           const last = i === trail.length - 1;

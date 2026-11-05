@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/icons";
 import { filterIcon } from "@/lib/content/filter-icons";
 import { filterChips } from "@/lib/content/template-filters";
+import { SectionHead } from "@/components/content/Editorial";
 import { cn } from "@/lib/utils";
 
 /** One glyph per cut, for any filter with no drawn icon yet. Keyed by slug
@@ -56,16 +57,9 @@ export function TemplateFilterIndex({
   heading?: string;
 }) {
   return (
-    <section className="mt-14">
-      <h2 className="text-[24px] leading-tight font-bold tracking-tight text-ink">
-        {heading}
-      </h2>
-      {/* Fourteen of these, so the row is the unit rather than the card: a
-          hairline between neighbours instead of fourteen separate outlines,
-          which at this size read as a sheet of buttons. Square, like the
-          template cards — the rounded pills were the last thing on these pages
-          still shaped like an app control. */}
-      <div className="mt-6 grid gap-px overflow-hidden bg-black/[0.09] ring-1 ring-divider sm:grid-cols-2 lg:grid-cols-3">
+    <section className="mt-20">
+      <SectionHead label="Filters" title={heading} />
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filterChips().map((chip) => {
           const Icon = ICONS[chip.slug];
           const icon = filterIcon(chip.slug);
@@ -76,8 +70,8 @@ export function TemplateFilterIndex({
               href={`/templates/${chip.slug}`}
               aria-current={current ? "page" : undefined}
               className={cn(
-                "flex items-center gap-4 bg-panel px-5 py-5 transition hover:bg-black/[0.02]",
-                current && "bg-brand-soft",
+                "flex items-center gap-4 rounded-[22px] bg-canvas px-5 py-4 transition hover:-translate-y-0.5",
+                current && "ring-1 ring-ink",
               )}
             >
               {/* The drawn icon needs no tile behind it — it is already a
@@ -97,27 +91,21 @@ export function TemplateFilterIndex({
                   className="h-14 w-14 shrink-0 mix-blend-multiply"
                 />
               ) : (
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-navy/[0.06] text-navy">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white text-ink">
                   {Icon && <Icon className="h-6 w-6" />}
                 </span>
               )}
               <span className="min-w-0">
-                <span className="block truncate text-[17px] leading-snug font-bold text-ink">
+                <span className="block truncate font-editorial text-[22px] leading-snug tracking-[-0.015em] text-ink">
                   {chip.label}
                 </span>
-                <span className="mt-1 block text-[13.5px] font-semibold text-ink-faint">
+                <span className="mt-1 block text-[13px] text-ink-soft">
                   {chip.count} templates
                 </span>
               </span>
             </Link>
           );
         })}
-
-        {/* Fourteen into three columns leaves one cell empty, and an empty cell
-            in this construction is a grey block — the hairline colour showing
-            through where no white row covers it. Filled with the same white as
-            a row. Two columns divide evenly, so it only exists at `lg`. */}
-        <span aria-hidden="true" className="hidden bg-panel lg:block" />
       </div>
     </section>
   );

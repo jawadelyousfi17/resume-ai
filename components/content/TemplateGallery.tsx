@@ -109,7 +109,7 @@ export function TemplateGallery({
           >
             Load more templates
           </button>
-          <p className="text-[13px] font-semibold text-ink-faint">
+          <p className="text-[13px] text-ink-soft">
             Showing {limit} of {shown.length}
           </p>
         </div>
@@ -137,7 +137,7 @@ function FilterLink({
       data-active={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "inline-flex h-12 shrink-0 items-center gap-2 rounded-full border bg-panel pr-4 text-[14.5px] font-bold transition",
+        "inline-flex h-12 shrink-0 items-center gap-2 rounded-full border bg-panel pr-4 text-[14.5px] font-medium transition",
         icon ? "pl-2.5" : "pl-4",
         // The current filter is marked by its edge and its ink, not by being
         // filled in: a solid chip in a row that sticks to the top of the page
@@ -145,7 +145,7 @@ function FilterLink({
         // are drawn on white — a dark fill under them means either a tile or a
         // filter trick, and neither survives the size.
         active
-          ? "border-navy text-navy ring-1 ring-navy ring-inset"
+          ? "border-ink bg-ink text-white"
           : "border-divider text-ink hover:border-ink/30",
       )}
     >
@@ -166,7 +166,7 @@ function FilterLink({
       <span
         className={cn(
           "text-[12.5px] font-bold",
-          active ? "text-navy/55" : "text-ink-faint",
+          active ? "text-white/60" : "text-ink-faint",
         )}
       >
         {count}
